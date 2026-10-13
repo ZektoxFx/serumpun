@@ -9,7 +9,7 @@ import { DemoButtons, SignInForm } from './forms';
 
 export default async function LandingPage() {
   const profile = await getSessionProfile();
-  if (profile) redirect(homePath(profile.role));
+  if (profile) redirect(homePath(profile));
   const lang = await getLang();
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col">

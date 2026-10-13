@@ -1,4 +1,4 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient, type User } from '@supabase/supabase-js';
 import { env } from '@/lib/env';
 
 /** The accounts behind the landing page's "Try as" buttons. All four use DEMO_PASSWORD. */
@@ -10,7 +10,6 @@ export const DEMO_EMAIL = {
 } as const;
 export type DemoAccount = keyof typeof DEMO_EMAIL;
 
-const DEMO_EMAILS = new Set<string>(Object.values(DEMO_EMAIL));
 const ELMINA = 'city-of-elmina';
 const DAY = 86_400_000;
 
@@ -59,15 +58,54 @@ export type PersonKey = keyof typeof PEOPLE;
 /** What every feature seeder gets: Elmina's id and each seeded person's user id. */
 export type People = { townshipId: string; ids: Record<PersonKey, string> };
 
-/** Every auth user's id by email. Lets a re-run find accounts instead of creating duplicates. */
-async function userIdsByEmail(admin: SupabaseClient) {
-  const byEmail = new Map<string, string>();
+/**
+ * Existing auth users by email, plus the demo accounts by the key stamped in their app_metadata (which users cannot
+ * edit), so a demo account is still found after a visitor changed its email. Lets a re-run reuse accounts.
+ */
+async function existingUsers(admin: SupabaseClient) {
+  const byEmail = new Map<string, User>();
+  const byDemoKey = new Map<string, User>();
   for (let page = 1; ; page++) {
     const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 });
     if (error) throw new Error(`auth users: ${error.message}`);
-    for (const user of data.users) if (user.email) byEmail.set(user.email, user.id);
-    if (data.users.length < 1000) return byEmail;
+    for (const user of data.users) {
+      if (user.email) byEmail.set(user.email, user);
+      if (typeof user.app_metadata.demo === 'string') byDemoKey.set(user.app_metadata.demo, user);
+    }
+    if (data.users.length < 1000) return { byEmail, byDemoKey };
   }
+}
+
+/** Whether the demo password still opens this account: a test sign-in, signed straight back out. */
+async function demoPasswordWorks(email: string) {
+  const probe = createClient(env.supabaseUrl, env.supabaseAnonKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  const { error } = await probe.auth.signInWithPassword({ email, password: env.demoPassword });
+  if (!error) await probe.auth.signOut({ scope: 'local' });
+  return !error;
+}
+
+/**
+ * Every visitor who taps "Try as …" holds a real session on a shared account, so one Auth API call could change its
+ * password or email and lock everyone else out. Put both back. Setting a password ends every session of the account
+ * (tested), so it only happens when the demo password no longer works.
+ */
+async function restoreDemoLogin(admin: SupabaseClient, key: DemoAccount, user: User) {
+  const email = DEMO_EMAIL[key];
+  const emailChanged = user.email !== email;
+  const passwordBroken = emailChanged || !(await demoPasswordWorks(email));
+  const unmarked = user.app_metadata.demo !== key;
+  if (!emailChanged && !passwordBroken && !unmarked) return;
+  const { error } = await admin.auth.admin.updateUserById(user.id, {
+    email,
+    email_confirm: true,
+    app_metadata: { demo: key },
+    ...(passwordBroken ? { password: env.demoPassword } : {}),
+  });
+  if (error) throw new Error(`restore ${email}: ${error.message}`);
+  const what = [emailChanged && 'email', passwordBroken && 'password', unmarked && 'demo marker'].filter(Boolean);
+  console.log(`restored ${email}: ${what.join(', ')}`);
 }
 
 /** Creates (or finds) the townships and the people, and puts their profiles back to the seeded state. */
@@ -79,27 +117,31 @@ export async function seedPeople(admin: SupabaseClient, now: Date): Promise<Peop
   if (townshipError) throw new Error(`townships: ${townshipError.message}`);
   const townshipId: string = townships.find((row) => row.slug === ELMINA)!.id;
 
-  const existing = await userIdsByEmail(admin);
+  const existing = await existingUsers(admin);
   const people = Object.entries(PEOPLE) as [PersonKey, Person][];
   const ids = {} as Record<PersonKey, string>;
   let created = 0;
   for (const [key, person] of people) {
-    let id = existing.get(person.email);
-    if (!id) {
-      const { data, error } = await admin.auth.admin.createUser({
-        email: person.email,
-        // Background residents never sign in, so a random password keeps their accounts shut.
-        password: DEMO_EMAILS.has(person.email) ? env.demoPassword : crypto.randomUUID(),
-        email_confirm: true,
-      });
-      if (error) throw new Error(`create ${person.email}: ${error.message}`);
-      id = data.user.id;
-      created++;
+    const demoKey = Object.hasOwn(DEMO_EMAIL, key) ? (key as DemoAccount) : null;
+    const user = (demoKey && existing.byDemoKey.get(demoKey)) || existing.byEmail.get(person.email);
+    if (user) {
+      ids[key] = user.id;
+      if (demoKey) await restoreDemoLogin(admin, demoKey, user);
+      continue;
     }
-    ids[key] = id;
+    const { data, error } = await admin.auth.admin.createUser({
+      email: person.email,
+      // Background residents never sign in, so a random password keeps their accounts shut.
+      password: demoKey ? env.demoPassword : crypto.randomUUID(),
+      email_confirm: true,
+      app_metadata: demoKey ? { demo: demoKey } : {},
+    });
+    if (error) throw new Error(`create ${person.email}: ${error.message}`);
+    ids[key] = data.user.id;
+    created++;
   }
 
-  // Upserts, so a reset also undoes what a demo changed (Nur approved, a name edited).
+  // Upserts, so a reset also undoes what a demo changed (Nur approved, a name or language edited).
   const { error: profileError } = await admin.from('profiles').upsert(
     people.map(([key, person]) => ({
       id: ids[key],
@@ -108,6 +150,7 @@ export async function seedPeople(admin: SupabaseClient, now: Date): Promise<Peop
       neighbourhood: person.neighbourhood,
       role: person.role ?? 'resident',
       status: person.status,
+      lang: 'en',
       created_at: new Date(now.getTime() - person.joinedDaysAgo * DAY).toISOString(),
     })),
   );

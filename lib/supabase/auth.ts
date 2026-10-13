@@ -16,9 +16,10 @@ export type SessionProfile = {
   lang: Lang;
 };
 
-/** Where a signed-in user starts: the dashboard for the Management Office, Home for everyone else. */
-export function homePath(role: Role | undefined) {
-  return role === 'management' ? '/dashboard' : '/home';
+/** Where a signed-in user belongs: the dashboard, the rejection notice for a rejected applicant, or Home. */
+export function homePath(profile: Pick<SessionProfile, 'role' | 'status'> | null | undefined) {
+  if (profile?.status === 'rejected') return '/rejected';
+  return profile?.role === 'management' ? '/dashboard' : '/home';
 }
 
 /**
@@ -41,18 +42,27 @@ export const getSessionProfile = cache(async (): Promise<SessionProfile | null> 
   return profile;
 });
 
-/** A verified user (resident or Management Office). Visitors go to the landing page, pending users to Home and its banner. */
-export async function requireVerified(): Promise<SessionProfile> {
+/**
+ * Anyone allowed into the resident app: signed in and not rejected (pending users browse read-only). Call it in every
+ * (app) page, not only the layout: a layout does not stop its page from rendering or from reaching the RSC payload.
+ */
+export async function requireMember(): Promise<SessionProfile> {
   const profile = await getSessionProfile();
   if (!profile) redirect('/');
+  if (profile.status === 'rejected') redirect('/rejected');
+  return profile;
+}
+
+/** A verified user (resident or Management Office). Pending users go to Home and its banner. */
+export async function requireVerified(): Promise<SessionProfile> {
+  const profile = await requireMember();
   if (profile.status !== 'verified') redirect('/home');
   return profile;
 }
 
 /** A Management Office user. Residents are sent to Home, visitors to the landing page. */
 export async function requireManagement(): Promise<SessionProfile> {
-  const profile = await getSessionProfile();
-  if (!profile) redirect('/');
+  const profile = await requireMember();
   if (profile.role !== 'management' || profile.status !== 'verified') redirect('/home');
   return profile;
 }

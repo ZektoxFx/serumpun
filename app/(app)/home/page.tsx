@@ -1,15 +1,13 @@
-import { redirect } from 'next/navigation';
 import { signOut } from '@/app/(auth)/actions';
 import { Button } from '@/components/ui/Button';
 import { greetingKey } from '@/lib/domain/time';
 import { t } from '@/lib/i18n';
 import { getLang } from '@/lib/i18n/server';
-import { getSessionProfile } from '@/lib/supabase/auth';
+import { requireMember } from '@/lib/supabase/auth';
 
 // Placeholder until Task 4 builds Home: shows who is signed in.
 export default async function HomePage() {
-  const profile = await getSessionProfile();
-  if (!profile) redirect('/');
+  const profile = await requireMember();
   const lang = await getLang();
   return (
     <main className="mx-auto grid max-w-md gap-4 px-6 py-8">

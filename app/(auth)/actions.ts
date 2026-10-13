@@ -23,8 +23,8 @@ async function signInWith(email: string, password: string, failure: MessageKey):
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) return { error: failure, values: { email } };
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', data.user.id).maybeSingle();
-  redirect(homePath(profile?.role));
+  const { data: profile } = await supabase.from('profiles').select('role, status').eq('id', data.user.id).maybeSingle();
+  redirect(homePath(profile));
 }
 
 export async function signIn(formData: FormData): Promise<AuthResult> {

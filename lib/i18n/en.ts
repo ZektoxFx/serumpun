@@ -56,7 +56,9 @@ const en = {
   'signup.neighbourhood': 'Neighbourhood',
   'signup.neighbourhood.hint': 'For example, Elmina Valley 3',
   'signup.unitNo': 'House / unit no.',
-  'signup.unitNo.hint': 'Only the Management Office sees this.',
+  'signup.unitNo.hint': 'The Management Office uses this to verify you.',
+  'signup.demoNotice':
+    'This is a public demo: anyone can try the Management Office view. Please use a made-up name and address.',
   'signup.fullName': 'Full name',
   'signup.password.hint': 'At least 8 characters.',
   'signup.submit': 'Create account',
@@ -70,6 +72,8 @@ const en = {
   // Account status and roles
   'pending.banner':
     'Your account is waiting for approval from the Management Office. You can look around; posting opens once you are verified.',
+  'rejected.title': 'Your application was not approved',
+  'rejected.body': 'Please contact the Management Office.',
   'role.resident': 'Resident',
   'role.management': 'Management Office',
 

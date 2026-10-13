@@ -57,7 +57,9 @@ const ms: Record<keyof typeof en, string> = {
   'signup.neighbourhood': 'Kejiranan',
   'signup.neighbourhood.hint': 'Contohnya, Elmina Valley 3',
   'signup.unitNo': 'No. rumah / unit',
-  'signup.unitNo.hint': 'Hanya Pejabat Pengurusan yang dapat melihat ini.',
+  'signup.unitNo.hint': 'Pejabat Pengurusan menggunakan ini untuk mengesahkan anda.',
+  'signup.demoNotice':
+    'Ini demo awam: sesiapa sahaja boleh mencuba paparan Pejabat Pengurusan. Sila gunakan nama dan alamat rekaan.',
   'signup.fullName': 'Nama penuh',
   'signup.password.hint': 'Sekurang-kurangnya 8 aksara.',
   'signup.submit': 'Daftar akaun',
@@ -71,6 +73,8 @@ const ms: Record<keyof typeof en, string> = {
   // Account status and roles
   'pending.banner':
     'Akaun anda sedang menunggu kelulusan Pejabat Pengurusan. Anda boleh melihat-lihat; anda boleh menyiarkan selepas disahkan.',
+  'rejected.title': 'Permohonan anda tidak diluluskan',
+  'rejected.body': 'Sila hubungi Pejabat Pengurusan.',
   'role.resident': 'Penduduk',
   'role.management': 'Pejabat Pengurusan',
 

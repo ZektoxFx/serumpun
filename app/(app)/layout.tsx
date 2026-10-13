@@ -1,13 +1,14 @@
 import type { ReactNode } from 'react';
-import { redirect } from 'next/navigation';
 import { t } from '@/lib/i18n';
 import { getLang } from '@/lib/i18n/server';
-import { getSessionProfile } from '@/lib/supabase/auth';
+import { requireMember } from '@/lib/supabase/auth';
 
-/** Every resident page: signed-in users only, and a banner while the Management Office has not verified them. */
+/**
+ * Every resident page, with a banner while the Management Office has not verified the user. Each page still calls
+ * requireMember itself: a layout does not stop its page from rendering, and rejected applicants must not get one.
+ */
 export default async function AppLayout({ children }: { children: ReactNode }) {
-  const profile = await getSessionProfile();
-  if (!profile) redirect('/');
+  const profile = await requireMember();
   const lang = await getLang();
   return (
     <>

@@ -9,7 +9,7 @@ import { SignUpForm } from '../forms';
 
 export default async function SignupPage() {
   const profile = await getSessionProfile();
-  if (profile) redirect(homePath(profile.role));
+  if (profile) redirect(homePath(profile));
   const lang = await getLang();
   // Visitors have no database access at all, so this public list is read here on the server with the service key.
   const { data: townships, error } = await createAdminClient()
@@ -26,6 +26,10 @@ export default async function SignupPage() {
       </header>
       <div className="grid gap-6 px-6 py-8">
         <p className="text-sm text-muted-2">{t(lang, 'signup.intro')}</p>
+        {/* True for the public demo: one tap on the landing page opens the Management Office view. */}
+        <p role="note" className="rounded-xl bg-tint-amber px-4 py-3 text-sm font-bold text-amber-text">
+          {t(lang, 'signup.demoNotice')}
+        </p>
         <SignUpForm townships={townships} />
         <section className="grid gap-3">
           <p className="text-sm text-muted">{t(lang, 'signup.haveAccount')}</p>
