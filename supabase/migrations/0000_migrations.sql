@@ -1,0 +1,1 @@
+-- Marker for the migration ledger: scripts/migrate.ts creates the _migrations table itself, so this file only claims number 0000.
