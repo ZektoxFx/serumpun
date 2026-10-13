@@ -51,7 +51,7 @@ export function Segmented<T extends string>({
             tabIndex={option.value === tabStop ? 0 : -1}
             onClick={() => onChange(option.value)}
             onKeyDown={(event) => onKeyDown(event, index)}
-            className={`min-h-11 flex-1 rounded-lg px-3 text-sm font-extrabold transition-colors duration-150 motion-reduce:transition-none ${
+            className={`min-h-11 flex-1 rounded-lg px-2 text-sm font-extrabold leading-tight transition-colors duration-150 motion-reduce:transition-none ${
               selected ? 'bg-surface text-text shadow-card' : 'text-muted'
             }`}
           >
