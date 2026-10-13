@@ -10,6 +10,11 @@ export function I18nProvider({ lang, children }: { lang: Lang; children: ReactNo
   return <LangContext.Provider value={lang}>{children}</LangContext.Provider>;
 }
 
+/** The current language, for code that formats dates or numbers itself (see TimeAgo). */
+export function useLang() {
+  return useContext(LangContext);
+}
+
 /** `const t = useT(); t('common.save')`. The function only changes when the language does. */
 export function useT() {
   const lang = useContext(LangContext);

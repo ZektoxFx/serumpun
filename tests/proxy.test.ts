@@ -21,6 +21,8 @@ const redirectedTo = (res: Response) => (res.headers.get('location') ? new URL(r
 it.each([
   '/home', '/map', '/community', '/community/groups/42', '/reports', '/book', '/rewards', '/me', '/messages', '/notifications',
   '/dashboard', '/dashboard/events',
+  // Percent-encoded spellings of the same pages: Next decodes them before routing.
+  '/%68ome', '/dashboard%2Fevents',
 ])('sends a signed-out visitor from %s to the landing page', async (path) => {
   expect(redirectedTo(await visit(path, false))).toBe('/');
 });

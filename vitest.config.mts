@@ -8,5 +8,7 @@ export default defineConfig({
   test: {
     globals: true,
     include: ['tests/**/*.test.{ts,tsx}'],
+    // Run as Vercel does (UTC). The dev machine is in Malaysia, where local-time bugs would pass unnoticed.
+    env: { TZ: 'UTC' },
   },
 });

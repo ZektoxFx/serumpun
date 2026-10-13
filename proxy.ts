@@ -36,7 +36,13 @@ export async function proxy(request: NextRequest) {
   // creating the client and this call. Pages still check the user themselves: this is a redirect, not the only gate.
   const { data } = await supabase.auth.getClaims();
 
-  const { pathname } = request.nextUrl;
+  // Next decodes the path before routing, so '/%68ome' renders /home: compare the decoded form.
+  let pathname = request.nextUrl.pathname;
+  try {
+    pathname = decodeURIComponent(pathname);
+  } catch {
+    // A malformed escape matches no route, so the raw path is fine.
+  }
   const needsSignIn = SIGNED_IN_ONLY.some((path) => pathname === path || pathname.startsWith(`${path}/`));
   if (data?.claims || !needsSignIn) return response;
   return withAuthWrites(NextResponse.redirect(new URL('/', request.url)));

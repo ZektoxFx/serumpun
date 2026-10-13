@@ -16,18 +16,35 @@ async function main() {
     const pending = (await readdir(MIGRATIONS_DIR)).filter((file) => file.endsWith('.sql') && !done.has(file)).sort();
 
     for (const file of pending) {
-      const text = await readFile(path.join(MIGRATIONS_DIR, file), 'utf8');
-      // One transaction per file: a failing statement leaves neither half a migration nor a ledger row behind.
-      await sql.begin(async (tx) => {
-        await tx.unsafe(text);
-        await tx`insert into _migrations (name) values (${file})`;
-      });
+      // Windows editors and PowerShell 5's `>` can prepend a UTF-8 BOM (U+FEFF), which Postgres reads as a syntax error.
+      const raw = await readFile(path.join(MIGRATIONS_DIR, file), 'utf8');
+      const text = raw.charCodeAt(0) === 0xfeff ? raw.slice(1) : raw;
+      try {
+        // One transaction per file: a failing statement leaves neither half a migration nor a ledger row behind.
+        await sql.begin(async (tx) => {
+          await tx.unsafe(text);
+          await tx`insert into _migrations (name) values (${file})`;
+        });
+      } catch (error) {
+        throw describeFailure(file, text, error);
+      }
       console.log(`applied ${file}`);
     }
     if (!pending.length) console.log('up to date');
   } finally {
     await sql.end();
   }
+}
+
+/** "0001_core.sql line 42 (position 1234): syntax error ..." plus Postgres's detail and hint when it gives them. */
+function describeFailure(file: string, text: string, error: unknown) {
+  const { message, position, detail, hint } = error as { message?: string; position?: string; detail?: string; hint?: string };
+  // `position` is a 1-based character offset into the file, which was sent as one query.
+  const where = position ? ` line ${text.slice(0, Number(position) - 1).split('\n').length} (position ${position})` : '';
+  const lines = [`${file}${where}: ${message ?? String(error)}`];
+  if (detail) lines.push(`detail: ${detail}`);
+  if (hint) lines.push(`hint: ${hint}`);
+  return new Error(lines.join('\n'));
 }
 
 main().catch((error) => {
