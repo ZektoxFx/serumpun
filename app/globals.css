@@ -1,0 +1,158 @@
+@import "tailwindcss";
+
+/*
+ * Serumpun brand tokens: the approved canvas palette.
+ * Light values live on :root, dark values on [data-theme="dark"] (next-themes sets that attribute on <html>).
+ * Components use the Tailwind utilities mapped in @theme below (bg-surface, text-muted, border-line, ...).
+ * Never hard-code a hex in a component.
+ */
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+:root {
+  --bg: #F6F7F9;
+  --surface: #FFFFFF;
+  --text: #001C3C;
+  --muted: #5B6573;
+  --muted-2: #4A5462;
+  --line: #E1E5EA;
+  --line-strong: #D2D7DE;
+  --chip: #E9ECF1;
+  --soft: #F3F5F8;
+  --ink: #001C3C;
+  --on-ink: #FFFFFF;
+  /* Brand fills are identical in both themes. */
+  --red: #D51A21;
+  --orange: #F05820;
+  --amber: #F8A818;
+  --red-text: #D51A21;
+  --green-text: #1E7B45;
+  --tint-blue: #E8EEF7;
+  --tint-orange: #FFF1E6;
+  --orange-text: #9A3412;
+  --tint-red: #FFF3F3;
+  --tint-purple: #F1ECFB;
+  --purple-text: #5A3D9A;
+  --tint-green: #E9F7EF;
+  --tint-amber: #FFF6DD;
+  --amber-text: #7A5000;
+  --sidebar: #001C3C;
+}
+
+[data-theme="dark"] {
+  --bg: #0B1220;
+  --surface: #141C2B;
+  --text: #E8EDF3;
+  --muted: #9AA6B6;
+  --muted-2: #B4BFCC;
+  --line: #263044;
+  --line-strong: #344058;
+  --chip: #1E2738;
+  --soft: #1B2433;
+  --ink: #E8EDF3;
+  --on-ink: #0B1220;
+  --red-text: #FF7A7F;
+  --green-text: #5BD08A;
+  --tint-blue: #1C2A40;
+  --tint-orange: #3A1F10;
+  --orange-text: #FDBA8C;
+  --tint-red: #2B1416;
+  --tint-purple: #261C3D;
+  --purple-text: #B9A3F0;
+  --tint-green: #12301F;
+  --tint-amber: #33280F;
+  --amber-text: #F2C46D;
+  --sidebar: #0E1726;
+}
+
+/* `inline` makes each utility read var(--token) where it is used, so a nested [data-theme] scope still works. */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-muted-2: var(--muted-2);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-chip: var(--chip);
+  --color-soft: var(--soft);
+  --color-ink: var(--ink);
+  --color-on-ink: var(--on-ink);
+  --color-red: var(--red);
+  --color-red-text: var(--red-text);
+  --color-orange: var(--orange);
+  --color-amber: var(--amber);
+  --color-green-text: var(--green-text);
+  --color-tint-blue: var(--tint-blue);
+  --color-tint-orange: var(--tint-orange);
+  --color-orange-text: var(--orange-text);
+  --color-tint-red: var(--tint-red);
+  --color-tint-purple: var(--tint-purple);
+  --color-purple-text: var(--purple-text);
+  --color-tint-green: var(--tint-green);
+  --color-tint-amber: var(--tint-amber);
+  --color-amber-text: var(--amber-text);
+  --color-sidebar: var(--sidebar);
+
+  /* Set by next/font in app/layout.tsx. */
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+}
+
+@theme {
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.06);
+
+  --animate-sheet-up: sheet-up 240ms cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-sheet-left: sheet-left 240ms cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-fade-in: fade-in 200ms ease-out;
+  @keyframes sheet-up { from { transform: translateY(100%); } }
+  @keyframes sheet-left { from { transform: translateX(100%); } }
+  @keyframes fade-in { from { opacity: 0; } }
+}
+
+/* bg-brand-gradient: red to orange to amber, the same in both themes. */
+@utility bg-brand-gradient {
+  background-image: linear-gradient(135deg, #D51A21 0%, #F05820 62%, #F8A818 100%);
+}
+
+@layer base {
+  /* Tailwind 4 borders default to currentColor; make a bare `border` use the line token. */
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--line);
+  }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-bg font-sans text-text antialiased;
+  }
+
+  button,
+  [role="button"],
+  [role="switch"],
+  [role="radio"],
+  summary {
+    touch-action: manipulation;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+
+  /* Visible focus for keyboard users, readable in both themes. */
+  :focus-visible {
+    outline: 2px solid var(--red-text);
+    outline-offset: 2px;
+  }
+
+  /* An open modal sheet owns the scroll. */
+  body:has(dialog[open]) {
+    overflow: hidden;
+  }
+}
