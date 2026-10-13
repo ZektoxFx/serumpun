@@ -10,6 +10,8 @@ async function main() {
   const sql = postgres(env.databaseUrl, { max: 1, onnotice: () => {} });
   try {
     await sql`create table if not exists _migrations (name text primary key, applied_at timestamptz not null default now())`;
+    // Supabase exposes every public table to the API roles. RLS with no policy hides the ledger from them; this role bypasses it.
+    await sql`alter table _migrations enable row level security`;
     const done = new Set((await sql<{ name: string }[]>`select name from _migrations`).map((row) => row.name));
     const pending = (await readdir(MIGRATIONS_DIR)).filter((file) => file.endsWith('.sql') && !done.has(file)).sort();
 
