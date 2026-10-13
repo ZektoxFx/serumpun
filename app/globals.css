@@ -4,7 +4,9 @@
  * Serumpun brand tokens: the approved canvas palette.
  * Light values live on :root, dark values on [data-theme="dark"] (next-themes sets that attribute on <html>).
  * Components use the Tailwind utilities mapped in @theme below (bg-surface, text-muted, border-line, ...).
- * Never hard-code a hex in a component.
+ * Never hard-code a hex in a component. The one exception is the navy focus ring for controls on the brand
+ * gradient (focus-visible:outline-[#001C3C], see IconButton): the gradient is the same in both themes, so
+ * a token that flips in dark mode would be wrong there.
  */
 
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));

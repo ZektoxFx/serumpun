@@ -10,6 +10,7 @@ const variants: Record<ButtonVariant, string> = {
   primary: 'bg-red text-white hover:brightness-95',
   ink: 'bg-ink text-on-ink hover:opacity-90',
   outline: 'border border-line-strong bg-surface text-text hover:bg-soft',
+  // Anything focusable placed ON the gradient needs focus-visible:outline-[#001C3C]; the default red ring vanishes there.
   gradient: 'bg-brand-gradient text-white hover:brightness-95',
 };
 
