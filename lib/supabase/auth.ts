@@ -14,6 +14,7 @@ export type SessionProfile = {
   role: Role;
   status: 'pending' | 'verified' | 'rejected';
   lang: Lang;
+  township: { name: string };
 };
 
 /** Where a signed-in user belongs: the dashboard, the rejection notice for a rejected applicant, or Home. */
@@ -35,9 +36,11 @@ export const getSessionProfile = cache(async (): Promise<SessionProfile | null> 
   if (!userId) return null;
   const { data: profile, error } = await supabase
     .from('profiles')
-    .select('id, township_id, full_name, neighbourhood, role, status, lang')
+    .select('id, township_id, full_name, neighbourhood, role, status, lang, township:townships(name)')
     .eq('id', userId)
-    .maybeSingle();
+    .maybeSingle()
+    // PostgREST sends a to-one embed as an object; without generated schema types the client guesses an array.
+    .overrideTypes<SessionProfile, { merge: false }>();
   if (error) throw new Error(`profile lookup failed: ${error.message}`);
   return profile;
 });

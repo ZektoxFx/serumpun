@@ -10,6 +10,15 @@ const en = {
   'nav.create': 'Create',
   'nav.community': 'Community',
   'nav.me': 'Me',
+  'nav.label': 'Main menu',
+
+  // Create sheet (the + button)
+  'create.report': 'Report an issue',
+  'create.alert': 'Drop a map alert',
+  'create.post': 'Post in a group',
+  'create.service': 'Offer or request a service',
+  'create.item': 'List an item',
+  'create.event': 'Create an event',
 
   // Community tabs
   'community.tab.groups': 'Groups',
@@ -30,6 +39,43 @@ const en = {
   'home.greeting.morning': 'Good morning, {name}',
   'home.greeting.afternoon': 'Good afternoon, {name}',
   'home.greeting.evening': 'Good evening, {name}',
+
+  // Home
+  'home.status.verified': 'Verified resident ✓',
+  'home.status.pending': 'Waiting for approval',
+  'home.report.body': 'Goes straight to the Management Office',
+  'home.tile.map': 'Live Map',
+  'home.tile.book': 'Book Court',
+  'home.tile.rewards': 'Rewards',
+  'home.tile.issues': 'Issue Board',
+  'home.happening': 'Happening now',
+  'home.happening.empty': 'All quiet right now',
+  'home.happening.emptyHint': 'Alerts, notices from the Management Office and events nearby will show up here.',
+
+  // Points (the ★ is drawn next to the number, not part of the text)
+  'points.count': '{n} points',
+
+  // Header icons
+  'messages.title': 'Messages',
+
+  // Notifications
+  'notifications.title': 'Notifications',
+  'notifications.bellUnread': 'Notifications, {n} unread',
+  'notifications.markAll': 'Mark all read',
+  'notifications.unread': 'Unread',
+  'notifications.empty': 'No notifications yet',
+  'notifications.emptyHint': 'Updates on your reports, bookings and account will show up here.',
+
+  // Me
+  'me.points': 'Your points',
+  'me.rewards': 'Rewards →',
+  'me.vouchers': 'My vouchers',
+  'me.reports': 'My reports',
+  'me.bookings': 'My bookings',
+  'me.listings': 'My listings',
+  'me.pointsHistory': 'Points history',
+  'me.darkMode': 'Dark mode',
+  'me.township': 'Township',
 
   // Landing page
   'landing.demo.title': 'Try the demo',

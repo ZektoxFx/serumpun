@@ -11,6 +11,15 @@ const ms: Record<keyof typeof en, string> = {
   'nav.create': 'Cipta',
   'nav.community': 'Komuniti',
   'nav.me': 'Saya',
+  'nav.label': 'Menu utama',
+
+  // Create sheet (the + button)
+  'create.report': 'Laporkan isu',
+  'create.alert': 'Hantar amaran di peta',
+  'create.post': 'Siar dalam kumpulan',
+  'create.service': 'Tawar atau minta perkhidmatan',
+  'create.item': 'Senaraikan barang',
+  'create.event': 'Cipta acara',
 
   // Community tabs
   'community.tab.groups': 'Kumpulan',
@@ -31,6 +40,43 @@ const ms: Record<keyof typeof en, string> = {
   'home.greeting.morning': 'Selamat pagi, {name}',
   'home.greeting.afternoon': 'Selamat petang, {name}',
   'home.greeting.evening': 'Selamat malam, {name}',
+
+  // Home
+  'home.status.verified': 'Penduduk disahkan ✓',
+  'home.status.pending': 'Menunggu kelulusan',
+  'home.report.body': 'Terus ke Pejabat Pengurusan',
+  'home.tile.map': 'Peta Langsung',
+  'home.tile.book': 'Tempah Gelanggang',
+  'home.tile.rewards': 'Ganjaran',
+  'home.tile.issues': 'Papan Isu',
+  'home.happening': 'Sedang berlaku',
+  'home.happening.empty': 'Tiada apa-apa buat masa ini',
+  'home.happening.emptyHint': 'Amaran, notis daripada Pejabat Pengurusan dan acara berdekatan akan dipaparkan di sini.',
+
+  // Points (the ★ is drawn next to the number, not part of the text)
+  'points.count': '{n} mata',
+
+  // Header icons
+  'messages.title': 'Mesej',
+
+  // Notifications
+  'notifications.title': 'Pemberitahuan',
+  'notifications.bellUnread': 'Pemberitahuan, {n} belum dibaca',
+  'notifications.markAll': 'Tandakan semua dibaca',
+  'notifications.unread': 'Belum dibaca',
+  'notifications.empty': 'Belum ada pemberitahuan',
+  'notifications.emptyHint': 'Perkembangan laporan, tempahan dan akaun anda akan dipaparkan di sini.',
+
+  // Me
+  'me.points': 'Mata anda',
+  'me.rewards': 'Ganjaran →',
+  'me.vouchers': 'Baucar saya',
+  'me.reports': 'Laporan saya',
+  'me.bookings': 'Tempahan saya',
+  'me.listings': 'Senarai barang saya',
+  'me.pointsHistory': 'Sejarah mata',
+  'me.darkMode': 'Mod gelap',
+  'me.township': 'Perbandaran',
 
   // Landing page
   'landing.demo.title': 'Cuba demo',
