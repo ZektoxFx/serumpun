@@ -48,8 +48,12 @@ export function Sheet({
     <dialog
       ref={dialog}
       aria-labelledby={title ? titleId : undefined}
-      // Fires for Esc and for our own close(); the parent clearing `open` twice is harmless.
-      onClose={onClose}
+      // The browser closed it (Esc, Android back) while the parent still says `open`: tell the parent.
+      // Ignore the `close` event of our own close(), which can arrive late, after the parent has already
+      // moved on (e.g. opened another sheet) and would otherwise be undone by calling onClose again.
+      onClose={(event) => {
+        if (open && !event.currentTarget.open) onClose();
+      }}
       // A click that lands on the dialog element itself is a click on the backdrop.
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose();
