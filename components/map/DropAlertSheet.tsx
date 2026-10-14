@@ -123,7 +123,7 @@ function DropForm({
           {ALERT_TYPES.map((option) => (
             <label
               key={option}
-              className="flex min-h-18 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-line bg-surface px-1 py-2 text-center has-checked:border-red has-checked:bg-tint-red has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-red-text"
+              className="relative flex min-h-18 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-line bg-surface px-1 py-2 text-center has-checked:border-red has-checked:bg-tint-red has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-red-text"
             >
               <input
                 type="radio"
@@ -134,8 +134,11 @@ function DropForm({
                   setType(option);
                   setSeverity(DEFAULT_SEVERITY[option]); // each type comes with its own level; the poster can change it
                 }}
-                className="sr-only"
+                className="peer sr-only"
               />
+              <span aria-hidden="true" className="absolute right-1.5 top-1 hidden text-xs font-extrabold text-red-text peer-checked:block">
+                ✓
+              </span>
               <span aria-hidden="true" className="text-2xl leading-none">
                 {ALERT_ICON[option]}
               </span>

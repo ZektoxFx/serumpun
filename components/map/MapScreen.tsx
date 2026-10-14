@@ -152,18 +152,9 @@ export function MapScreen({
   return (
     <main className="fixed inset-x-0 top-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] overflow-hidden">
       <h1 className="sr-only">{t('home.tile.map')}</h1>
-      <LiveMap
-        pins={pins}
-        selectedId={selected?.id ?? null}
-        onSelect={setSelectedId}
-        centre={centre}
-        me={me}
-        focus={focus}
-        onViewChange={setView}
-        township={township}
-      />
 
-      <div className="pointer-events-none absolute inset-x-0 top-0 mx-auto grid max-w-md gap-2 p-3">
+      {/* Before the map in the page, as on screen: keyboard users reach the search and filters first. */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 mx-auto grid max-w-md gap-2 p-3">
         <form
           role="search"
           onSubmit={(event) => {
@@ -239,6 +230,17 @@ export function MapScreen({
         )}
       </div>
 
+      <LiveMap
+        pins={pins}
+        selectedId={selected?.id ?? null}
+        onSelect={setSelectedId}
+        centre={centre}
+        me={me}
+        focus={focus}
+        onViewChange={setView}
+        township={township}
+      />
+
       <button
         type="button"
         aria-haspopup="dialog"
@@ -249,8 +251,9 @@ export function MapScreen({
         {t('map.drop.open')}
       </button>
 
-      <div role="status" className="pointer-events-none absolute inset-x-3 bottom-24 flex justify-center">
-        {toast && <p className="rounded-full bg-ink px-4 py-2 text-sm font-bold text-on-ink shadow-lg">{toast.text}</p>}
+      {/* Clear of the zoom buttons on the right. */}
+      <div role="status" className="pointer-events-none absolute bottom-24 left-3 right-16 flex justify-center">
+        {toast && <p className="rounded-2xl bg-ink px-4 py-2 text-center text-sm font-bold text-on-ink shadow-lg">{toast.text}</p>}
       </div>
 
       <AlertSheet
