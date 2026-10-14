@@ -60,8 +60,8 @@ export function useTownshipEvents(townshipId: string, tables: string[], onEvent:
  * user; `filter` (e.g. `user_id=eq.<id>`) only narrows that. The payload is never read: `onChange` refetches.
  *
  * supabase-js keeps one channel per topic (here the table plus the filter), so mount this once per page for each table
- * and filter: a second mount with the same pair would share the first one's channel, get no catch-up, and remove the
- * channel for both when it unmounts.
+ * and filter: a second mount with the same pair usually throws (realtime-js refuses `.on()` on a joined channel), or
+ * shares the first one's channel without catch-up and removes it for both when it unmounts.
  */
 export function useRealtimeTable(table: string, filter: string | null, onChange: () => void) {
   const changed = useEffectEvent(onChange);
