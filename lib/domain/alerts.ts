@@ -1,7 +1,7 @@
 import { distanceMeters, type LatLng } from './geo';
 import type { ReportCategory } from './reports';
 
-// The same nine types, three severities and statuses are enforced by checks in supabase/migrations/0002_alerts.sql.
+// supabase/migrations/0002_alerts.sql enforces the same nine types and three severities.
 export const ALERT_TYPES = ['accident', 'snake', 'suspicious', 'stray_dogs', 'flood', 'fallen_tree', 'walkway_blocked', 'streetlight', 'police'] as const;
 export type AlertType = (typeof ALERT_TYPES)[number];
 export type Severity = 'high' | 'medium' | 'low';
@@ -43,7 +43,7 @@ const ESCALATE_TO: Partial<Record<AlertType, ReportCategory>> = {
 };
 
 /** Lasting problems: their alert sheet offers "Send to Management Office". */
-export const ESCALATABLE = Object.keys(ESCALATE_TO) as AlertType[];
+export const ESCALATABLE: readonly AlertType[] = Object.keys(ESCALATE_TO) as AlertType[];
 
 /** The report category a lasting problem becomes; null for passing ones (a snake moves on, a report would not help). */
 export function alertToReportCategory(type: AlertType): ReportCategory | null {
