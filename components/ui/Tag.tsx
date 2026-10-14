@@ -1,9 +1,10 @@
 import type { ComponentProps } from 'react';
 
-export type TagVariant = 'info' | 'orange' | 'purple' | 'green' | 'amber';
+export type TagVariant = 'info' | 'red' | 'orange' | 'purple' | 'green' | 'amber';
 
 const variants: Record<TagVariant, string> = {
   info: 'bg-tint-blue text-text',
+  red: 'bg-tint-red text-red-text',
   orange: 'bg-tint-orange text-orange-text',
   purple: 'bg-tint-purple text-purple-text',
   green: 'bg-tint-green text-green-text',
