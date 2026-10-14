@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { IconButton } from '@/components/ui/IconButton';
 import {
@@ -77,9 +77,14 @@ export function MapScreen({
     setSeenDrop(wantsDrop);
     if (wantsDrop) setDropOpen(true);
   }
+  const router = useRouter();
   useEffect(() => {
-    if (wantsDrop) window.history.replaceState(null, '', '/map');
-  }, [wantsDrop]);
+    if (!wantsDrop) return;
+    const url = new URL(window.location.href);
+    url.searchParams.delete('drop'); // only this one: other parameters (Safe Walk's later) stay
+    // Through the router, not history.replaceState: during the first render the router would keep its old drop=1.
+    router.replace(url.pathname + url.search, { scroll: false });
+  }, [wantsDrop, router]);
 
   // Pins fade out when they expire, and their "confirmed 5 min ago" names stay true.
   useEffect(() => {

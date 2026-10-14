@@ -168,7 +168,6 @@ const en = {
 
   // Live Map
   'map.label': 'Map of alerts. Use the arrow keys to move it.',
-  'map.loading': 'Loading the map…',
   'map.picker': 'Pin location. Use the arrow keys to move the map under the pin.',
   'map.search': 'Search alerts',
   'map.search.placeholder': 'Search alerts in {township}',

@@ -169,7 +169,6 @@ const ms: Record<keyof typeof en, string> = {
 
   // Live Map
   'map.label': 'Peta amaran. Gunakan kekunci anak panah untuk menggerakkannya.',
-  'map.loading': 'Memuatkan peta…',
   'map.picker': 'Lokasi pin. Gunakan kekunci anak panah untuk menggerakkan peta di bawah pin.',
   'map.search': 'Cari amaran',
   'map.search.placeholder': 'Cari amaran di {township}',
