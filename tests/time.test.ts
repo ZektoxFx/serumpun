@@ -1,4 +1,4 @@
-import { greetingKey, mytDate, mytHour, startOfMytMonth, timeAgo } from '@/lib/domain/time';
+import { clockTime, greetingKey, mytDate, mytHour, startOfMytMonth, timeAgo } from '@/lib/domain/time';
 
 it('mytDate uses Malaysia time', () => { expect(mytDate(new Date('2026-10-17T16:30:00Z'))).toBe('2026-10-18'); });
 it('greeting at 07:00 MYT is morning', () => { expect(greetingKey(new Date('2026-10-12T23:00:00Z'))).toBe('morning'); });
@@ -40,4 +40,13 @@ it('timeAgo scales from just now to a calendar date', () => {
 it('startOfMytMonth keeps an instant that is already midnight on the 1st', () => {
   expect(startOfMytMonth(new Date('2026-10-31T16:00:00Z')).toISOString()).toBe('2026-10-31T16:00:00.000Z');
   expect(startOfMytMonth(new Date('2026-10-31T15:59:59Z')).toISOString()).toBe('2026-09-30T16:00:00.000Z');
+});
+
+it('clockTime: the MYT time today, with the date on another day or year', () => {
+  const now = new Date('2026-10-13T04:00:00Z'); // 12:00 MYT, 13 Oct
+  expect(clockTime(new Date('2026-10-13T01:12:00Z'), now, 'en')).toBe('9:12 am');
+  expect(clockTime(new Date('2026-10-13T01:12:00Z'), now, 'ms')).toBe('9:12 PG');
+  expect(clockTime(new Date('2026-10-12T16:01:00Z'), now, 'en')).toBe('12:01 am'); // already 13 Oct in Malaysia
+  expect(clockTime(new Date('2026-10-12T15:59:00Z'), now, 'en')).toBe('12 Oct, 11:59 pm');
+  expect(clockTime(new Date('2025-10-12T01:00:00Z'), now, 'ms')).toBe('12 Okt 2025, 9:00 PG');
 });

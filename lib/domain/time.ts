@@ -47,6 +47,18 @@ export function greetingKey(now: Date): 'morning' | 'afternoon' | 'evening' {
   return 'evening';
 }
 
+/** "9:12 am" / "9:12 PG" in Malaysia time; on another day "12 Oct, 9:12 am", plus the year if it differs. */
+export function clockTime(d: Date, now: Date, lang: Lang): string {
+  const day = mytDate(d);
+  const today = mytDate(now);
+  return new Intl.DateTimeFormat(lang === 'ms' ? 'ms-MY' : 'en-MY', {
+    timeZone: TZ,
+    hour: 'numeric',
+    minute: '2-digit',
+    ...(day === today ? {} : { day: 'numeric', month: 'short', year: day.slice(0, 4) === today.slice(0, 4) ? undefined : 'numeric' }),
+  }).format(d);
+}
+
 /** "12 min ago" / "12 min lalu". After a week it shows the MYT date instead ("4 Oct", plus the year if it differs). */
 export function timeAgo(d: Date, now: Date, lang: Lang): string {
   const ms = now.getTime() - d.getTime();

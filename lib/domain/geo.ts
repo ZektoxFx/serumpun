@@ -18,3 +18,9 @@ export function distanceMeters(a: LatLng, b: LatLng): number {
 export function resolveStartLocation(geo: LatLng | null, centre: LatLng, maxKm = 5): LatLng {
   return geo && distanceMeters(geo, centre) <= maxKm * 1000 ? geo : centre;
 }
+
+/** "80 m", "990 m", "1.2 km", "2 km": tens of metres below a kilometre, tenths of a kilometre above. Never "0 m". */
+export function formatDistance(m: number): string {
+  const metres = Math.max(10, Math.round(m / 10) * 10);
+  return metres < 1000 ? `${metres} m` : `${Number((m / 1000).toFixed(1))} km`;
+}
