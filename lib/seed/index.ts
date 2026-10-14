@@ -1,11 +1,12 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { seedAlerts } from './alerts';
 import { seedPeople, type People } from './people';
+import { seedReports } from './reports';
 
 /** A feature seeder. Later tasks add theirs to `seeders`; each runs after the people exist, in list order. */
 export type Seeder = (admin: SupabaseClient, now: Date, people: People) => Promise<void>;
 
-const seeders: Seeder[] = [seedAlerts];
+const seeders: Seeder[] = [seedAlerts, seedReports];
 
 /**
  * Rebuilds the demo: empties every feature table, restores the people, then runs each feature seeder.

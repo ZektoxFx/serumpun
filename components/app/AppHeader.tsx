@@ -4,9 +4,11 @@ import { iconButtonClasses } from '@/components/ui/IconButton';
 import { unreadBadge } from '@/lib/domain/notifications';
 import { t } from '@/lib/i18n';
 import { getLang } from '@/lib/i18n/server';
+import { getSessionProfile } from '@/lib/supabase/auth';
 import { createClient } from '@/lib/supabase/server';
+import { LiveBell } from './LiveBell';
 
-/** Notifications the signed-in user has not opened. Not live: it is as fresh as the page (Task 7 makes the bell live). */
+/** Notifications the signed-in user has not opened. LiveBell renders the page again when they change. */
 async function unreadNotifications() {
   const supabase = await createClient();
   // Row-level security limits this to the caller's own notifications.
@@ -48,7 +50,11 @@ export async function AppHeader({
   tone?: 'plain' | 'gradient';
   children?: ReactNode;
 }) {
-  const [lang, unread] = await Promise.all([getLang(), showBell ? unreadNotifications() : 0]);
+  const [lang, unread, profile] = await Promise.all([
+    getLang(),
+    showBell ? unreadNotifications() : 0,
+    showBell ? getSessionProfile() : null, // cached: the page has already looked it up
+  ]);
   const badge = unreadBadge(unread);
   const gradient = tone === 'gradient';
   const buttonClass = `relative ${iconButtonClasses(gradient ? 'overlay' : 'default')}`;
@@ -79,6 +85,7 @@ export async function AppHeader({
               )}
             </Link>
           )}
+          {showBell && profile && <LiveBell userId={profile.id} />}
           {showInbox && (
             <Link href="/messages" aria-label={t(lang, 'messages.title')} className={buttonClass}>
               <Glyph>

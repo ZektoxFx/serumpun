@@ -138,6 +138,11 @@ const ms: Record<keyof typeof en, string> = {
   // Notification titles: the database stores these keys in notifications.title_key
   'notify.account.verified': 'Akaun anda telah diluluskan. Selamat datang ke Serumpun!',
   'notify.account.rejected': 'Pendaftaran anda tidak diluluskan. Sila hubungi Pejabat Pengurusan.',
+  'notify.report.acknowledged': 'Pejabat Pengurusan telah menerima laporan yang anda ikuti',
+  'notify.report.in_progress': 'Kerja telah bermula untuk laporan yang anda ikuti',
+  'notify.report.resolved': 'Laporan yang anda ikuti telah diselesaikan. Sudah dibaiki?',
+  'notify.report.update': 'Kemas kini baharu daripada Pejabat Pengurusan untuk laporan yang anda ikuti',
+  'notify.report.reopened': 'Penduduk kata laporan yang diselesaikan belum dibaiki. Ia dibuka semula.',
 
   'common.error': 'Sesuatu tidak kena. Sila cuba lagi.',
   // Every create/act screen shows this to a pending resident, with its submit disabled (Task 4 ruling).
@@ -245,7 +250,7 @@ const ms: Record<keyof typeof en, string> = {
   'map.error.type': 'Pilih jenis amaran.',
   'map.error.severity': 'Pilih tahap bahaya.',
   'map.error.outOfArea': 'Tempat itu terlalu jauh dari perbandaran anda. Alihkan pin lebih dekat.',
-  'map.error.photo': 'Gambar belum boleh ditambah pada amaran.',
+  'map.error.photo': 'Gambar itu tidak dapat ditambah. Sila ambil atau pilih semula.',
   'map.error.vote': 'Pilih Masih ada atau Sudah tiada.',
   'map.error.notFound': 'Amaran ini sudah tiada di peta.',
   'map.error.ownAlert': 'Anda yang menghantar amaran ini, jadi jiran anda yang mengesahkannya.',

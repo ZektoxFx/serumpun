@@ -137,6 +137,12 @@ const en = {
   // Notification titles: the database stores these keys in notifications.title_key
   'notify.account.verified': 'Your account is approved. Welcome to Serumpun!',
   'notify.account.rejected': 'Your sign-up was not approved. Please contact the Management Office.',
+  // The title_key values update_report_status and confirm_report_fix send (0003_reports.sql).
+  'notify.report.acknowledged': 'The Management Office acknowledged a report you follow',
+  'notify.report.in_progress': 'Work has started on a report you follow',
+  'notify.report.resolved': 'A report you follow is resolved. Is it fixed?',
+  'notify.report.update': 'New update from the Management Office on a report you follow',
+  'notify.report.reopened': 'Residents say a resolved report is not fixed. It is open again.',
 
   'common.error': 'Something went wrong. Please try again.',
   // Every create/act screen shows this to a pending resident, with its submit disabled (Task 4 ruling).
@@ -243,7 +249,7 @@ const en = {
   'map.error.type': 'Pick what kind of alert it is.',
   'map.error.severity': 'Pick how serious it is.',
   'map.error.outOfArea': 'That spot is too far from your township. Move the pin closer.',
-  'map.error.photo': 'Photos cannot be added to alerts yet.',
+  'map.error.photo': 'That photo could not be added. Please take or pick it again.',
   'map.error.vote': 'Choose Still there or Gone.',
   'map.error.notFound': 'This alert is no longer on the map.',
   'map.error.ownAlert': 'You posted this alert, so your neighbours confirm it.',

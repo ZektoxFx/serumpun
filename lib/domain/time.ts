@@ -1,4 +1,5 @@
-import { t, type Lang } from '@/lib/i18n';
+// From core, not the index: the index brings React context, which the seed script cannot load.
+import { t, type Lang } from '@/lib/i18n/core';
 
 /** Every "today", hour and month in Serumpun is Malaysia time. The servers run in UTC. */
 export const TZ = 'Asia/Kuala_Lumpur';
