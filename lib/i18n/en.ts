@@ -217,6 +217,7 @@ const en = {
   'map.drop.pinDone': 'Done',
   'map.drop.pinHint': 'Drag the map until the pin sits on the spot.',
   'map.drop.noGps': 'We could not get your location, so place the pin yourself.',
+  'map.drop.privacy': 'Neighbours can see this spot. If you are at home, move the pin to where it is happening.',
   'map.drop.type': 'What did you see?',
   'map.drop.severity': 'How serious is it?',
   'map.drop.note': 'Note (optional)',

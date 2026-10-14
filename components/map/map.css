@@ -34,6 +34,42 @@
 .map-pin--official .map-pin-head {
   background: #001c3c;
 }
+
+/*
+ * Severity is never colour alone (ruling 8). Each level also draws its ring differently: High a thick ring with a "!"
+ * badge, Medium a plain ring, Low a dashed ring. Every ring sits between two thin navy lines (the brand navy as a
+ * literal, like the official head: pins keep their colours in dark mode), outside against the map and inside against
+ * the head, so it clears 3:1 against both in either theme. Amber on the white head is only about 2:1 without them.
+ * Scoped to markers, so the place picker's pin keeps its plain look.
+ */
+.leaflet-marker-icon.map-pin { --pin-edge: #001c3c; }
+.leaflet-marker-icon.map-pin .map-pin-head {
+  box-shadow: 0 0 0 1.5px var(--pin-edge), inset 0 0 0 1px var(--pin-edge), 0 1px 4px rgb(0 0 0 / 0.35);
+}
+.leaflet-marker-icon.map-pin--high .map-pin-head { border-width: 5px; }
+.leaflet-marker-icon.map-pin--low .map-pin-head { border-style: dashed; }
+/* The badge sits on the head's right edge, which is the pin's top right once the head is turned; it turns back to stand upright. */
+.leaflet-marker-icon.map-pin--high .map-pin-head::after {
+  content: '!';
+  position: absolute;
+  top: 50%;
+  left: calc(100% - 1px);
+  width: 18px;
+  height: 18px;
+  margin-top: -9px;
+  display: grid;
+  place-items: center;
+  border: 2px solid #fff;
+  border-radius: 9999px;
+  background: var(--red);
+  box-shadow: 0 0 0 1px var(--pin-edge);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  transform: rotate(45deg);
+}
+
 .map-pin-glyph {
   transform: rotate(45deg);
   font-size: 16px;

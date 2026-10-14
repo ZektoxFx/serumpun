@@ -218,6 +218,7 @@ const ms: Record<keyof typeof en, string> = {
   'map.drop.pinDone': 'Siap',
   'map.drop.pinHint': 'Seret peta sehingga pin berada tepat di tempatnya.',
   'map.drop.noGps': 'Lokasi anda tidak dapat dikesan, jadi letakkan pin sendiri.',
+  'map.drop.privacy': 'Jiran boleh melihat tempat ini. Jika anda berada di rumah, alihkan pin ke tempat kejadian.',
   'map.drop.type': 'Apa yang anda lihat?',
   'map.drop.severity': 'Sejauh mana bahayanya?',
   'map.drop.note': 'Nota (pilihan)',

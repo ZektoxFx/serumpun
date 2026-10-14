@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useActionState, useState } from 'react';
+import { startTransition, useActionState, useState } from 'react';
 import { dropAlert, type MapActionResult } from '@/app/(app)/map/actions';
 import { Button } from '@/components/ui/Button';
 import { Field } from '@/components/ui/Field';
@@ -66,20 +66,32 @@ function DropForm({
   // Until the resident moves the pin it follows `start`, so a GPS fix that arrives late still wins.
   const [chosen, setChosen] = useState<LatLng | null>(null);
   const [picking, setPicking] = useState(false);
-  const [result, post, pending] = useActionState(async (_: MapActionResult, formData: FormData) => {
-    const done = await dropAlert(formData);
-    if (done?.ok) await onPosted({ lat: Number(formData.get('lat')), lng: Number(formData.get('lng')) });
-    return done;
+  const [result, post, pending] = useActionState(async (_: MapActionResult, formData: FormData): Promise<MapActionResult> => {
+    try {
+      const done = await dropAlert(formData);
+      if (done?.ok) await onPosted({ lat: Number(formData.get('lat')), lng: Number(formData.get('lng')) });
+      return done;
+    } catch {
+      return { ok: false, error: 'common.error' }; // the request itself failed (offline): say so, the map stays up
+    }
   }, null);
 
   const pin = chosen ?? start;
   const showPicker = picking || !gps;
   const place = nearestPlace(pin);
-  const where = chosen === null && gps ? t('map.drop.atYou') : t('map.drop.atPin');
+  const atDevice = chosen === null && gps; // the pin is still on the phone's own fix
+  const where = atDevice ? t('map.drop.atYou') : t('map.drop.atPin');
   const label = 'text-sm font-bold text-text';
 
   return (
-    <form action={post} className="grid gap-4 pb-2">
+    <form
+      // Not `action={post}`: React resets a form after every action, which would wipe the note and the chosen type when a post fails.
+      onSubmit={(event) => {
+        event.preventDefault();
+        startTransition(() => post(new FormData(event.currentTarget)));
+      }}
+      className="grid gap-4 pb-2"
+    >
       {!canPost && (
         <p className="rounded-xl bg-tint-amber px-3 py-2.5 text-sm font-bold text-amber-text">{t('common.pendingCantAct')}</p>
       )}
@@ -107,6 +119,8 @@ function DropForm({
             </Button>
           )}
         </div>
+        {/* The anonymous pin still sits on the exact spot, and a resident at home would be marking their own house. */}
+        {atDevice && <p className="text-xs text-muted-2">{t('map.drop.privacy')}</p>}
         {showPicker && (
           <>
             <p className="text-xs text-muted-2">{t(gps ? 'map.drop.pinHint' : 'map.drop.noGps')}</p>

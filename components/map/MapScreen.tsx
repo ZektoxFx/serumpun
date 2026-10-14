@@ -65,8 +65,9 @@ export function MapScreen({
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [focus, setFocus] = useState<LatLng | null>(null);
-  const [toast, setToast] = useState<{ text: string } | null>(null);
+  const [toast, setToast] = useState<{ text: string; focusMap?: boolean } | null>(null);
   const [filters, setFilters] = useMapFilters();
+  const mapRegion = useRef<HTMLDivElement>(null);
 
   // The + menu's "Drop a map alert" lands on /map?drop=1. The parameter is consumed at once, so a reload does not reopen
   // the sheet and the next tap on that menu item (from this page too) opens it again.
@@ -111,6 +112,12 @@ export function MapScreen({
     return () => clearTimeout(id);
   }, [toast]);
 
+  // When an alert's sheet closes because the alert is gone, the pin that opened it is gone too and focus would fall to
+  // <body>. This runs after the sheet has closed (effects run child first), so the page is no longer inert.
+  useEffect(() => {
+    if (toast?.focusMap) mapRegion.current?.focus();
+  }, [toast]);
+
   const latest = useRef(0);
   async function load() {
     const ticket = ++latest.current;
@@ -131,8 +138,12 @@ export function MapScreen({
   const typeLabel = (type: AlertType) => t(`alert.type.${type}`);
   const active = alerts.filter((a) => isAlertActive(a, now));
   const shown = searchAlerts(filterAlerts(active, filters, me), query, typeLabel);
-  // A pin that fades or is cleared while its sheet is open closes the sheet.
+  // A pin that fades or is cleared while its sheet is open closes the sheet: say why, as a toast, and drop the stale id.
   const selected = active.find((a) => a.id === selectedId) ?? null;
+  if (selectedId !== null && selected === null) {
+    setSelectedId(null);
+    setToast({ text: t('map.error.notActive'), focusMap: true });
+  }
 
   const pinLabel = (a: PublicAlert) => {
     const what = { type: typeLabel(a.type), severity: t(`severity.${a.severity}`) };
@@ -244,6 +255,7 @@ export function MapScreen({
         focus={focus}
         onViewChange={setView}
         township={township}
+        regionRef={mapRegion}
       />
 
       <button

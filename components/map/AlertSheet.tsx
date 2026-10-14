@@ -83,10 +83,15 @@ function AlertDetails({
 }) {
   const t = useT();
   const lang = useLang();
-  const [result, vote, pending] = useActionState(async (_: MapActionResult, formData: FormData) => {
-    const done = await voteAlert(formData);
-    if (done?.ok) await onVoted(); // the new counts and "last confirmed" show before the buttons wake up
-    return done;
+  // `action={vote}` is fine here: nothing in this form (a hidden id and two named buttons) is lost when React resets it.
+  const [result, vote, pending] = useActionState(async (_: MapActionResult, formData: FormData): Promise<MapActionResult> => {
+    try {
+      const done = await voteAlert(formData);
+      if (done?.ok) await onVoted(); // the new counts and "last confirmed" show before the buttons wake up
+      return done;
+    } catch {
+      return { ok: false, error: 'common.error' }; // the request itself failed (offline): say so, the map stays up
+    }
   }, null);
 
   const place = nearestPlace(alert);

@@ -3,7 +3,7 @@
 import 'leaflet/dist/leaflet.css';
 import './map.css';
 import * as L from 'leaflet';
-import { useEffect, useEffectEvent, useRef, type ReactNode } from 'react';
+import { useEffect, useEffectEvent, useRef, type ReactNode, type RefObject } from 'react';
 import { ALERT_ICON, type AlertType, type Severity } from '@/lib/domain/alerts';
 import type { LatLng } from '@/lib/domain/geo';
 import { useT } from '@/lib/i18n';
@@ -63,6 +63,7 @@ export function LiveMap({
   focus,
   onViewChange,
   township,
+  regionRef,
 }: {
   pins: MapPin[];
   selectedId: string | null;
@@ -75,9 +76,10 @@ export function LiveMap({
   focus: LatLng | null;
   onViewChange: (centre: LatLng) => void;
   township: string;
+  /** The map's own region element (Leaflet makes it focusable), so the screen can move keyboard focus onto it. */
+  regionRef: RefObject<HTMLDivElement | null>;
 }) {
   const t = useT();
-  const box = useRef<HTMLDivElement>(null);
   const map = useRef<L.Map | null>(null);
   const markers = useRef(new Map<string, L.Marker>());
   const meDot = useRef<L.Marker | null>(null);
@@ -87,7 +89,7 @@ export function LiveMap({
   const viewChanged = useEffectEvent(onViewChange);
 
   useEffect(() => {
-    const m = L.map(box.current!, { zoomControl: false, center: opening.current, zoom: ZOOM });
+    const m = L.map(regionRef.current!, { zoomControl: false, center: opening.current, zoom: ZOOM });
     addStreetMap(m);
     m.on('dragstart', () => {
       moved.current = true;
@@ -104,7 +106,7 @@ export function LiveMap({
       drawn.clear();
       meDot.current = null;
     };
-  }, []);
+  }, [regionRef]);
 
   // Add new pins, drop gone ones, and keep names and the selection current. A pin's look never changes after it is
   // posted, so existing markers are kept (and keep keyboard focus).
@@ -171,7 +173,7 @@ export function LiveMap({
 
   return (
     <div className="absolute inset-0">
-      <div ref={box} role="region" aria-label={t('map.label')} className="absolute inset-0 isolate" />
+      <div ref={regionRef} role="region" aria-label={t('map.label')} className="absolute inset-0 isolate" />
       <div className="absolute bottom-10 right-3 grid gap-2">
         <Control
           label={me ? t('map.locate') : t('map.recentre', { township })}
