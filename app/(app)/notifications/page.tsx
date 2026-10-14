@@ -44,11 +44,13 @@ export default async function NotificationsPage() {
               {items.map((item) => {
                 const unread = !item.read_at;
                 return (
-                  <li key={item.id}>
-                    <form action={openNotification}>
+                  // The row fills an overflow-hidden, rounded list. The global focus ring sits outside and would be clipped, so it
+                  // is drawn inside, and the row takes the list's corners (the li and form pass them down) so the ring follows them.
+                  <li key={item.id} className="first:rounded-t-[inherit] last:rounded-b-[inherit]">
+                    <form action={openNotification} className="rounded-[inherit]">
                       <input type="hidden" name="id" value={item.id} />
                       <button
-                        className={`flex min-h-16 w-full items-start gap-3 px-4 py-3 text-left hover:bg-soft ${unread ? 'bg-tint-blue' : ''}`}
+                        className={`flex min-h-16 w-full items-start gap-3 rounded-[inherit] px-4 py-3 text-left hover:bg-soft focus-visible:outline-offset-[-2px] ${unread ? 'bg-tint-blue' : ''}`}
                       >
                         <span aria-hidden="true" className={`mt-1.5 size-2.5 shrink-0 rounded-full ${unread ? 'bg-red' : ''}`} />
                         <span className="min-w-0 flex-1">

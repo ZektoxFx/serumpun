@@ -69,7 +69,8 @@ export function BottomNav() {
                 <Link
                   href={tab.href}
                   aria-current={active ? 'page' : undefined}
-                  className={`flex min-h-12 flex-col items-center justify-center gap-0.5 text-xs ${active ? 'font-bold text-red-text' : 'font-semibold text-muted'}`}
+                  // Inset focus ring: the outer tabs touch the screen edge on a phone, which would clip the global one.
+                  className={`flex min-h-12 flex-col items-center justify-center gap-0.5 text-xs focus-visible:outline-offset-[-2px] ${active ? 'font-bold text-red-text' : 'font-semibold text-muted'}`}
                 >
                   <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     {icons[tab.key]}

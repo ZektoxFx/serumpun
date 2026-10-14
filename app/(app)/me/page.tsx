@@ -17,6 +17,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const row = 'flex min-h-14 items-center gap-3 px-4';
+// A link or button row fills an overflow-hidden, rounded list. The global focus ring sits outside the element and would be
+// clipped, so it is drawn inside; and the row takes the list's corners (the li and form pass them down), so at the top and
+// bottom of the list the ring follows the curve instead of being cut off by it.
+const pressable = `${row} rounded-[inherit] hover:bg-soft focus-visible:outline-offset-[-2px]`;
 const rowIcon = 'w-6 shrink-0 text-center text-lg';
 
 export default async function MePage() {
@@ -56,8 +60,8 @@ export default async function MePage() {
 
         <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface shadow-card">
           {ME_LINKS.map((link) => (
-            <li key={link.href}>
-              <Link href={link.href} className={`${row} hover:bg-soft`}>
+            <li key={link.href} className="first:rounded-t-[inherit]">
+              <Link href={link.href} className={pressable}>
                 <span aria-hidden="true" className={rowIcon}>
                   {link.icon}
                 </span>
@@ -97,9 +101,9 @@ export default async function MePage() {
             <span className="text-sm text-muted-2">{profile.township.name}</span>
           </li>
 
-          <li>
-            <form action={signOut}>
-              <button className={`${row} w-full text-left text-base font-bold text-red-text hover:bg-soft`}>
+          <li className="rounded-b-[inherit]">
+            <form action={signOut} className="rounded-[inherit]">
+              <button className={`${pressable} w-full text-left text-base font-bold text-red-text`}>
                 <span aria-hidden="true" className={rowIcon}>
                   🚪
                 </span>
