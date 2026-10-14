@@ -58,6 +58,10 @@ export function useTownshipEvents(townshipId: string, tables: string[], onEvent:
  * Calls `onChange` when a row of `table` changes (postgres_changes, for per-user data such as notifications), and each
  * time the channel (re)subscribes; debounced like useTownshipEvents. Row-level security decides which rows reach this
  * user; `filter` (e.g. `user_id=eq.<id>`) only narrows that. The payload is never read: `onChange` refetches.
+ *
+ * supabase-js keeps one channel per topic (here the table plus the filter), so mount this once per page for each table
+ * and filter: a second mount with the same pair would share the first one's channel, get no catch-up, and remove the
+ * channel for both when it unmounts.
  */
 export function useRealtimeTable(table: string, filter: string | null, onChange: () => void) {
   const changed = useEffectEvent(onChange);
