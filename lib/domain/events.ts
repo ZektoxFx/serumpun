@@ -59,7 +59,7 @@ export function mytDateTime(date: string, time: string): Date | null {
   return !Number.isNaN(at.getTime()) && mytDate(at) === date ? at : null; // 31 Feb would roll over into March
 }
 
-const intlLocale = (lang: Lang) => (lang === 'ms' ? 'ms-MY' : 'en-MY');
+export const intlLocale = (lang: Lang) => (lang === 'ms' ? 'ms-MY' : 'en-MY');
 
 /** The card's date block in Malaysia: { weekday: 'SAT', day: '17', month: 'OCT' }. */
 export function eventDateParts(d: Date, lang: Lang): { weekday: string; day: string; month: string } {

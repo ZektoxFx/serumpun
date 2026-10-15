@@ -7,10 +7,12 @@ import { ThemeSwitch } from '@/components/app/ThemeSwitch';
 import { Avatar } from '@/components/ui/Avatar';
 import { buttonClasses } from '@/components/ui/Button';
 import { ME_LINKS } from '@/lib/domain/nav';
+import { formatPoints, nextReward, rewardTitle } from '@/lib/domain/points';
 import { statusKey } from '@/lib/domain/profile';
 import { t } from '@/lib/i18n';
 import { getLang } from '@/lib/i18n/server';
 import { requireMember } from '@/lib/supabase/auth';
+import { createClient } from '@/lib/supabase/server';
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: t(await getLang(), 'nav.me') };
@@ -22,11 +24,40 @@ const row = 'flex min-h-14 items-center gap-3 px-4';
 // bottom of the list the ring follows the curve instead of being cut off by it.
 const pressable = `${row} rounded-[inherit] hover:bg-soft focus-visible:outline-offset-[-2px]`;
 const rowIcon = 'w-6 shrink-0 text-center text-lg';
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
 export default async function MePage() {
   const profile = await requireMember();
   const lang = await getLang();
-  const points = 0; // Task 11 reads the real balance from the points ledger
+  const supabase = await createClient();
+  const now = new Date();
+  // Row-level security: the caller's own ledger entries and vouchers.
+  const [total, catalog, week, vouchers] = await Promise.all([
+    supabase.rpc('my_points'),
+    supabase.from('rewards').select('id, title, title_ms, points_cost').eq('active', true),
+    supabase
+      .from('points_ledger')
+      .select('delta, ref_id')
+      .eq('reason', 'event')
+      .gte('created_at', new Date(now.getTime() - WEEK_MS).toISOString())
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('redemptions')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', profile.id)
+      .eq('status', 'active')
+      .gt('expires_at', now.toISOString()),
+  ]);
+  for (const { error } of [total, catalog, week, vouchers]) if (error) throw new Error(`points lookup failed: ${error.message}`);
+  const points = Number(total.data ?? 0);
+  const next = nextReward(points, catalog.data!);
+  // "+150 this week · Gotong-royong": the week's check-ins, named after the latest.
+  const latest = week.data![0];
+  const { data: latestEvent } = latest
+    ? await supabase.from('public_events').select('title').eq('id', latest.ref_id).maybeSingle()
+    : { data: null };
+  const earned = week.data!.reduce((sum, e) => sum + e.delta, 0);
+
   return (
     <>
       <header className="bg-brand-gradient px-4 pb-16 pt-6 text-white">
@@ -48,14 +79,30 @@ export default async function MePage() {
               <h2 id="your-points" className="text-xs font-extrabold uppercase tracking-wide text-muted">
                 {t(lang, 'me.points')}
               </h2>
-              <p className="text-3xl font-extrabold leading-tight">
-                <span aria-hidden="true">★</span> {points}
+              <p className="whitespace-nowrap text-3xl font-extrabold leading-tight">
+                <span aria-hidden="true">★</span> {formatPoints(points, lang)}
               </p>
             </div>
             <Link href="/rewards" className={buttonClasses('primary')}>
               {t(lang, 'me.rewards')}
             </Link>
           </div>
+          {latestEvent && (
+            <p className="mt-1 text-sm font-bold text-green-text">
+              {t(lang, 'points.recent', { n: formatPoints(earned, lang), title: latestEvent.title })}
+            </p>
+          )}
+          {next && (
+            <div className="mt-3 grid gap-1.5">
+              {/* The sentence under it says the same, so the bar is hidden from screen readers. */}
+              <div aria-hidden="true" className="h-2 overflow-hidden rounded-full bg-chip">
+                <div className="h-full rounded-full bg-brand-gradient" style={{ width: `${Math.round(next.progress * 100)}%` }} />
+              </div>
+              <p className="text-sm text-muted-2">
+                {t(lang, 'points.next', { n: formatPoints(next.remaining, lang), reward: rewardTitle(next.reward, lang) })}
+              </p>
+            </div>
+          )}
         </section>
 
         <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface shadow-card">
@@ -66,6 +113,9 @@ export default async function MePage() {
                   {link.icon}
                 </span>
                 <span className="flex-1 text-base font-bold">{t(lang, link.label)}</span>
+                {link.href === '/rewards?view=mine' && (
+                  <span className="text-sm text-muted-2">{t(lang, 'me.activeVouchers', { n: vouchers.count ?? 0 })}</span>
+                )}
                 <span aria-hidden="true" className="text-xl text-muted">
                   ›
                 </span>

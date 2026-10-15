@@ -34,8 +34,9 @@ type SeedEvent = {
 };
 
 /**
- * The events the demo opens with, and the past ones behind Aisyah's points (5 official × 150 + 5 approved × 100 =
- * 1,250, ruling R7). One event is on right now, so the check-in QR can be shown live: reseed shortly before a demo.
+ * The events the demo opens with, and the past ones behind Aisyah's points (10 official × 150 + 5 approved × 100 =
+ * 2,000; her two seeded vouchers spend 750, leaving 1,250: ruling R7). One event is on right now, so the check-in QR
+ * can be shown live: reseed shortly before a demo.
  */
 export function eventRows(now: Date, people: People) {
   const SAT = 6;
@@ -93,6 +94,12 @@ export function eventRows(now: Date, people: People) {
     ['Night walk for heart health', 'sports', 'farah', 55],
     ['Fire safety talk', 'official', 'office', 62],
     ['Gotong-royong: lake clean-up', 'official', 'office', 75],
+    // The 750 her two seeded vouchers cost (lib/seed/rewards.ts), so she still stands at 1,250.
+    ['Recycling drive (August)', 'official', 'office', 82],
+    ['Gotong-royong: drain clean-up', 'official', 'office', 89],
+    ['Community health screening', 'official', 'office', 96],
+    ['Earth Hour lantern walk', 'official', 'office', 103],
+    ['Hari Raya open house', 'official', 'office', 110],
   ];
 
   const events = [];
@@ -153,7 +160,7 @@ export function eventRows(now: Date, people: People) {
   return { events, rsvps, ledger };
 }
 
-/** 8 upcoming events (one on now, one waiting for approval) and Aisyah's past check-ins, worth 1,250 points. */
+/** 8 upcoming events (one on now, one waiting for approval) and Aisyah's past check-ins, worth 2,000 points. */
 export async function seedEvents(admin: SupabaseClient, now: Date, people: People): Promise<void> {
   const { events, rsvps, ledger } = eventRows(now, people);
   const tables: [string, Record<string, unknown>[]][] = [

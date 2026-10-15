@@ -92,8 +92,8 @@ describe('seeded events', () => {
     expect(live).toHaveLength(1);
     expect(isWithinCheckinWindow(new Date(live[0].starts_at), now)).toBe(true);
     expect(live[0].points).toBe(DEFAULT_POINTS.resident);
-    // Aisyah: 1,250 points (ruling R7), each from an event she checked in to; going to two upcoming events.
-    expect(ledger.filter((l) => l.user_id === 'aisyah').reduce((sum, l) => sum + l.delta, 0)).toBe(1250);
+    // Aisyah: 2,000 earned, each from an event she checked in to (the rewards seed spends 750: tests/points.test.ts).
+    expect(ledger.filter((l) => l.user_id === 'aisyah').reduce((sum, l) => sum + l.delta, 0)).toBe(2000);
     for (const l of ledger) expect(rsvps.some((r) => r.event_id === l.ref_id && r.user_id === l.user_id && r.checked_in_at)).toBe(true);
     expect(rsvps.filter((r) => r.user_id === 'aisyah' && upcoming.some((e) => e.id === r.event_id))).toHaveLength(2);
     // What the table allows (0005_events_points.sql).

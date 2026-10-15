@@ -9,8 +9,8 @@ import { createClient } from '@/lib/supabase/server';
 
 /**
  * The Management Office's shell (canvas "Reporting channel → 4"): a navy sidebar beside the page from 900 px, above it on
- * narrower screens. Only the sections that exist are listed (ruling R5); Tasks 10 and 11 add Events and Rewards. Each
- * page still calls requireManagement itself: a layout does not stop its page from rendering.
+ * narrower screens. Only the sections that exist are listed (ruling R5). Each page still calls requireManagement itself:
+ * a layout does not stop its page from rendering.
  */
 export default async function DashboardLayout({ children }: LayoutProps<'/dashboard'>) {
   const profile = await requireManagement();
@@ -62,6 +62,7 @@ export default async function DashboardLayout({ children }: LayoutProps<'/dashbo
               },
               { href: '/dashboard/announcements', icon: '📢', label: t(lang, 'dashboard.nav.announcements') },
               { href: '/dashboard/pins', icon: '📍', label: t(lang, 'dashboard.nav.pins') },
+              { href: '/dashboard/rewards', icon: '🎁', label: t(lang, 'dashboard.nav.rewards') },
               { href: '/dashboard/reset', icon: '🔄', label: t(lang, 'dashboard.nav.reset') },
             ]}
           />

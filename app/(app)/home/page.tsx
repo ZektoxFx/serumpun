@@ -5,11 +5,13 @@ import { HappeningNow } from '@/components/app/HappeningNow';
 import { HeroChip } from '@/components/app/HeroChip';
 import { Tile } from '@/components/app/Tile';
 import { HOME_TILES } from '@/lib/domain/nav';
+import { formatPoints } from '@/lib/domain/points';
 import { firstName, statusKey } from '@/lib/domain/profile';
 import { greetingKey } from '@/lib/domain/time';
 import { t } from '@/lib/i18n';
 import { getLang } from '@/lib/i18n/server';
 import { requireMember } from '@/lib/supabase/auth';
+import { createClient } from '@/lib/supabase/server';
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: t(await getLang(), 'nav.home') };
@@ -18,7 +20,9 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function HomePage() {
   const profile = await requireMember();
   const lang = await getLang();
-  const points = 0; // Task 11 reads the real balance from the points ledger
+  const supabase = await createClient();
+  const { data: points, error } = await supabase.rpc('my_points');
+  if (error) throw new Error(`points lookup failed: ${error.message}`);
   return (
     <>
       <AppHeader
@@ -33,7 +37,7 @@ export default async function HomePage() {
           </HeroChip>
           <HeroChip>{t(lang, statusKey(profile))}</HeroChip>
           <HeroChip>
-            <span aria-hidden="true">★</span> {t(lang, 'points.count', { n: points })}
+            <span aria-hidden="true">★</span> {t(lang, 'points.count', { n: formatPoints(Number(points ?? 0), lang) })}
           </HeroChip>
         </div>
       </AppHeader>
