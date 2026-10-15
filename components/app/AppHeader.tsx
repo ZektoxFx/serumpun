@@ -6,6 +6,7 @@ import { t } from '@/lib/i18n';
 import { getLang } from '@/lib/i18n/server';
 import { getSessionProfile } from '@/lib/supabase/auth';
 import { createClient } from '@/lib/supabase/server';
+import { BackButton } from './BackButton';
 import { LiveBell } from './LiveBell';
 
 /** Notifications the signed-in user has not opened. LiveBell renders the page again when they change. */
@@ -35,16 +36,19 @@ function Glyph({ children }: { children: ReactNode }) {
  * The top of a resident page: a title with the bell (notifications) and inbox (messages) on the right.
  * `tone="gradient"` is Home's brand header: its title is large and bold (small text cannot sit on the gradient), and
  * `children` sits under it (put small text on a HeroChip). On the plain tone the bar stays at the top while scrolling.
- * There is no messages badge until Task 13.
+ * There is no messages badge until Task 13. `back` adds "←" before the title (plain tone): it goes back, or to `back`
+ * when the page was opened first.
  */
 export async function AppHeader({
   title,
+  back,
   showInbox = false,
   showBell = false,
   tone = 'plain',
   children,
 }: {
   title?: ReactNode;
+  back?: string;
   showInbox?: boolean;
   showBell?: boolean;
   tone?: 'plain' | 'gradient';
@@ -62,8 +66,11 @@ export async function AppHeader({
     <header
       className={gradient ? 'bg-brand-gradient px-4 pb-5 pt-5 text-white' : 'sticky top-0 z-20 border-b border-line bg-surface px-4 py-3'}
     >
-      <div className="flex items-start gap-3">
-        {title && <h1 className="min-w-0 flex-1 text-2xl font-extrabold leading-tight tracking-tight">{title}</h1>}
+      <div className={`flex gap-3 ${back ? 'items-center' : 'items-start'}`}>
+        {back && <BackButton fallback={back} />}
+        {title && (
+          <h1 className={`min-w-0 flex-1 font-extrabold leading-tight tracking-tight ${back ? 'text-lg' : 'text-2xl'}`}>{title}</h1>
+        )}
         <div className="ml-auto flex shrink-0 gap-2">
           {showBell && (
             <Link

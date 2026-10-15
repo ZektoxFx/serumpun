@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import { startTransition, useActionState, useState } from 'react';
 import { dropAlert, type MapActionResult } from '@/app/(app)/map/actions';
+import { PhotoInput, uploadPhoto } from '@/components/app/PhotoInput';
 import { Button } from '@/components/ui/Button';
 import { Field } from '@/components/ui/Field';
 import { Segmented } from '@/components/ui/Segmented';
@@ -66,7 +67,13 @@ function DropForm({
   // Until the resident moves the pin it follows `start`, so a GPS fix that arrives late still wins.
   const [chosen, setChosen] = useState<LatLng | null>(null);
   const [picking, setPicking] = useState(false);
+  const [photo, setPhoto] = useState<Blob | null>(null);
   const [result, post, pending] = useActionState(async (_: MapActionResult, formData: FormData): Promise<MapActionResult> => {
+    try {
+      if (photo) formData.set('photo', await uploadPhoto(photo));
+    } catch {
+      return { ok: false, error: 'photo.error.upload' }; // the form keeps everything, the photo included
+    }
     try {
       const done = await dropAlert(formData);
       if (done?.ok) await onPosted({ lat: Number(formData.get('lat')), lng: Number(formData.get('lng')) });
@@ -185,6 +192,8 @@ function DropForm({
       <Field label={t('map.drop.note')} hint={t('map.drop.noteHint')}>
         {(control) => <textarea {...control} name="note" rows={2} maxLength={280} />}
       </Field>
+
+      <PhotoInput onChange={setPhoto} disabled={!canPost} />
 
       {result && !result.ok && (
         <p role="alert" className="text-sm font-bold text-red-text">

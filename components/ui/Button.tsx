@@ -1,7 +1,7 @@
 import type { ComponentProps } from 'react';
 
 export type ButtonVariant = 'primary' | 'ink' | 'outline' | 'gradient';
-export type ButtonSize = 'md' | 'lg';
+export type ButtonSize = 'md' | 'lg' | 'xl';
 
 const base =
   'inline-flex items-center justify-center gap-2 rounded-xl font-extrabold transition-[background-color,transform] duration-150 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50 motion-reduce:transition-none motion-reduce:active:scale-100';
@@ -14,10 +14,11 @@ const variants: Record<ButtonVariant, string> = {
   gradient: 'bg-brand-gradient text-white hover:brightness-95',
 };
 
-// Both sizes keep the 44px minimum touch target.
+// Every size keeps the 44px minimum touch target. `xl` is for the gradient: white text there needs 20px bold to read.
 const sizes: Record<ButtonSize, string> = {
   md: 'min-h-11 px-4 text-sm',
   lg: 'min-h-13 px-6 text-base',
+  xl: 'min-h-14 px-5 py-2 text-xl leading-tight',
 };
 
 /** Classes for anything that should look like a button, e.g. `<Link className={buttonClasses('outline')}>`. */

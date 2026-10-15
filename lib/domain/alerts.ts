@@ -17,6 +17,8 @@ export type PublicAlert = {
   lat: number;
   lng: number;
   note: string | null;
+  /** In the public `photos` bucket. */
+  photo_path: string | null;
   is_official: boolean;
   status: string;
   confirm_count: number;
@@ -28,7 +30,7 @@ export type PublicAlert = {
   my_vote: AlertVote | null;
 };
 export const PUBLIC_ALERT_COLUMNS =
-  'id, type, severity, lat, lng, note, is_official, status, confirm_count, gone_count, created_at, last_confirmed_at, expires_at, is_mine, my_vote';
+  'id, type, severity, lat, lng, note, photo_path, is_official, status, confirm_count, gone_count, created_at, last_confirmed_at, expires_at, is_mine, my_vote';
 
 /** Spec §8.1. The poster can change it. */
 export const DEFAULT_SEVERITY: Record<AlertType, Severity> = {

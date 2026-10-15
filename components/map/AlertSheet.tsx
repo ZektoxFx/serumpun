@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useActionState, type ReactNode } from 'react';
 import { voteAlert, type MapActionResult } from '@/app/(app)/map/actions';
+import { publicPhotoUrl } from '@/components/app/PhotoInput';
 import { Button } from '@/components/ui/Button';
 import { Sheet } from '@/components/ui/Sheet';
 import { Tag, type TagVariant } from '@/components/ui/Tag';
@@ -120,6 +121,15 @@ function AlertDetails({
       )}
 
       {alert.note && <p className="break-words text-base">{alert.note}</p>}
+
+      {alert.photo_path && (
+        // eslint-disable-next-line @next/next/no-img-element -- already shrunk to 1280 px before upload; the optimiser would only add a hop
+        <img
+          src={publicPhotoUrl(alert.photo_path)}
+          alt={t('map.alert.photo', { type: t(`alert.type.${alert.type}`) })}
+          className="max-h-64 w-full rounded-xl border border-line object-cover"
+        />
+      )}
 
       <dl className="grid grid-cols-2 gap-2">
         <Box label={t('map.alert.firstReported')} value={clockTime(new Date(alert.created_at), now, lang)}>

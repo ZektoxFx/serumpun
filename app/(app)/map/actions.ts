@@ -27,6 +27,7 @@ export async function dropAlert(formData: FormData): Promise<MapActionResult> {
     p_lat: Number(field(formData, 'lat')),
     p_lng: Number(field(formData, 'lng')),
     p_note: field(formData, 'note'),
+    p_photo_path: field(formData, 'photo') || null, // uploaded by the form just before; the RPC checks it is the caller's
   });
   if (error) return failed('create_alert', error);
   return { ok: true, id: String(data) };
