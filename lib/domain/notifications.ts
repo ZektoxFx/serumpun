@@ -7,6 +7,15 @@ export function internalPath(link: unknown): string | null {
   return typeof link === 'string' && /^\/(?![/\\])[^\x00-\x1f\x7f]*$/.test(link) ? link : null;
 }
 
+/**
+ * Where to go after signing in, from the landing page's `?next=` (the page a signed-out visitor was sent away from,
+ * such as a scanned check-in QR): an in-app path, never the landing page itself, which would send them round in a loop.
+ */
+export function returnPath(next: unknown): string | null {
+  const path = internalPath(next);
+  return path && path !== '/' && !path.startsWith('/?') ? path : null;
+}
+
 /** What the bell's badge says: nothing for none, the count up to 9, then "9+". */
 export function unreadBadge(count: number): string | null {
   if (count <= 0) return null;

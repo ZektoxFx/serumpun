@@ -17,11 +17,16 @@ export default async function DashboardLayout({ children }: LayoutProps<'/dashbo
   const lang = await getLang();
   const supabase = await createClient();
   // Row-level security limits both counts to the office's own township.
-  const [open, waiting] = await Promise.all([
+  const [open, waiting, asking] = await Promise.all([
     supabase.from('reports').select('id', { count: 'exact', head: true }).not('status', 'in', '(resolved,confirmed)'),
     supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'resident').eq('status', 'pending'),
+    supabase
+      .from('public_events')
+      .select('id', { count: 'exact', head: true })
+      .eq('approval_status', 'pending')
+      .gt('ends_at', new Date().toISOString()),
   ]);
-  for (const { error } of [open, waiting]) if (error) console.error(`dashboard counts: ${error.message}`); // the menu still works
+  for (const { error } of [open, waiting, asking]) if (error) console.error(`dashboard counts: ${error.message}`); // the menu still works
 
   return (
     <div className="min-h-dvh min-[900px]:flex">
@@ -48,6 +53,12 @@ export default async function DashboardLayout({ children }: LayoutProps<'/dashbo
                 icon: '🪪',
                 label: t(lang, 'dashboard.nav.residents'),
                 badge: { n: waiting.count ?? 0, label: t(lang, 'dashboard.nav.waiting', { n: waiting.count ?? 0 }) },
+              },
+              {
+                href: '/dashboard/events',
+                icon: '📅',
+                label: t(lang, 'dashboard.nav.events'),
+                badge: { n: asking.count ?? 0, label: t(lang, 'dashboard.nav.waiting', { n: asking.count ?? 0 }) },
               },
               { href: '/dashboard/announcements', icon: '📢', label: t(lang, 'dashboard.nav.announcements') },
               { href: '/dashboard/pins', icon: '📍', label: t(lang, 'dashboard.nav.pins') },

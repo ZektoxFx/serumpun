@@ -4,12 +4,15 @@ import { LanguageSwitch } from '@/components/app/LanguageSwitch';
 import { buttonClasses } from '@/components/ui/Button';
 import { t } from '@/lib/i18n';
 import { getLang } from '@/lib/i18n/server';
+import { returnPath } from '@/lib/domain/notifications';
 import { getSessionProfile, homePath } from '@/lib/supabase/auth';
 import { DemoButtons, SignInForm } from './forms';
 
-export default async function LandingPage() {
+export default async function LandingPage({ searchParams }: PageProps<'/'>) {
+  // Where a signed-out visitor was sent away from (proxy.ts): signing in takes them back there.
+  const next = returnPath((await searchParams).next) ?? undefined;
   const profile = await getSessionProfile();
-  if (profile) redirect(homePath(profile));
+  if (profile) redirect((profile.status !== 'rejected' && next) || homePath(profile));
   const lang = await getLang();
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col">
@@ -23,13 +26,13 @@ export default async function LandingPage() {
           <h2 id="demo-heading" className="text-lg font-extrabold">
             {t(lang, 'landing.demo.title')}
           </h2>
-          <DemoButtons />
+          <DemoButtons next={next} />
         </section>
         <section aria-labelledby="sign-in-heading" className="grid gap-3">
           <h2 id="sign-in-heading" className="text-lg font-extrabold">
             {t(lang, 'landing.signIn.title')}
           </h2>
-          <SignInForm />
+          <SignInForm next={next} />
         </section>
         <section className="grid gap-3">
           <p className="text-sm text-muted">{t(lang, 'landing.newHere')}</p>

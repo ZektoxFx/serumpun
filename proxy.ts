@@ -5,6 +5,7 @@ import { env } from '@/lib/env';
 // Signed-in only. Matched on whole path segments, so '/me' never swallows '/media'.
 const SIGNED_IN_ONLY = [
   '/home', '/map', '/community', '/reports', '/book', '/rewards', '/me', '/messages', '/notifications', '/dashboard',
+  '/checkin',
 ];
 
 export async function proxy(request: NextRequest) {
@@ -45,7 +46,10 @@ export async function proxy(request: NextRequest) {
   }
   const needsSignIn = SIGNED_IN_ONLY.some((path) => pathname === path || pathname.startsWith(`${path}/`));
   if (data?.claims || !needsSignIn) return response;
-  return withAuthWrites(NextResponse.redirect(new URL('/', request.url)));
+  // Back here after signing in (a scanned check-in QR, a shared link): the landing page reads `next` (returnPath).
+  const landing = new URL('/', request.url);
+  landing.searchParams.set('next', request.nextUrl.pathname + request.nextUrl.search);
+  return withAuthWrites(NextResponse.redirect(landing));
 }
 
 export const config = {

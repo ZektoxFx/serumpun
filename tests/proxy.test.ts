@@ -20,11 +20,16 @@ const redirectedTo = (res: Response) => (res.headers.get('location') ? new URL(r
 
 it.each([
   '/home', '/map', '/community', '/community/groups/42', '/reports', '/book', '/rewards', '/me', '/messages', '/notifications',
-  '/dashboard', '/dashboard/events',
+  '/dashboard', '/dashboard/events', '/checkin/3f0c9a52-1b7e-4c1d-9a3e-2b8f6d4e1a90',
   // Percent-encoded spellings of the same pages: Next decodes them before routing.
   '/%68ome', '/dashboard%2Fevents',
 ])('sends a signed-out visitor from %s to the landing page', async (path) => {
   expect(redirectedTo(await visit(path, false))).toBe('/');
+});
+
+it('remembers where the visitor was going, so a scanned check-in QR still works after signing in', async () => {
+  const res = await visit('/checkin/3f0c9a52-1b7e-4c1d-9a3e-2b8f6d4e1a90?c=abc123', false);
+  expect(new URL(res.headers.get('location')!).searchParams.get('next')).toBe('/checkin/3f0c9a52-1b7e-4c1d-9a3e-2b8f6d4e1a90?c=abc123');
 });
 
 it('lets a signed-in resident through', async () => {

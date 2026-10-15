@@ -1,6 +1,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
+import { returnPath } from '@/lib/domain/notifications';
 import { validateSignup, type SignupErrors, type SignupInput } from '@/lib/domain/signup';
 import { env } from '@/lib/env';
 import type { MessageKey } from '@/lib/i18n';
@@ -19,23 +20,29 @@ export type AuthResult = {
 
 const field = (formData: FormData, name: string) => String(formData.get(name) ?? '');
 
-async function signInWith(email: string, password: string, failure: MessageKey): Promise<AuthResult> {
+/** Signs in, then goes to `next` (where the visitor was sent away from, e.g. a check-in QR) or the user's home. */
+async function signInWith(email: string, password: string, failure: MessageKey, next?: string): Promise<AuthResult> {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) return { error: failure, values: { email } };
   const { data: profile } = await supabase.from('profiles').select('role, status').eq('id', data.user.id).maybeSingle();
-  redirect(homePath(profile));
+  redirect((profile?.status !== 'rejected' && returnPath(next)) || homePath(profile));
 }
 
 export async function signIn(formData: FormData): Promise<AuthResult> {
-  return signInWith(field(formData, 'email').trim().toLowerCase(), field(formData, 'password'), 'auth.error.signIn');
+  return signInWith(
+    field(formData, 'email').trim().toLowerCase(),
+    field(formData, 'password'),
+    'auth.error.signIn',
+    field(formData, 'next'),
+  );
 }
 
 /** One tap into a seeded demo account. The password stays on the server. */
-export async function signInDemo(who: DemoAccount): Promise<AuthResult> {
+export async function signInDemo(who: DemoAccount, next?: string): Promise<AuthResult> {
   // `who` comes from the browser: only these four accounts can be entered this way.
   if (!Object.hasOwn(DEMO_EMAIL, who)) return { error: 'landing.demo.error' };
-  return signInWith(DEMO_EMAIL[who], env.demoPassword, 'landing.demo.error');
+  return signInWith(DEMO_EMAIL[who], env.demoPassword, 'landing.demo.error', next);
 }
 
 /** Creates a pending resident (the Management Office verifies them later), then signs them in. */

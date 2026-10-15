@@ -19,10 +19,11 @@ function FormError({ result }: { result: AuthResult }) {
   ) : null;
 }
 
-export function DemoButtons() {
+/** `next`: where to go after signing in (the landing page's `?next=`), checked again on the server. */
+export function DemoButtons({ next }: { next?: string }) {
   const t = useT();
   const [result, action, pending] = useActionState(
-    (_: AuthResult, formData: FormData) => signInDemo(formData.get('who') as DemoAccount),
+    (_: AuthResult, formData: FormData) => signInDemo(formData.get('who') as DemoAccount, next),
     null,
   );
   return (
@@ -41,11 +42,12 @@ export function DemoButtons() {
   );
 }
 
-export function SignInForm() {
+export function SignInForm({ next }: { next?: string }) {
   const t = useT();
   const [result, action, pending] = useActionState((_: AuthResult, formData: FormData) => signIn(formData), null);
   return (
     <form action={action} noValidate className="grid gap-4">
+      {next && <input type="hidden" name="next" value={next} />}
       <Field label={t('auth.email')}>
         {(control) => (
           <input {...control} name="email" type="email" autoComplete="email" required defaultValue={result?.values?.email} />

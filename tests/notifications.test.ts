@@ -1,4 +1,17 @@
-import { internalPath, unreadBadge } from '@/lib/domain/notifications';
+import { internalPath, returnPath, unreadBadge } from '@/lib/domain/notifications';
+
+describe('returnPath', () => {
+  it('sends a resident back to the page that asked them to sign in, query string and all', () => {
+    expect(returnPath('/checkin/3f0c9a52-1b7e-4c1d-9a3e-2b8f6d4e1a90?c=abc123')).toBe('/checkin/3f0c9a52-1b7e-4c1d-9a3e-2b8f6d4e1a90?c=abc123');
+    expect(returnPath('/reports/42')).toBe('/reports/42');
+  });
+
+  it('ignores the landing page itself (it would loop), and anything that could leave the app', () => {
+    for (const next of ['/', '/?next=/home', '//evil.example', 'https://evil.example', '', null, undefined, ['/home']]) {
+      expect(returnPath(next), String(next)).toBeNull();
+    }
+  });
+});
 
 describe('internalPath', () => {
   it('keeps paths inside the app, query strings included', () => {

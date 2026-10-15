@@ -1,12 +1,13 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { seedAlerts } from './alerts';
+import { seedEvents } from './events';
 import { seedPeople, type People } from './people';
 import { seedReports } from './reports';
 
 /** A feature seeder. Later tasks add theirs to `seeders`; each runs after the people exist, in list order. */
 export type Seeder = (admin: SupabaseClient, now: Date, people: People) => Promise<void>;
 
-const seeders: Seeder[] = [seedAlerts, seedReports];
+const seeders: Seeder[] = [seedAlerts, seedReports, seedEvents];
 
 /**
  * Every uploaded photo goes with the reports and alerts that held them (the seed has none). Public photos sit at the root

@@ -2,6 +2,7 @@
 
 import { refresh } from 'next/cache';
 import { alertErrorKey } from '@/lib/domain/alerts';
+import { eventErrorKey } from '@/lib/domain/events';
 import { reportErrorKey } from '@/lib/domain/reports';
 import type { MessageKey } from '@/lib/i18n';
 import { seedAll } from '@/lib/seed';
@@ -85,6 +86,20 @@ export async function postAnnouncement(formData: FormData): Promise<DashboardRes
         p_link: '/home',
       });
   if (notifyError) console.error(`announcement posted, but residents were not notified: ${notifyError.message}`);
+  refresh();
+  return { ok: true };
+}
+
+/** Approves points (`decision` approve, with `points`) for a resident event that asked, or turns it down. */
+export async function decideEvent(formData: FormData): Promise<DashboardResult> {
+  await requireManagement();
+  const supabase = await createClient();
+  const id = field(formData, 'id');
+  const { error } =
+    field(formData, 'decision') === 'approve'
+      ? await supabase.rpc('approve_event', { p_event: id, p_points: Number(field(formData, 'points')) })
+      : await supabase.rpc('reject_event', { p_event: id });
+  if (error) return failed('event decision', error, eventErrorKey(error.message));
   refresh();
   return { ok: true };
 }
