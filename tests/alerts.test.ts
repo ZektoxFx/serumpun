@@ -1,5 +1,6 @@
 import {
   ALERT_TYPES,
+  PIN_TYPES,
   DEFAULT_FILTERS,
   DEFAULT_SEVERITY,
   ESCALATABLE,
@@ -68,7 +69,7 @@ it('escalates exactly the lasting problems, each to a real report category', () 
 // Task 6: the map's filters, search, freshness, escalation link and error messages.
 
 it('filters default to everything, everywhere', () => {
-  expect(DEFAULT_FILTERS).toEqual({ maxDistanceM: null, severities: ['high', 'medium', 'low'], types: [...ALERT_TYPES] });
+  expect(DEFAULT_FILTERS).toEqual({ maxDistanceM: null, severities: ['high', 'medium', 'low'], types: [...PIN_TYPES] });
 });
 
 it('reads saved filters back, and falls back to the default for anything broken', () => {
@@ -82,7 +83,7 @@ it('reads saved filters back, and falls back to the default for anything broken'
   expect(parseFilters(JSON.stringify({ maxDistanceM: 750, severities: ['low', 'extreme', 'low'], types: 'snake' }))).toEqual({
     maxDistanceM: null,
     severities: ['low'],
-    types: [...ALERT_TYPES],
+    types: [...PIN_TYPES],
   });
   // Unknown names (and prototype keys) are dropped; the canonical order is kept.
   expect(parseFilters(JSON.stringify({ maxDistanceM: 2000, severities: ['low', 'high'], types: ['police', '__proto__', 'snake'] }))).toEqual({

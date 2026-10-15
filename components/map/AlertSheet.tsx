@@ -4,18 +4,17 @@ import Link from 'next/link';
 import { useActionState, type ReactNode } from 'react';
 import { voteAlert, type MapActionResult } from '@/app/(app)/map/actions';
 import { publicPhotoUrl } from '@/components/app/PhotoInput';
+import { SEVERITY_TAG } from '@/components/map/severityTag';
 import { Button } from '@/components/ui/Button';
 import { Sheet } from '@/components/ui/Sheet';
-import { Tag, type TagVariant } from '@/components/ui/Tag';
+import { Tag } from '@/components/ui/Tag';
 import { TimeAgo } from '@/components/ui/TimeAgo';
-import { ALERT_ICON, escalationHref, isFresh, type PublicAlert, type Severity } from '@/lib/domain/alerts';
+import { ALERT_ICON, escalationHref, isFresh, type PublicAlert } from '@/lib/domain/alerts';
 import { distanceMeters, formatDistance, type LatLng } from '@/lib/domain/geo';
 import { nearestPlace } from '@/lib/domain/places';
 import { clockTime } from '@/lib/domain/time';
 import { useLang, useT } from '@/lib/i18n';
 
-/** Severity is never colour alone: it is always written on the tag too. */
-export const SEVERITY_TAG: Record<Severity, TagVariant> = { high: 'red', medium: 'orange', low: 'amber' };
 
 // The pressed vote gets a ring, on top of `aria-pressed` and the "You said…" line under the buttons.
 const pressed = 'aria-pressed:ring-2 aria-pressed:ring-ink aria-pressed:ring-offset-2 aria-pressed:ring-offset-surface';

@@ -54,6 +54,24 @@ export function kanbanColumn(status: ReportStatus): KanbanColumn {
   return COLUMN[status];
 }
 
+/** The resolved column shows this many of the latest fixes; the KPIs count them all. */
+export const RESOLVED_SHOWN = 20;
+
+/**
+ * The dashboard's four columns. Each is ordered by Me too, then the longest waiting first; the resolved column keeps
+ * only the RESOLVED_SHOWN most recent reports.
+ */
+export function groupForKanban<T extends { id: string; status: ReportStatus; metoo_count: number; created_at: string }>(
+  reports: readonly T[],
+): Record<KanbanColumn, T[]> {
+  const columns: Record<KanbanColumn, T[]> = { new: [], acknowledged: [], in_progress: [], resolved: [] };
+  for (const r of reports) columns[kanbanColumn(r.status)].push(r);
+  const age = (r: T) => Date.parse(r.created_at);
+  columns.resolved = columns.resolved.sort((a, b) => age(b) - age(a)).slice(0, RESOLVED_SHOWN);
+  for (const column of Object.values(columns)) column.sort((a, b) => b.metoo_count - a.metoo_count || age(a) - age(b));
+  return columns;
+}
+
 const DAY = 86_400_000;
 
 /**

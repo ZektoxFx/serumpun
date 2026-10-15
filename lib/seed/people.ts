@@ -63,27 +63,35 @@ export type People = { townshipId: string; ids: Record<PersonKey, string> };
  * edit), so a demo account is still found after a visitor changed its email. Lets a re-run reuse accounts.
  */
 async function existingUsers(admin: SupabaseClient) {
+  const all: User[] = [];
   const byEmail = new Map<string, User>();
   const byDemoKey = new Map<string, User>();
   for (let page = 1; ; page++) {
     const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 });
     if (error) throw new Error(`auth users: ${error.message}`);
     for (const user of data.users) {
+      all.push(user);
       if (user.email) byEmail.set(user.email, user);
       if (typeof user.app_metadata.demo === 'string') byDemoKey.set(user.app_metadata.demo, user);
     }
-    if (data.users.length < 1000) return { byEmail, byDemoKey };
+    if (data.users.length < 1000) return { all, byEmail, byDemoKey };
   }
 }
 
-/** Whether the demo password still opens this account: a test sign-in, signed straight back out. */
+/**
+ * Whether the demo password still opens this account: a test sign-in, signed straight back out. Only a wrong password
+ * says no; a rate limit or an outage throws, so a hiccup never resets the password (which would end every session).
+ */
 async function demoPasswordWorks(email: string) {
   const probe = createClient(env.supabaseUrl, env.supabaseAnonKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
   const { error } = await probe.auth.signInWithPassword({ email, password: env.demoPassword });
-  if (!error) await probe.auth.signOut({ scope: 'local' });
-  return !error;
+  if (error?.code === 'invalid_credentials') return false;
+  if (error) throw new Error(`check ${email}: ${error.message}`);
+  const { error: outError } = await probe.auth.signOut({ scope: 'local' });
+  if (outError) throw new Error(`sign ${email} back out: ${outError.message}`);
+  return true;
 }
 
 /**
@@ -119,11 +127,27 @@ export async function seedPeople(admin: SupabaseClient, now: Date): Promise<Peop
 
   const existing = await existingUsers(admin);
   const people = Object.entries(PEOPLE) as [PersonKey, Person][];
+  const demoKeyOf = (key: PersonKey) => (Object.hasOwn(DEMO_EMAIL, key) ? (key as DemoAccount) : null);
+  const found = new Map(
+    people.map(([key, person]) => [key, (demoKeyOf(key) && existing.byDemoKey.get(demoKeyOf(key)!)) || existing.byEmail.get(person.email)]),
+  );
+
+  // Every other account is a visitor's sign-up. On the public demo anyone can open the Management Office, so a reset
+  // must not leave their names and house numbers readable there (Task 3 ruling). Deleting the auth user removes the
+  // profile with it. Going first also frees a demo email a visitor took, before restoreDemoLogin puts it back.
+  const keep = new Set([...found.values()].map((user) => user?.id));
+  let removed = 0;
+  for (const user of existing.all.filter((u) => !keep.has(u.id))) {
+    const { error } = await admin.auth.admin.deleteUser(user.id);
+    if (error) throw new Error(`delete a visitor account: ${error.message}`);
+    removed++;
+  }
+
   const ids = {} as Record<PersonKey, string>;
   let created = 0;
   for (const [key, person] of people) {
-    const demoKey = Object.hasOwn(DEMO_EMAIL, key) ? (key as DemoAccount) : null;
-    const user = (demoKey && existing.byDemoKey.get(demoKey)) || existing.byEmail.get(person.email);
+    const demoKey = demoKeyOf(key);
+    const user = found.get(key);
     if (user) {
       ids[key] = user.id;
       if (demoKey) await restoreDemoLogin(admin, demoKey, user);
@@ -160,6 +184,6 @@ export async function seedPeople(admin: SupabaseClient, now: Date): Promise<Peop
     .upsert(people.filter(([, person]) => person.unit).map(([key, person]) => ({ id: ids[key], unit_no: person.unit })));
   if (privateError) throw new Error(`profile_private: ${privateError.message}`);
 
-  console.log(`people: ${created} created, ${people.length - created} already there`);
+  console.log(`people: ${created} created, ${people.length - created} already there, ${removed} visitor accounts deleted`);
   return { townshipId, ids };
 }

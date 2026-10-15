@@ -5,6 +5,7 @@ import { AppHeader } from '@/components/app/AppHeader';
 import { LiveRefresh } from '@/components/app/LiveRefresh';
 import { FixAnswer } from '@/components/reports/FixAnswer';
 import { MeTooButton } from '@/components/reports/MeTooButton';
+import { ReportTimeline } from '@/components/reports/ReportTimeline';
 import { fixedInLabel, openLabel } from '@/components/reports/labels';
 import { STATUS_TAG } from '@/components/reports/statusTag';
 import { Tag } from '@/components/ui/Tag';
@@ -17,12 +18,11 @@ import {
   isUuid,
   type PublicReport,
   type ReportUpdate,
-  type TimelineStep,
 } from '@/lib/domain/reports';
-import { clockTime } from '@/lib/domain/time';
 import { t } from '@/lib/i18n';
 import { getLang } from '@/lib/i18n/server';
 import { requireMember } from '@/lib/supabase/auth';
+import { photoUrls } from '@/lib/supabase/photoUrls';
 import { createClient } from '@/lib/supabase/server';
 
 /** The report through the privacy view, shared by the page and its title. Null when the caller may not see it. */
@@ -44,11 +44,6 @@ export async function generateMetadata({ params }: PageProps<'/reports/[id]'>): 
   return { title: report ? t(lang, 'report.ref', { n: report.ref_no }) : t(lang, 'home.tile.issues') };
 }
 
-const DOT: Record<TimelineStep['state'], string> = {
-  done: 'bg-green-text',
-  current: 'bg-orange ring-4 ring-orange/25',
-  next: 'bg-line-strong',
-};
 const pill = 'flex min-h-11 items-center justify-center gap-2 rounded-xl px-3 text-center text-sm font-extrabold';
 
 /**
@@ -71,18 +66,10 @@ export default async function ReportPage({ params }: PageProps<'/reports/[id]'>)
   if (error) throw new Error(`report timeline lookup failed: ${error.message}`);
   const steps = buildTimeline(report.status, updates);
 
-  // A public report's photos are plain links (random names). A private report's are reached only through short-lived
-  // signed links, which the storage policy grants to the reporter and the Management Office alone.
-  const paths = [report.photo_path, ...steps.flatMap((s) => s.notes.map((n) => n.photo_path))].filter((p) => p !== null);
-  const urls = new Map(
-    await Promise.all(
-      paths.map(async (path): Promise<[string, string | null]> => {
-        if (!report.is_private) return [path, supabase.storage.from('photos').getPublicUrl(path).data.publicUrl];
-        const { data } = await supabase.storage.from('private-photos').createSignedUrl(path, 3600);
-        return [path, data?.signedUrl ?? null];
-      }),
-    ),
-  );
+  const urls = await photoUrls(supabase, report.is_private, [
+    report.photo_path,
+    ...steps.flatMap((s) => s.notes.map((n) => n.photo_path)),
+  ]);
   const photo = report.photo_path && urls.get(report.photo_path);
 
   const now = new Date();
@@ -164,41 +151,7 @@ export default async function ReportPage({ params }: PageProps<'/reports/[id]'>)
             <p className="text-sm text-muted-2">{t(lang, 'report.fixedCounts', { yes: report.fixed_yes, no: report.fixed_no })}</p>
           )}
 
-          <section aria-labelledby="report-progress">
-            <h3 id="report-progress" className="mb-3 text-xs font-extrabold uppercase tracking-wide text-muted">
-              {t(lang, 'report.progress')}
-            </h3>
-            <ol className="ml-2 border-l-2 border-line pl-5">
-              {steps.map((step, i) => (
-                <li key={i} aria-current={step.state === 'current' ? 'step' : undefined} className="relative pb-4 last:pb-0">
-                  <span aria-hidden="true" className={`absolute -left-[28px] top-1 size-3.5 rounded-full border-2 border-surface ${DOT[step.state]}`} />
-                  <p className={`text-sm font-extrabold ${step.state === 'next' ? 'text-muted' : ''}`}>
-                    {t(lang, `report.step.${step.status}`)}
-                  </p>
-                  <p className="text-xs text-muted-2">
-                    {step.at
-                      ? clockTime(new Date(step.at), now, lang)
-                      : t(lang, step.status === 'confirmed' ? 'report.step.answers' : 'report.step.waiting')}
-                  </p>
-                  {step.notes.map((note, j) => (
-                    <div key={j} className="mt-1.5 grid gap-2 rounded-xl bg-soft px-3 py-2 text-sm">
-                      {note.message && (
-                        <p className="break-words">
-                          <span aria-hidden="true">📢</span> “{note.message}”
-                          {note.by_management && <span className="text-muted-2"> — {t(lang, 'role.management')}</span>}
-                        </p>
-                      )}
-                      {note.photo_path && urls.get(note.photo_path) && (
-                        // eslint-disable-next-line @next/next/no-img-element -- see the report photo above
-                        <img src={urls.get(note.photo_path)!} alt={t(lang, 'report.updatePhotoAlt')} className="max-h-48 w-full rounded-lg object-cover" />
-                      )}
-                      {note.at !== step.at && <p className="text-xs text-muted-2">{clockTime(new Date(note.at), now, lang)}</p>}
-                    </div>
-                  ))}
-                </li>
-              ))}
-            </ol>
-          </section>
+          <ReportTimeline steps={steps} lang={lang} now={now} urls={urls} headingId="report-progress" />
         </div>
       </main>
     </>

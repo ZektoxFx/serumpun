@@ -75,13 +75,14 @@ const ALERTS: SeedAlert[] = [
     type: 'streetlight', severity: 'low', lat: 3.18186, lng: 101.51863, by: 'weiMing', ago: 65,
     note: 'Two lamps out on the north loop of the jogging track.',
   },
-  // Official pins: no expiry and no votes. A water cut is no walking hazard, so it is low (Safe Walk skips low).
+  // Official pins: no expiry and no votes. A water cut is no walking hazard, so it is low (Safe Walk skips low); the road
+  // works divert the footpath, so they are medium.
   {
-    type: 'flood', severity: 'low', lat: 3.17585, lng: 101.51665, by: 'office', ago: 300, official: true,
+    type: 'water_cut', severity: 'low', lat: 3.17585, lng: 101.51665, by: 'office', ago: 300, official: true,
     note: 'Water supply disruption in Elmina Valley 3 for pipe repairs. A water tanker is at the playground.',
   },
   {
-    type: 'walkway_blocked', severity: 'medium', lat: 3.17942, lng: 101.50514, by: 'office', ago: 2 * 24 * 60, official: true,
+    type: 'road_works', severity: 'medium', lat: 3.17942, lng: 101.50514, by: 'office', ago: 2 * 24 * 60, official: true,
     note: 'Road works on Persiaran Garcinia. One lane closed and the footpath diverted.',
   },
 ];

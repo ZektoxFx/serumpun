@@ -2,9 +2,14 @@ import type { MessageKey } from '@/lib/i18n';
 import { distanceMeters, type LatLng } from './geo';
 import type { ReportCategory } from './reports';
 
-// supabase/migrations/0002_alerts.sql enforces the same nine types and three severities.
+// supabase/migrations/0002_alerts.sql and 0004_dashboard.sql enforce the same types and three severities.
+/** What residents can drop on the map. */
 export const ALERT_TYPES = ['accident', 'snake', 'suspicious', 'stray_dogs', 'flood', 'fallen_tree', 'walkway_blocked', 'streetlight', 'police'] as const;
-export type AlertType = (typeof ALERT_TYPES)[number];
+/** Pins only the Management Office posts (spec §8.1: road works, water cuts). */
+export const OFFICIAL_TYPES = ['road_works', 'water_cut'] as const;
+/** Every type a pin on the map can have. */
+export const PIN_TYPES = [...ALERT_TYPES, ...OFFICIAL_TYPES] as const;
+export type AlertType = (typeof PIN_TYPES)[number];
 export const SEVERITIES = ['high', 'medium', 'low'] as const;
 export type Severity = (typeof SEVERITIES)[number];
 export type AlertVote = 'still_there' | 'gone';
@@ -43,6 +48,8 @@ export const DEFAULT_SEVERITY: Record<AlertType, Severity> = {
   walkway_blocked: 'medium',
   streetlight: 'low',
   police: 'low',
+  road_works: 'low',
+  water_cut: 'low',
 };
 
 /** The pin glyph per type. Where a report category covers the same thing, it uses the same icon. */
@@ -56,6 +63,8 @@ export const ALERT_ICON: Record<AlertType, string> = {
   walkway_blocked: '🚧',
   streetlight: '💡',
   police: '🚓',
+  road_works: '🏗️',
+  water_cut: '🚱',
 };
 
 /** The coloured dot next to a severity's name (canvas filter sheet). The name is always written next to it. */
@@ -126,8 +135,8 @@ export type AlertFilters = { maxDistanceM: number | null; severities: readonly S
 /** The distance choices; null is the whole township. */
 export const DISTANCE_OPTIONS = [500, 1000, 2000, null] as const;
 
-/** Everything, everywhere: a newcomer sees every alert in the township. */
-export const DEFAULT_FILTERS: AlertFilters = { maxDistanceM: null, severities: SEVERITIES, types: ALERT_TYPES };
+/** Everything, everywhere: a newcomer sees every alert in the township, official pins included. */
+export const DEFAULT_FILTERS: AlertFilters = { maxDistanceM: null, severities: SEVERITIES, types: PIN_TYPES };
 
 /**
  * The filters saved on this phone (localStorage), read back defensively: they are only as trustworthy as the browser
@@ -147,7 +156,7 @@ export function parseFilters(raw: string | null): AlertFilters {
   return {
     maxDistanceM: DISTANCE_OPTIONS.find((d) => d !== null && d === maxDistanceM) ?? null,
     severities: pick(SEVERITIES, severities),
-    types: pick(ALERT_TYPES, types),
+    types: pick(PIN_TYPES, types),
   };
 }
 

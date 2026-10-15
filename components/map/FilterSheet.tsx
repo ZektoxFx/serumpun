@@ -6,11 +6,11 @@ import { Segmented } from '@/components/ui/Segmented';
 import { Sheet } from '@/components/ui/Sheet';
 import {
   ALERT_ICON,
-  ALERT_TYPES,
   DEFAULT_FILTERS,
   DISTANCE_OPTIONS,
   SEVERITIES,
   SEVERITY_DOT,
+  PIN_TYPES,
   parseFilters,
   type AlertFilters,
 } from '@/lib/domain/alerts';
@@ -129,7 +129,7 @@ export function FilterSheet({
         <fieldset className="min-w-0">
           <legend className={legend}>{t('map.filter.type')}</legend>
           <div className="grid grid-cols-3 gap-2">
-            {ALERT_TYPES.map((type) => (
+            {PIN_TYPES.map((type) => (
               <label
                 key={type}
                 className={`${choice} flex min-h-18 flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-center`}
@@ -137,7 +137,7 @@ export function FilterSheet({
                 <input
                   type="checkbox"
                   checked={filters.types.includes(type)}
-                  onChange={() => onChange({ ...filters, types: toggle(ALERT_TYPES, filters.types, type) })}
+                  onChange={() => onChange({ ...filters, types: toggle(PIN_TYPES, filters.types, type) })}
                   className="peer sr-only"
                 />
                 <span aria-hidden="true" className="absolute right-1.5 top-1 hidden text-xs font-extrabold text-red-text peer-checked:block">

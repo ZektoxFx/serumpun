@@ -5,8 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { IconButton } from '@/components/ui/IconButton';
 import {
-  ALERT_TYPES,
   DEFAULT_FILTERS,
+  PIN_TYPES,
   PUBLIC_ALERT_COLUMNS,
   SEVERITIES,
   filterAlerts,
@@ -214,9 +214,9 @@ export function MapScreen({
             {filters.severities.length < SEVERITIES.length && ` · ${filters.severities.length}`}
             <span aria-hidden="true">▾</span>
           </button>
-          <button type="button" aria-haspopup="dialog" onClick={() => setFiltersOpen(true)} className={chip(filters.types.length < ALERT_TYPES.length)}>
+          <button type="button" aria-haspopup="dialog" onClick={() => setFiltersOpen(true)} className={chip(filters.types.length < PIN_TYPES.length)}>
             {t('map.filter.type')}
-            {filters.types.length < ALERT_TYPES.length && ` · ${filters.types.length}`}
+            {filters.types.length < PIN_TYPES.length && ` · ${filters.types.length}`}
             <span aria-hidden="true">▾</span>
           </button>
         </div>
