@@ -84,6 +84,11 @@ const ms: Record<keyof typeof en, string> = {
   'me.listings': 'Senarai barang saya',
   'me.pointsHistory': 'Sejarah mata',
   'me.darkMode': 'Mod gelap',
+  'me.textSize': 'Saiz teks',
+  'text.sm': 'Kecil',
+  'text.md': 'Biasa',
+  'text.lg': 'Besar',
+  'text.xl': 'Lebih besar',
   'me.township': 'Perbandaran',
 
   // Landing page

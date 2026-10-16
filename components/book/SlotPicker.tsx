@@ -16,7 +16,7 @@ export type Slot = { hour: number; state: SlotState; label: string; range: strin
 /** The court and the day, for the confirm sheet (worked out on the server, in the reader's language). */
 export type BookingSummary = { icon: string; court: string; place: string; day: string; township: string };
 
-const slotClass = 'flex min-h-11 w-full items-center justify-center rounded-[10px] border-[1.5px] px-1 text-[13px]';
+const slotClass = 'flex min-h-11 w-full items-center justify-center rounded-[10px] border-[1.5px] px-1 text-[0.8125rem]';
 const stepper =
   'grid size-11 place-items-center rounded-xl border-[1.5px] border-line-strong bg-surface text-lg text-text hover:bg-soft disabled:opacity-50';
 
@@ -187,7 +187,7 @@ function ConfirmBooking({
               {r.icon}
             </span>
             <span className="flex min-w-0 flex-col">
-              <span className={`break-words text-[15px] font-bold ${i === 2 ? 'text-green-text' : ''}`}>{r.title}</span>
+              <span className={`break-words text-[0.9375rem] font-bold ${i === 2 ? 'text-green-text' : ''}`}>{r.title}</span>
               <span className="break-words text-sm text-muted-2">{r.sub}</span>
             </span>
           </li>
@@ -196,7 +196,7 @@ function ConfirmBooking({
       <div className="flex flex-col gap-2 rounded-2xl border-[1.5px] border-line px-3.5 py-3">
         <div className="flex min-h-11 items-center justify-between gap-2.5">
           <span className="flex min-w-0 flex-col">
-            <span id={`${id}-find`} className="text-[15px] font-bold">
+            <span id={`${id}-find`} className="text-[0.9375rem] font-bold">
               <span aria-hidden="true">🙋 </span>
               {t('book.players.find')}
             </span>

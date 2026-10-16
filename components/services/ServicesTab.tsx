@@ -136,7 +136,7 @@ function ServiceCard({
       {s.description && <p className="whitespace-pre-line break-words text-sm">{s.description}</p>}
       <div className="mt-1.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
         {offer ? (
-          <span className={s.price_text ? 'text-[15px] font-extrabold text-red-text' : 'text-sm text-muted-2'}>
+          <span className={s.price_text ? 'text-[0.9375rem] font-extrabold text-red-text' : 'text-sm text-muted-2'}>
             {s.price_text ?? t(lang, 'service.askPrice')}
           </span>
         ) : (

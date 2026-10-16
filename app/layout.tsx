@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from 'next';
 import { Plus_Jakarta_Sans } from 'next/font/google';
 import { ThemeProvider } from 'next-themes';
+import { cookies } from 'next/headers';
 import { I18nProvider, t } from '@/lib/i18n';
 import { getLang } from '@/lib/i18n/server';
+import { TEXT_SCALE, isTextSize } from '@/lib/textSize';
 import './globals.css';
 
 const jakarta = Plus_Jakarta_Sans({
@@ -30,9 +32,15 @@ export const viewport: Viewport = {
 
 export default async function RootLayout({ children }: LayoutProps<'/'>) {
   const lang = await getLang();
+  const size = (await cookies()).get('textSize')?.value; // Me › Text size
   return (
     // next-themes writes data-theme on <html> before hydration, so React must not flag the mismatch.
-    <html lang={lang} className={jakarta.variable} suppressHydrationWarning>
+    <html
+      lang={lang}
+      className={jakarta.variable}
+      style={{ fontSize: TEXT_SCALE[isTextSize(size) ? size : 'md'] }}
+      suppressHydrationWarning
+    >
       <body>
         <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem disableTransitionOnChange>
           <I18nProvider lang={lang}>{children}</I18nProvider>

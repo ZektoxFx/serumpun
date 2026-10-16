@@ -75,11 +75,11 @@ export default async function BookingPassPage({ params }: PageProps<'/book/[id]'
             {t(lang, live ? 'book.pass.confirmed' : b.status === 'cancelled' ? 'book.pass.cancelled' : 'book.pass.ended')}
           </p>
           <div className="flex flex-col items-center gap-1 px-4 pb-5 pt-4 text-center">
-            <h2 className="break-words text-[22px] font-extrabold leading-tight">
+            <h2 className="break-words text-[1.375rem] font-extrabold leading-tight">
               <span aria-hidden="true">{SPORT_ICON[b.facility.sport]} </span>
               {b.facility.court_label}
             </h2>
-            <p className="text-[15px] font-bold">
+            <p className="text-[0.9375rem] font-bold">
               {eventDay(start, lang)} · {slotRange(b.date, b.start_hour, lang)}
             </p>
             <p className="text-sm text-muted-2">{b.facility.place_name}</p>
@@ -91,7 +91,7 @@ export default async function BookingPassPage({ params }: PageProps<'/book/[id]'
         {live && b.players_needed > 0 && (
           <section aria-labelledby="players-title" className="flex flex-col gap-2.5 rounded-2xl border border-line bg-surface p-3.5 shadow-card">
             <div className="flex items-center justify-between gap-2">
-              <h2 id="players-title" className="text-[15px] font-bold">
+              <h2 id="players-title" className="text-[0.9375rem] font-bold">
                 <span aria-hidden="true">🙋 </span>
                 {t(lang, left > 0 ? 'book.game.finding' : 'book.game.found')}
               </h2>

@@ -195,7 +195,7 @@ async function Picker({ profile, lang, params }: { profile: SessionProfile; lang
                   on ? 'border-ink bg-ink text-on-ink' : 'border-line bg-surface'
                 }`}
               >
-                <span className={`text-[11px] font-bold ${on ? '' : 'text-muted-2'}`}>{weekday.format(noon)}</span>
+                <span className={`text-[0.6875rem] font-bold ${on ? '' : 'text-muted-2'}`}>{weekday.format(noon)}</span>
                 <span className="text-base font-extrabold">{Number(d.slice(8))}</span>
               </Link>
             );

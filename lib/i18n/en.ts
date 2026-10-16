@@ -83,6 +83,11 @@ const en = {
   'me.listings': 'My listings',
   'me.pointsHistory': 'Points history',
   'me.darkMode': 'Dark mode',
+  'me.textSize': 'Text size',
+  'text.sm': 'Small',
+  'text.md': 'Normal',
+  'text.lg': 'Large',
+  'text.xl': 'Extra large',
   'me.township': 'Township',
 
   // Landing page

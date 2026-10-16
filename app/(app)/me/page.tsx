@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
+import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { signOut } from '@/app/(auth)/actions';
 import { HeroChip } from '@/components/app/HeroChip';
 import { LanguageSwitch } from '@/components/app/LanguageSwitch';
+import { TextSizeSwitch } from '@/components/app/TextSizeSwitch';
 import { ThemeSwitch } from '@/components/app/ThemeSwitch';
 import { Avatar } from '@/components/ui/Avatar';
 import { buttonClasses } from '@/components/ui/Button';
@@ -13,6 +15,7 @@ import { t } from '@/lib/i18n';
 import { getLang } from '@/lib/i18n/server';
 import { requireMember } from '@/lib/supabase/auth';
 import { createClient } from '@/lib/supabase/server';
+import { isTextSize } from '@/lib/textSize';
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: t(await getLang(), 'nav.me') };
@@ -29,6 +32,7 @@ const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 export default async function MePage() {
   const profile = await requireMember();
   const lang = await getLang();
+  const textSize = (await cookies()).get('textSize')?.value;
   const supabase = await createClient();
   const now = new Date();
   // Row-level security: the caller's own ledger entries and vouchers.
@@ -131,6 +135,16 @@ export default async function MePage() {
               {t(lang, 'me.darkMode')}
             </label>
             <ThemeSwitch id="dark-mode" />
+          </li>
+
+          <li className="grid gap-2 px-4 py-3">
+            <span className="flex items-center gap-3 text-base font-bold">
+              <span aria-hidden="true" className={rowIcon}>
+                🔠
+              </span>
+              {t(lang, 'me.textSize')}
+            </span>
+            <TextSizeSwitch size={isTextSize(textSize) ? textSize : 'md'} />
           </li>
 
           <li className="grid gap-2 px-4 py-3">
