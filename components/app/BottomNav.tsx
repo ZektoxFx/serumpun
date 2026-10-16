@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { Fragment, useState, type ReactNode } from 'react';
 import { TABS, isActiveTab } from '@/lib/domain/nav';
 import { useT } from '@/lib/i18n';
@@ -40,9 +40,11 @@ const icons: Record<(typeof TABS)[number]['key'], ReactNode> = {
 export function BottomNav() {
   const t = useT();
   const pathname = usePathname();
+  const view = useSearchParams().get('view');
   const [creating, setCreating] = useState(false);
-  // A conversation puts its composer where the bar would be (full-screen flows may hide it: Task 4 ruling).
-  if (/^\/messages\/[^/]+$/.test(pathname)) return null;
+  // A conversation puts its composer where the bar would be, and Book a Court its Book bar (canvas); My bookings
+  // (/book?view=mine) keeps it. Full-screen flows may hide it: Task 4 ruling.
+  if (/^\/messages\/[^/]+$/.test(pathname) || (pathname === '/book' && view !== 'mine')) return null;
   return (
     <>
       <nav

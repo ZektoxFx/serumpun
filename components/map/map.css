@@ -14,6 +14,16 @@
 .map-pin--high { --pin-color: var(--red); }
 .map-pin--medium { --pin-color: var(--orange); }
 .map-pin--low { --pin-color: var(--amber); }
+/* A place, not an alert (Book a Court's court): brand red without the severity badge. */
+.map-pin--place { --pin-color: var(--red); }
+
+/* Book a Court: the other court of the pair, a plain square beside the pin. */
+.map-court {
+  border: 2px solid #fff;
+  border-radius: 4px;
+  background: #5b6573;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
+}
 
 .map-pin-head {
   position: absolute;

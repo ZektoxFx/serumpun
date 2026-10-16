@@ -27,7 +27,8 @@ const NEIGHBOURHOOD_CENTRES: Record<string, LatLng> = {
   'elmina gardens': { lat: 3.1858, lng: 101.508 },
 };
 
-function centreOf(neighbourhood: string): LatLng | null {
+/** A neighbourhood's rough centre, however its name is typed; null when it is not on the list. */
+export function neighbourhoodCentre(neighbourhood: string): LatLng | null {
   const key = neighbourhood.trim().toLowerCase();
   return Object.hasOwn(NEIGHBOURHOOD_CENTRES, key) ? NEIGHBOURHOOD_CENTRES[key] : null;
 }
@@ -37,8 +38,8 @@ function centreOf(neighbourhood: string): LatLng | null {
  * (residents type theirs at sign-up). Share & Lend shows this, never anything closer to a home.
  */
 export function neighbourhoodDistance(from: string, to: string): number | null {
-  const a = centreOf(from);
-  const b = centreOf(to);
+  const a = neighbourhoodCentre(from);
+  const b = neighbourhoodCentre(to);
   return a && b ? distanceMeters(a, b) : null;
 }
 

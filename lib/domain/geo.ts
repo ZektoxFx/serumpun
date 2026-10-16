@@ -24,3 +24,8 @@ export function formatDistance(m: number): string {
   const metres = Math.max(10, Math.round(m / 10) * 10);
   return metres < 1000 ? `${metres} m` : `${Number((m / 1000).toFixed(1))} km`;
 }
+
+/** Minutes on foot at 80 m a minute (about 5 km/h), never under 1. */
+export function walkMinutes(m: number): number {
+  return Math.max(1, Math.ceil(m / 80));
+}

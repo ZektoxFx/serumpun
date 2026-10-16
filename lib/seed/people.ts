@@ -58,6 +58,9 @@ export type PersonKey = keyof typeof PEOPLE;
 /** What every feature seeder gets: Elmina's id and each seeded person's user id. */
 export type People = { townshipId: string; ids: Record<PersonKey, string> };
 
+/** A seeded person's unit (null for the Management Office), for rows that copy it: a court booking's household. */
+export const unitOf = (key: PersonKey) => PEOPLE[key].unit;
+
 /**
  * Existing auth users by email, plus the demo accounts by the key stamped in their app_metadata (which users cannot
  * edit), so a demo account is still found after a visitor changed its email. Lets a re-run reuse accounts.
