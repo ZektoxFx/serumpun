@@ -51,7 +51,11 @@ export function PostCard({
         <MessageButton
           contextType="post"
           contextId={post.id}
-          label={t(lang, 'messages.messageOwner', { name: firstName(author) })}
+          label={
+            <>
+              <span aria-hidden="true">💬</span> {t(lang, 'messages.messageOwner', { name: firstName(author) })}
+            </>
+          }
           canAct={canMessage}
         />
       )}

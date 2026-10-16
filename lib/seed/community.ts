@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { GroupCategory, GroupColour, PostType } from '@/lib/domain/community';
+import type { GroupCategory, GroupColour, PostType, ServiceCategory, ServiceKind } from '@/lib/domain/community';
+import { mytDate } from '@/lib/domain/time';
 import type { People, PersonKey } from './people';
 
 const HOUR = 3_600_000;
@@ -139,6 +140,33 @@ const EVENT_GROUPS = {
   'Futsal friendly match': 'Sunday Futsal Dads',
 } as const;
 
+type SeedService = {
+  by: PersonKey;
+  kind: ServiceKind;
+  category: ServiceCategory;
+  title: string;
+  daysAgo: number;
+  price?: string;
+  availability?: string;
+  budget?: string;
+  neededInDays?: number;
+};
+
+// Plan Task 14: the three cards of the approved canvas first (newest), then seven more. Tan Wei Ming is the canvas's
+// "Mr Tan". The canvas cards have no availability or date, so they look exactly as approved.
+const SERVICES: SeedService[] = [
+  { by: 'farah', kind: 'offer', category: 'tutoring', title: 'Maths & Science tuition, Form 1–3', daysAgo: 1, price: 'RM40 / hour' },
+  { by: 'ravi', kind: 'offer', category: 'repairs', title: 'Aircon servicing & small repairs', daysAgo: 2, price: 'From RM80' },
+  { by: 'weiMing', kind: 'request', category: 'repairs', title: 'Need someone to fix a leaking sink this week', daysAgo: 1, budget: 'RM50–80' },
+  { by: 'kavitha', kind: 'offer', category: 'pet_care', title: 'Dog walking and pet sitting', daysAgo: 4, price: 'RM15 / walk', availability: 'Mornings and evenings' },
+  { by: 'hafiz', kind: 'offer', category: 'repairs', title: 'Plumbing: leaking taps and blocked drains', daysAgo: 6, price: 'From RM50', availability: 'Weekends' },
+  { by: 'nurul', kind: 'offer', category: 'home_help', title: 'House cleaning, 3-hour sessions', daysAgo: 8, price: 'RM60 / session', availability: 'Weekday mornings' },
+  { by: 'jason', kind: 'offer', category: 'tutoring', title: 'Guitar lessons for beginners', daysAgo: 12, price: 'RM50 / hour', availability: 'Weekday evenings' },
+  { by: 'priya', kind: 'request', category: 'pet_care', title: 'Cat sitter needed for 3 days next week', daysAgo: 2, budget: 'RM30 / day', neededInDays: 7 },
+  { by: 'ahmad', kind: 'request', category: 'home_help', title: 'Two people to help move a sofa', daysAgo: 3, budget: 'RM100', neededInDays: 4 },
+  { by: 'arif', kind: 'request', category: 'tutoring', title: 'Looking for an SPM English tutor', daysAgo: 5, budget: 'RM40 / hour' },
+];
+
 /** The groups' rows, relative to `now`. Counters are what the RPCs would have left, except the larger shown counts. */
 export function communityRows(now: Date, people: People) {
   const ago = (ms: number) => new Date(now.getTime() - ms).toISOString();
@@ -199,18 +227,37 @@ export function communityRows(now: Date, people: People) {
       }
     }
   }
-  return { groups, members, posts, comments, helpful, eventGroups: EVENT_GROUPS };
+  // As create_service leaves them: an offer has no budget or date, a request no price or availability.
+  const services = SERVICES.map((s) => ({
+    id: crypto.randomUUID(),
+    township_id: people.townshipId,
+    kind: s.kind,
+    category: s.category,
+    title: s.title,
+    description: null,
+    price_text: s.price ?? null,
+    availability_text: s.availability ?? null,
+    budget_text: s.budget ?? null,
+    needed_by: s.neededInDays === undefined ? null : mytDate(new Date(now.getTime() + s.neededInDays * DAY)),
+    provider_id: people.ids[s.by],
+    created_at: ago(s.daysAgo * DAY),
+  }));
+  return { groups, members, posts, comments, helpful, eventGroups: EVENT_GROUPS, services };
 }
 
-/** The five groups with their members, posts, comments and Helpful votes; pins three upcoming events in their groups. */
+/**
+ * The five groups with their members, posts, comments and Helpful votes (pinning three upcoming events in their groups),
+ * and the services offered and requested.
+ */
 export async function seedCommunity(admin: SupabaseClient, now: Date, people: People): Promise<void> {
-  const { groups, members, posts, comments, helpful, eventGroups } = communityRows(now, people);
+  const { groups, members, posts, comments, helpful, eventGroups, services } = communityRows(now, people);
   const tables: [string, Record<string, unknown>[]][] = [
     ['groups', groups],
     ['group_members', members],
     ['posts', posts],
     ['comments', comments],
     ['comment_helpful', helpful],
+    ['services', services],
   ];
   for (const [table, rows] of tables) {
     const { error } = await admin.from(table).insert(rows);
@@ -225,4 +272,5 @@ export async function seedCommunity(admin: SupabaseClient, now: Date, people: Pe
     if (error) throw new Error(`events (${title}): ${error.message}`);
   }
   console.log(`groups: ${groups.length} with ${members.length} members, ${posts.length} posts and ${comments.length} comments`);
+  console.log(`services: ${services.length}`);
 }

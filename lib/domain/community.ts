@@ -75,6 +75,51 @@ export function newSince(items: readonly { created_at: string }[], lastVisit: st
   return items.filter((item) => Date.parse(item.created_at) > seen).length;
 }
 
+// supabase/migrations/0009_services.sql enforces the same service kinds and categories.
+
+export const SERVICE_KINDS = ['offer', 'request'] as const;
+export type ServiceKind = (typeof SERVICE_KINDS)[number];
+export const SERVICE_CATEGORIES = ['tutoring', 'repairs', 'home_help', 'pet_care', 'other'] as const;
+export type ServiceCategory = (typeof SERVICE_CATEGORIES)[number];
+export const SERVICE_ICON: Record<ServiceCategory, string> = { tutoring: '📚', repairs: '🔧', home_help: '🧹', pet_care: '🐾', other: '🤝' };
+
+/** A row of `public_services`: an offer or a request of the township, by name and neighbourhood (never a unit or phone). */
+export type PublicService = {
+  id: string;
+  kind: ServiceKind;
+  category: ServiceCategory;
+  title: string;
+  description: string | null;
+  price_text: string | null;
+  availability_text: string | null;
+  budget_text: string | null;
+  needed_by: string | null;
+  created_at: string;
+  provider_name: string;
+  provider_neighbourhood: string;
+  is_mine: boolean;
+  /** Conversations started about it: on a request, the neighbours who offered to help. */
+  conversation_count: number;
+};
+export const PUBLIC_SERVICE_COLUMNS =
+  'id, kind, category, title, description, price_text, availability_text, budget_text, needed_by, created_at, provider_name, provider_neighbourhood, is_mine, conversation_count';
+
+const lookup = (keys: Record<string, MessageKey>, code: string | undefined): MessageKey =>
+  code !== undefined && Object.hasOwn(keys, code) ? keys[code] : 'common.error';
+
+// The `raise exception` codes of create_service.
+const SERVICE_ERRORS: Record<string, MessageKey> = {
+  not_verified: 'common.pendingCantAct',
+  bad_kind: 'service.error.kind',
+  bad_category: 'service.error.category',
+  bad_title: 'service.error.title',
+  bad_date: 'service.error.date',
+};
+
+export function serviceErrorKey(code: string | undefined): MessageKey {
+  return lookup(SERVICE_ERRORS, code);
+}
+
 // The `raise exception` codes of the group RPCs.
 const ERROR_KEYS: Record<string, MessageKey> = {
   not_verified: 'common.pendingCantAct',
@@ -89,5 +134,5 @@ const ERROR_KEYS: Record<string, MessageKey> = {
 };
 
 export function groupErrorKey(code: string | undefined): MessageKey {
-  return code !== undefined && Object.hasOwn(ERROR_KEYS, code) ? ERROR_KEYS[code] : 'common.error';
+  return lookup(ERROR_KEYS, code);
 }

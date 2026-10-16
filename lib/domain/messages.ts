@@ -5,7 +5,7 @@ import type { MessageKey } from '@/lib/i18n';
 /** What a conversation is about: a group post now; services, Share & Lend items and open games as their tasks land. */
 export const CONTEXT_TYPES = ['post', 'service', 'listing', 'game'] as const;
 export type ContextType = (typeof CONTEXT_TYPES)[number];
-export const CONTEXT_ICON: Record<ContextType, string> = { post: '💬', service: '🧑‍🏫', listing: '🔁', game: '🏸' };
+export const CONTEXT_ICON: Record<ContextType, string> = { post: '💬', service: '🤝', listing: '🔁', game: '🏸' };
 
 /** A row of `my_conversations`: one of the caller's conversations, the other person in it and its latest message. */
 export type Conversation = {

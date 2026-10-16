@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { AppHeader } from '@/components/app/AppHeader';
 import { EventsTab } from '@/components/events/EventsTab';
 import { GroupsTab } from '@/components/groups/GroupsTab';
+import { ServicesTab } from '@/components/services/ServicesTab';
 import { t } from '@/lib/i18n';
 import { getLang } from '@/lib/i18n/server';
 import { requireMember } from '@/lib/supabase/auth';
@@ -11,8 +12,8 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t(await getLang(), 'nav.community') };
 }
 
-/** The tabs that exist, in the canvas order (ruling R5): Services and Share & Lend join as their tasks land. */
-const TABS = ['groups', 'events'] as const;
+/** The tabs that exist, in the canvas order (ruling R5): Share & Lend joins when its task lands. */
+const TABS = ['groups', 'events', 'services'] as const;
 
 /** Community (canvas "Community tabs"): the township's name over the title, the tab pills, and the tab `?tab=` picks. */
 export default async function CommunityPage({ searchParams }: PageProps<'/community'>) {
@@ -45,7 +46,9 @@ export default async function CommunityPage({ searchParams }: PageProps<'/commun
           ))}
         </nav>
       </AppHeader>
-      {tab === 'events' ? <EventsTab profile={profile} lang={lang} params={params} /> : <GroupsTab profile={profile} lang={lang} />}
+      {tab === 'groups' && <GroupsTab profile={profile} lang={lang} />}
+      {tab === 'events' && <EventsTab profile={profile} lang={lang} params={params} />}
+      {tab === 'services' && <ServicesTab profile={profile} lang={lang} params={params} />}
     </>
   );
 }

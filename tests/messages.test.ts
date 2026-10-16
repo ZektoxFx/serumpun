@@ -21,7 +21,9 @@ describe("Aisyah's seeded conversations", () => {
   const now = new Date('2026-10-16T06:00:00Z');
   const people = { townshipId: 'elmina', ids: new Proxy({}, { get: (_, key) => String(key) }) } as People;
   const stroller = { id: 'stroller-post', body: 'Lending our stroller, barely used.\nHappy to lend it for a few weeks if you have a newborn or visitors with a baby coming 🍼' };
-  const { conversations, members, messages } = messageRows(now, people, stroller);
+  const tuition = { id: 'tuition-service', title: 'Maths & Science tuition, Form 1–3' };
+  const sink = { id: 'sink-request', title: 'Need someone to fix a leaking sink this week' };
+  const { conversations, members, messages } = messageRows(now, people, { stroller, tuition, sink });
   const mine = members.filter((m) => m.user_id === 'aisyah');
 
   it('are with Cikgu Farah, Ahmad and Priya, two messages unread', () => {
@@ -47,6 +49,15 @@ describe("Aisyah's seeded conversations", () => {
     const post = conversations.find((c) => c.context_type === 'post')!;
     expect(post.context_id).toBe('stroller-post');
     expect(post.context_title).toBe('Lending our stroller, barely used. Happy to lend it for a few weeks if you have');
+  });
+
+  it("are about Cikgu Farah's tuition service, and two neighbours offered to fix the leaking sink", () => {
+    const farah = conversations.find((c) => c.context_type === 'service' && c.context_id === tuition.id)!;
+    expect(farah.context_title).toBe(tuition.title);
+    expect(members.filter((m) => m.conversation_id === farah.id).map((m) => m.user_id).sort()).toEqual(['aisyah', 'farah']);
+    const helpers = conversations.filter((c) => c.context_id === sink.id);
+    expect(helpers).toHaveLength(2);
+    for (const h of helpers) expect([h.context_type, h.context_title]).toEqual(['service', sink.title]);
   });
 
   it('never show a phone number', () => {

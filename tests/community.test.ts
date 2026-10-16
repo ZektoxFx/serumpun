@@ -1,4 +1,12 @@
-import { GROUP_CATEGORIES, POST_TYPES, groupErrorKey, newSince, topAnswer } from '@/lib/domain/community';
+import {
+  GROUP_CATEGORIES,
+  POST_TYPES,
+  SERVICE_CATEGORIES,
+  groupErrorKey,
+  newSince,
+  serviceErrorKey,
+  topAnswer,
+} from '@/lib/domain/community';
 import { mytDate } from '@/lib/domain/time';
 import { t } from '@/lib/i18n';
 import { communityRows } from '@/lib/seed/community';
@@ -110,5 +118,44 @@ describe('the seeded groups', () => {
       'Elmina Fun Run 5K': 'Elmina Morning Runners',
       'Toddler playdate': 'Elmina Mommies',
     });
+  });
+});
+
+it('names every service error and category in both languages', () => {
+  for (const code of ['not_verified', 'bad_kind', 'bad_category', 'bad_title', 'bad_date']) {
+    const key = serviceErrorKey(code);
+    expect(key, code).not.toBe('common.error');
+    expect(t('ms', key)).not.toBe(t('en', key));
+  }
+  expect(serviceErrorKey('__proto__')).toBe('common.error');
+  for (const category of SERVICE_CATEGORIES) {
+    expect(t('en', `service.category.${category}`)).not.toBe(`service.category.${category}`);
+    expect(t('ms', `service.category.${category}`)).not.toBe(t('en', `service.category.${category}`));
+  }
+});
+
+describe('the seeded services', () => {
+  const now = new Date('2026-10-16T06:00:00Z');
+  const people = { townshipId: 'elmina', ids: new Proxy({}, { get: (_, key) => String(key) }) } as People;
+  const { services } = communityRows(now, people);
+  const newest = (kind: string) => services.filter((s) => s.kind === kind).sort((a, b) => b.created_at.localeCompare(a.created_at));
+
+  it('open with the three cards of the approved canvas, among 10', () => {
+    expect(services).toHaveLength(10);
+    expect(newest('offer').slice(0, 2).map((s) => [s.title, s.provider_id, s.price_text])).toEqual([
+      ['Maths & Science tuition, Form 1–3', 'farah', 'RM40 / hour'],
+      ['Aircon servicing & small repairs', 'ravi', 'From RM80'],
+    ]);
+    const [sink] = newest('request');
+    expect([sink.title, sink.provider_id, sink.budget_text]).toEqual(['Need someone to fix a leaking sink this week', 'weiMing', 'RM50–80']);
+  });
+
+  it('keep the rules create_service keeps', () => {
+    for (const s of services) {
+      if (s.kind === 'offer') expect([s.budget_text, s.needed_by], s.title).toEqual([null, null]);
+      else expect([s.price_text, s.availability_text], s.title).toEqual([null, null]);
+      expect(SERVICE_CATEGORIES).toContain(s.category);
+      if (s.needed_by) expect(s.needed_by >= mytDate(now), s.title).toBe(true);
+    }
   });
 });
