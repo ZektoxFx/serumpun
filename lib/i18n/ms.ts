@@ -675,6 +675,8 @@ const ms: Record<keyof typeof en, string> = {
   'group.error.type': 'Pilih jenis siaran.',
   'group.error.body': 'Tulis sesuatu dahulu.',
   'group.error.adminLeave': 'Pentadbir tidak boleh keluar dari kumpulan.',
+  'group.error.general': 'Semua orang kekal dalam General chat.',
+  'group.general.everyone': 'Semua penduduk {township}',
   'group.error.ownComment': 'Anda tidak boleh menandakan ulasan sendiri sebagai membantu.',
   'notify.group.comment': 'Ulasan baharu pada siaran anda',
 

@@ -674,6 +674,8 @@ const en = {
   'group.error.type': 'Pick a type of post.',
   'group.error.body': 'Write something first.',
   'group.error.adminLeave': 'The admin cannot leave the group.',
+  'group.error.general': 'Everyone stays in General chat.',
+  'group.general.everyone': 'Everyone in {township}',
   'group.error.ownComment': 'You cannot mark your own comment as helpful.',
   'notify.group.comment': 'New comment on your post',
 

@@ -26,8 +26,11 @@ export type PublicGroup = {
   my_role: 'admin' | 'member' | null;
   joined_at: string | null;
   last_visit_at: string | null;
+  /** The township's General chat: everyone is in it, nobody leaves. */
+  is_general: boolean;
 };
-export const PUBLIC_GROUP_COLUMNS = 'id, name, category, description, rules, colour, member_count, is_member, my_role, joined_at, last_visit_at';
+export const PUBLIC_GROUP_COLUMNS =
+  'id, name, category, description, rules, colour, member_count, is_member, my_role, joined_at, last_visit_at, is_general';
 
 /** A row of `public_posts`. The author's name is null only if their account is gone. */
 export type PublicPost = {
@@ -248,6 +251,7 @@ const ERROR_KEYS: Record<string, MessageKey> = {
   bad_type: 'group.error.type',
   bad_body: 'group.error.body',
   admin_cannot_leave: 'group.error.adminLeave',
+  general_group: 'group.error.general',
   own_comment: 'group.error.ownComment',
 };
 

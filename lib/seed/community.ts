@@ -10,6 +10,8 @@ type SeedComment = { by: PersonKey; hoursAgo: number; body: string; helpful?: nu
 type SeedPost = { by: PersonKey; type: PostType; hoursAgo: number; body: string; comments?: SeedComment[] };
 type SeedGroup = {
   name: string;
+  /** The township's General chat: everyone verified is in it (the database adds new residents) and nobody leaves. */
+  general?: boolean;
   category: GroupCategory;
   colour: GroupColour;
   /** The count shown; the people below are the members behind it who have accounts. */
@@ -21,8 +23,41 @@ type SeedGroup = {
   posts: SeedPost[];
 };
 
-// Spec §8.4: the five groups of the demo, with the canvas colours and member counts.
+// Spec §8.4: the five groups of the demo, with the canvas colours and member counts, after General chat (feedback, 17 Oct).
 const GROUPS: SeedGroup[] = [
+  {
+    name: 'General chat',
+    general: true,
+    category: 'other',
+    colour: 'orange',
+    members: 1180,
+    description: 'Say hi, ask for help or share news with your neighbours.',
+    rules:
+      'Be kind and keep it about Elmina.\nNo selling: use Services or Share & Lend instead.\nFor anything broken, use Report an issue so the office can track it.',
+    // Everyone verified, the office looking after it. Aisyah last opened it 3 hours ago: the 3 posts since are new to her.
+    people: [
+      ['office', 900, 48], ['aisyah', 420, 3], ['daniel', 380, 20], ['meiLing', 600, 5], ['priya', 540, 30], ['ahmad', 500, 12],
+      ['ravi', 470, 40], ['farah', 450, 8], ['weiMing', 330, 70], ['siti', 300, 2], ['hafiz', 260, 6], ['kavitha', 210, 50],
+      ['jason', 150, 26], ['nurul', 90, 9], ['arif', 40, 1],
+    ],
+    posts: [
+      {
+        by: 'office',
+        type: 'general',
+        hoursAgo: 30,
+        body: 'Welcome to General chat! Everyone in Elmina is here. Be kind, and use Report an issue for anything that needs fixing.',
+      },
+      { by: 'meiLing', type: 'general', hoursAgo: 2.5, body: "Thank you to whoever handed my son's bicycle to the guardhouse yesterday! 🙏" },
+      {
+        by: 'hafiz',
+        type: 'question',
+        hoursAgo: 1,
+        body: 'Has anyone seen an orange cat with a blue collar near Elmina Valley 2? Our Oyen went missing this morning.',
+        comments: [{ by: 'kavitha', hoursAgo: 0.5, body: 'Saw one near the playground on Jalan Elmina Valley 2/3 about 20 minutes ago!' }],
+      },
+      { by: 'siti', type: 'general', hoursAgo: 0.02, body: 'Hai semua! Is the Sunday pasar pagi at Central Park on this week?' },
+    ],
+  },
   {
     name: 'Elmina Mommies',
     category: 'family',
@@ -245,6 +280,7 @@ export function communityRows(now: Date, people: People) {
       colour: g.colour,
       created_by: people.ids[admin],
       member_count: g.members,
+      is_general: g.general ?? false,
       created_at: ago(adminDays * DAY),
     });
     for (const [who, days, visitHours] of g.people) {

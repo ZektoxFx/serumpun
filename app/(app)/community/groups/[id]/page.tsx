@@ -230,7 +230,9 @@ async function Members({ group, profile, lang }: { group: PublicGroup; profile: 
       {group.member_count > members.length && (
         <p className="text-center text-sm text-muted-2">{t(lang, 'group.moreMembers', { n: group.member_count - members.length })}</p>
       )}
-      {group.my_role === 'member' && <JoinButton groupId={group.id} name={group.name} member canAct={profile.status === 'verified'} />}
+      {group.my_role === 'member' && !group.is_general && (
+        <JoinButton groupId={group.id} name={group.name} member canAct={profile.status === 'verified'} />
+      )}
     </>
   );
 }

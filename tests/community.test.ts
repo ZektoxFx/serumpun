@@ -43,7 +43,10 @@ describe('newSince', () => {
 });
 
 it('names every group error, category and post type in both languages', () => {
-  const codes = ['not_verified', 'not_found', 'not_member', 'bad_name', 'bad_category', 'bad_type', 'bad_body', 'admin_cannot_leave', 'own_comment'];
+  const codes = [
+    'not_verified', 'not_found', 'not_member', 'bad_name', 'bad_category', 'bad_type', 'bad_body', 'admin_cannot_leave', 'own_comment',
+    'general_group',
+  ];
   for (const code of codes) {
     const key = groupErrorKey(code);
     expect(key, code).not.toBe('common.error');
@@ -64,16 +67,32 @@ describe('the seeded groups', () => {
   const group = (name: string) => groups.find((g) => g.name === name)!;
   const isMember = (groupId: string, user: string) => members.some((m) => m.group_id === groupId && m.user_id === user);
 
-  it('are the five of the spec, with Aisyah in three of them', () => {
+  it('are the five of the spec and General chat, with Aisyah in three of the five', () => {
     expect(groups.map((g) => g.name).sort()).toEqual([
       'Central Park Briskwalkers',
       'Elmina Mommies',
       'Elmina Morning Runners',
       'Elmina Toddler Playdates',
+      'General chat',
       'Sunday Futsal Dads',
     ]);
-    const hers = members.filter((m) => m.user_id === 'aisyah').map((m) => groups.find((g) => g.id === m.group_id)!.name);
+    const hers = members
+      .filter((m) => m.user_id === 'aisyah')
+      .map((m) => groups.find((g) => g.id === m.group_id)!)
+      .filter((g) => !g.is_general)
+      .map((g) => g.name);
     expect(hers.sort()).toEqual(['Central Park Briskwalkers', 'Elmina Mommies', 'Elmina Morning Runners']);
+  });
+
+  it('put every verified person in General chat, the office as its admin, with 3 posts new to Aisyah', () => {
+    expect(groups.filter((g) => g.is_general)).toHaveLength(1);
+    const general = groups.find((g) => g.is_general)!;
+    const inIt = members.filter((m) => m.group_id === general.id);
+    expect(inIt).toHaveLength(15); // the 16 seeded people but Nur, who waits for approval
+    expect(inIt.map((m) => m.user_id)).not.toContain('nur');
+    expect(inIt.filter((m) => m.role === 'admin').map((m) => m.user_id)).toEqual(['office']);
+    const hers = inIt.find((m) => m.user_id === 'aisyah')!;
+    expect(newSince(posts.filter((p) => p.group_id === general.id && p.author_id !== 'aisyah'), hers.last_visit_at)).toBe(3);
   });
 
   it('show Aisyah 5 new posts in Elmina Mommies, which she joined today', () => {
