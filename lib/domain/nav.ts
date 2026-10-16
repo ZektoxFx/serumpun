@@ -31,7 +31,7 @@ export const CREATE_ACTIONS = [
 /** The eight Home tiles (brainstorm mockup "A · Tiles first"). */
 export const HOME_TILES = [
   { href: '/map', label: 'home.tile.map', icon: '🗺️' },
-  { href: '/book', label: 'home.tile.book', icon: '🏸' },
+  { href: '/book', label: 'home.tile.book', icon: '🏟️' },
   { href: '/community?tab=events', label: 'community.tab.events', icon: '📅' },
   { href: '/community?tab=groups', label: 'community.tab.groups', icon: '👥' },
   { href: '/community?tab=services', label: 'community.tab.services', icon: '🧑‍🏫' },

@@ -14,7 +14,7 @@ import { useT } from '@/lib/i18n';
 export type Slot = { hour: number; state: SlotState; label: string; range: string; mine: string | null };
 
 /** The court and the day, for the confirm sheet (worked out on the server, in the reader's language). */
-export type BookingSummary = { icon: string; court: string; place: string; day: string; township: string };
+export type BookingSummary = { icon: string; court: string; place: string; day: string; township: string; games: boolean };
 
 const slotClass = 'flex min-h-11 w-full items-center justify-center rounded-[10px] border-[1.5px] px-1 text-[0.8125rem]';
 const stepper =
@@ -193,50 +193,53 @@ function ConfirmBooking({
           </li>
         ))}
       </ul>
-      <div className="flex flex-col gap-2 rounded-2xl border-[1.5px] border-line px-3.5 py-3">
-        <div className="flex min-h-11 items-center justify-between gap-2.5">
-          <span className="flex min-w-0 flex-col">
-            <span id={`${id}-find`} className="text-[0.9375rem] font-bold">
-              <span aria-hidden="true">🙋 </span>
-              {t('book.players.find')}
+      {/* Find players is for the courts' games, not the hall, gym, BBQ pit or room. */}
+      {summary.games && (
+        <div className="flex flex-col gap-2 rounded-2xl border-[1.5px] border-line px-3.5 py-3">
+          <div className="flex min-h-11 items-center justify-between gap-2.5">
+            <span className="flex min-w-0 flex-col">
+              <span id={`${id}-find`} className="text-[0.9375rem] font-bold">
+                <span aria-hidden="true">🙋 </span>
+                {t('book.players.find')}
+              </span>
+              <span id={`${id}-hint`} className="text-xs text-muted-2">
+                {t('book.players.findHint')}
+              </span>
             </span>
-            <span id={`${id}-hint`} className="text-xs text-muted-2">
-              {t('book.players.findHint')}
-            </span>
-          </span>
-          <Switch checked={find} onChange={setFind} aria-labelledby={`${id}-find`} aria-describedby={`${id}-hint`} />
-        </div>
-        {find && (
-          <div className="flex items-center justify-between gap-2.5">
-            <span id={`${id}-needed`} className="text-sm font-semibold text-muted-2">
-              {t('book.players.needed')}
-            </span>
-            <div className="flex items-center gap-2.5">
-              <button
-                type="button"
-                aria-label={t('book.players.fewer')}
-                disabled={players <= 1}
-                onClick={() => setPlayers(players - 1)}
-                className={stepper}
-              >
-                −
-              </button>
-              <output aria-labelledby={`${id}-needed`} className="min-w-5 text-center text-lg font-extrabold">
-                {players}
-              </output>
-              <button
-                type="button"
-                aria-label={t('book.players.more')}
-                disabled={players >= MAX_PLAYERS}
-                onClick={() => setPlayers(players + 1)}
-                className={stepper}
-              >
-                +
-              </button>
-            </div>
+            <Switch checked={find} onChange={setFind} aria-labelledby={`${id}-find`} aria-describedby={`${id}-hint`} />
           </div>
-        )}
-      </div>
+          {find && (
+            <div className="flex items-center justify-between gap-2.5">
+              <span id={`${id}-needed`} className="text-sm font-semibold text-muted-2">
+                {t('book.players.needed')}
+              </span>
+              <div className="flex items-center gap-2.5">
+                <button
+                  type="button"
+                  aria-label={t('book.players.fewer')}
+                  disabled={players <= 1}
+                  onClick={() => setPlayers(players - 1)}
+                  className={stepper}
+                >
+                  −
+                </button>
+                <output aria-labelledby={`${id}-needed`} className="min-w-5 text-center text-lg font-extrabold">
+                  {players}
+                </output>
+                <button
+                  type="button"
+                  aria-label={t('book.players.more')}
+                  disabled={players >= MAX_PLAYERS}
+                  onClick={() => setPlayers(players + 1)}
+                  className={stepper}
+                >
+                  +
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
       <ul className="flex list-disc flex-col gap-1 rounded-[14px] bg-soft py-3 pl-8 pr-3.5 text-sm text-muted-2">
         <li>{t('book.rule.hours')}</li>
         <li>{t('book.rule.cancel')}</li>

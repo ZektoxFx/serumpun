@@ -1,5 +1,6 @@
 import {
   HOUSEHOLD_DAILY_HOURS,
+  SPORTS,
   bookableDates,
   bookingErrorKey,
   canCancel,
@@ -95,15 +96,19 @@ describe('the seeded courts', () => {
   const people = { townshipId: 'elmina', ids: new Proxy({}, { get: (_, key) => String(key) }) } as People;
   const { facilities, bookings, players } = bookingRows(now, people);
 
-  it('are the five courts of Elmina Valley Central Park', () => {
-    expect(facilities.map((f) => [f.sport, f.court_label])).toEqual([
-      ['badminton', 'Badminton Court 1'],
-      ['badminton', 'Badminton Court 2'],
-      ['futsal', 'Futsal Court'],
-      ['tennis', 'Tennis Court'],
-      ['hall', 'Multipurpose Hall'],
+  it('are the courts and hall of Elmina Valley Central Park, then the clubhouse gym and room and the BBQ pit', () => {
+    expect(facilities.map((f) => [f.sport, f.court_label, f.place_name])).toEqual([
+      ['badminton', 'Badminton Court 1', 'Elmina Valley Central Park courts'],
+      ['badminton', 'Badminton Court 2', 'Elmina Valley Central Park courts'],
+      ['futsal', 'Futsal Court', 'Elmina Valley Central Park courts'],
+      ['tennis', 'Tennis Court', 'Elmina Valley Central Park courts'],
+      ['hall', 'Multipurpose Hall', 'Elmina Valley Central Park courts'],
+      ['gym', 'Clubhouse Gym', 'Central Park Clubhouse'],
+      ['bbq', 'Lakeside BBQ Pit', 'Central Park lakeside'],
+      ['room', 'Function Room', 'Central Park Clubhouse'],
     ]);
-    expect(new Set(facilities.map((f) => f.place_name))).toEqual(new Set(['Elmina Valley Central Park courts']));
+    // Every kind of facility has one to book.
+    expect(new Set(facilities.map((f) => f.sport))).toEqual(new Set(SPORTS));
   });
 
   it("fill Saturday on Court 1 as the canvas does, with Aisyah's 8 pm game needing 2 players", () => {

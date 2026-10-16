@@ -8,6 +8,7 @@ import { buttonClasses } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import {
   FACILITY_COLUMNS,
+  GAME_SPORTS,
   MY_BOOKING_COLUMNS,
   SPORTS,
   SPORT_ICON,
@@ -215,6 +216,7 @@ async function Picker({ profile, lang, params }: { profile: SessionProfile; lang
             place: court.place_name,
             day: eventDay(slotStartUtc(date, 12), lang),
             township: profile.township.name,
+            games: GAME_SPORTS.includes(court.sport),
           }}
         />
         <OpenGames profile={profile} lang={lang} />

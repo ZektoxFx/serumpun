@@ -2,11 +2,22 @@ import { t, type Lang, type MessageKey } from '@/lib/i18n/core';
 import { intlLocale } from './events';
 import { TZ, mytDate } from './time';
 
-// supabase/migrations/0011_booking.sql keeps the same sports, hours, days and household limit.
+// supabase/migrations/0011_booking.sql keeps the same hours, days and household limit, and 0016_facilities.sql these kinds.
 
-export const SPORTS = ['badminton', 'futsal', 'tennis', 'hall'] as const;
+/** The kinds of facility (the `sport` column, from when only courts were booked): courts, the hall, gym, BBQ pit and room. */
+export const SPORTS = ['badminton', 'futsal', 'tennis', 'hall', 'gym', 'bbq', 'room'] as const;
 export type Sport = (typeof SPORTS)[number];
-export const SPORT_ICON: Record<Sport, string> = { badminton: '🏸', futsal: '⚽', tennis: '🎾', hall: '🏛️' };
+export const SPORT_ICON: Record<Sport, string> = {
+  badminton: '🏸',
+  futsal: '⚽',
+  tennis: '🎾',
+  hall: '🏛️',
+  gym: '🏋️',
+  bbq: '🍖',
+  room: '🎉',
+};
+/** The kinds a booker can find players for: the games. */
+export const GAME_SPORTS: readonly Sport[] = ['badminton', 'futsal', 'tennis'];
 
 /** Spec §8.9: 1-hour slots from 7 am, the last starting at 10 pm; up to 7 days ahead; 2 hours a day per household. */
 export const OPEN_HOUR = 7;

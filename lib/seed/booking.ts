@@ -3,14 +3,21 @@ import { bookableDates, type Sport } from '@/lib/domain/booking';
 import { unitOf, type People, type PersonKey } from './people';
 
 const PLACE = 'Elmina Valley Central Park courts';
+const CLUBHOUSE = 'Central Park Clubhouse';
 
-/** Spec §8.9's sample courts, side by side in the park (about 3.1788, 101.5149). Court 1 first: the page opens on it. */
-const FACILITIES: { key: string; sport: Sport; label: string; lat: number; lng: number }[] = [
+/**
+ * Spec §8.9's sample courts, side by side in the park (about 3.1788, 101.5149), then the facilities feedback asked for
+ * (17 Oct): the clubhouse gym and function room, and a BBQ pit by the lake. Court 1 first: the page opens on it.
+ */
+const FACILITIES: { key: string; sport: Sport; label: string; place?: string; lat: number; lng: number }[] = [
   { key: 'badminton1', sport: 'badminton', label: 'Badminton Court 1', lat: 3.1788, lng: 101.5149 },
   { key: 'badminton2', sport: 'badminton', label: 'Badminton Court 2', lat: 3.1788, lng: 101.51505 },
   { key: 'futsal', sport: 'futsal', label: 'Futsal Court', lat: 3.17905, lng: 101.5152 },
   { key: 'tennis', sport: 'tennis', label: 'Tennis Court', lat: 3.17855, lng: 101.51535 },
   { key: 'hall', sport: 'hall', label: 'Multipurpose Hall', lat: 3.17915, lng: 101.51465 },
+  { key: 'gym', sport: 'gym', label: 'Clubhouse Gym', place: CLUBHOUSE, lat: 3.1795, lng: 101.5143 },
+  { key: 'bbq', sport: 'bbq', label: 'Lakeside BBQ Pit', place: 'Central Park lakeside', lat: 3.1781, lng: 101.5158 },
+  { key: 'room', sport: 'room', label: 'Function Room', place: CLUBHOUSE, lat: 3.17955, lng: 101.51435 },
 ];
 
 type SeedBooking = { court?: string; day?: 'tomorrow'; hour: number; who: PersonKey; players?: number; joined?: PersonKey[] };
@@ -44,7 +51,7 @@ export function bookingRows(now: Date, people: People) {
     township_id: people.townshipId,
     sport: f.sport,
     court_label: f.label,
-    place_name: PLACE,
+    place_name: f.place ?? PLACE,
     lat: f.lat,
     lng: f.lng,
   }));
@@ -70,7 +77,7 @@ export function bookingRows(now: Date, people: People) {
   return { facilities, bookings, players };
 }
 
-/** The five courts, the bookings and the players who joined. */
+/** The facilities, the bookings and the players who joined. */
 export async function seedBooking(admin: SupabaseClient, now: Date, people: People): Promise<void> {
   const { facilities, bookings, players } = bookingRows(now, people);
   const tables: [string, Record<string, unknown>[]][] = [
