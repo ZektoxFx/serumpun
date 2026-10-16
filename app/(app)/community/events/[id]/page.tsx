@@ -88,7 +88,6 @@ export default async function EventPage({ params }: PageProps<'/community/events
         <h1 className="mt-3 break-words text-2xl font-extrabold leading-tight">{event.title}</h1>
         <p className="mt-3 flex flex-wrap gap-2">
           <HeroChip>{event.organizer_name ? t(lang, 'event.organisedBy', { name: event.organizer_name }) : t(lang, 'event.byOffice')}</HeroChip>
-          {!event.is_official && event.approval_status === 'approved' && <HeroChip>{t(lang, 'event.approvedBy')}</HeroChip>}
         </p>
       </header>
 

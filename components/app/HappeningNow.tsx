@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { buttonClasses } from '@/components/ui/Button';
+import { eventPoints } from '@/components/events/eventTags';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { TimeAgo } from '@/components/ui/TimeAgo';
 import { ALERT_ICON, PUBLIC_ALERT_COLUMNS, nearestAlert, type PublicAlert } from '@/lib/domain/alerts';
@@ -105,16 +106,19 @@ function AlertCard({ alert, from, lang }: { alert: PublicAlert; from: { lat: num
   );
 }
 
-/** "📅 EVENT · +150 points", the title and when and where, and "You're going": opens the event. */
+/** "📅 EVENT · +150 points", the title, who runs it, when and where, and "You're going": opens the event. */
 function EventCard({ event, lang }: { event: PublicEvent; lang: Lang }) {
   const start = new Date(event.starts_at);
-  const points = event.is_official || event.approval_status === 'approved' ? event.points : 0;
+  const points = eventPoints(event);
   return (
     <Link href={`/community/events/${event.id}`} className={`${card} hover:bg-soft`}>
       <span className={`${tag} bg-tint-amber text-amber-text`}>
         📅 {points > 0 ? t(lang, 'home.event.points', { n: points }) : t(lang, 'home.event.tag')}
       </span>
       <span className="break-words font-bold">{event.title}</span>
+      <span className="text-sm font-semibold">
+        {event.is_official ? `🏢 ${t(lang, 'event.tag.official')}` : `👥 ${t(lang, 'event.tag.resident')}`}
+      </span>
       <span className="break-words text-sm text-muted-2">
         {eventDay(start, lang)} · {eventTime(start, lang)} · {event.location_text}
       </span>
