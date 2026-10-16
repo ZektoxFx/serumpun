@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { AppHeader } from '@/components/app/AppHeader';
+import { OpenGames } from '@/components/book/OpenGames';
 import { SlotPicker } from '@/components/book/SlotPicker';
 import { MiniMap } from '@/components/dashboard/MiniMap';
 import { buttonClasses } from '@/components/ui/Button';
@@ -52,8 +53,9 @@ const segment = (on: boolean) =>
   `flex min-h-11 flex-1 items-center justify-center rounded-lg px-2 text-sm font-extrabold ${on ? 'bg-surface text-text shadow-card' : 'text-muted-2'}`;
 
 /**
- * "1 · Pick a slot": the sports, the courts of one, a map card with the distance and Directions (Safe Walk, Task 20), the
- * 7 days, and the day's slots with the household's hours left. Sport, court and day live in the address.
+ * "1 · Pick a slot": the sports, the courts of one, a map card with the distance and Directions (Safe Walk), the 7 days,
+ * the day's slots with the household's hours left, then the township's open games. Sport, court and day live in the
+ * address.
  */
 async function Picker({ profile, lang, params }: { profile: SessionProfile; lang: Lang; params: Params }) {
   const supabase = await createClient();
@@ -215,6 +217,7 @@ async function Picker({ profile, lang, params }: { profile: SessionProfile; lang
             township: profile.township.name,
           }}
         />
+        <OpenGames profile={profile} lang={lang} />
       </main>
     </>
   );

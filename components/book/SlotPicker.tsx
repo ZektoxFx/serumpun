@@ -2,11 +2,12 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useActionState, useState } from 'react';
+import { useActionState, useId, useState } from 'react';
 import { bookSlot, type BookActionResult } from '@/app/(app)/book/actions';
 import { Button } from '@/components/ui/Button';
 import { Sheet } from '@/components/ui/Sheet';
-import type { SlotState } from '@/lib/domain/booking';
+import { Switch } from '@/components/ui/Switch';
+import { MAX_PLAYERS, type SlotState } from '@/lib/domain/booking';
 import { useT } from '@/lib/i18n';
 
 /** A slot as the page shows it: its state, "8 pm", "8:00 – 9:00 pm", and the reader's own booking there, if any. */
@@ -16,6 +17,8 @@ export type Slot = { hour: number; state: SlotState; label: string; range: strin
 export type BookingSummary = { icon: string; court: string; place: string; day: string; township: string };
 
 const slotClass = 'flex min-h-11 w-full items-center justify-center rounded-[10px] border-[1.5px] px-1 text-[13px]';
+const stepper =
+  'grid size-11 place-items-center rounded-xl border-[1.5px] border-line-strong bg-surface text-lg text-text hover:bg-soft disabled:opacity-50';
 
 /**
  * The day's slots of Book a Court (canvas "1 · Pick a slot"), four to a row with their legend, and a bar at the bottom of
@@ -133,7 +136,10 @@ export function SlotPicker({
   );
 }
 
-/** Artboard 2: the court, the day and hour, Free, the rules, and Confirm. Mounted on every opening, so no old error stays. */
+/**
+ * Artboard 2: the court, the day and hour, Free, Find players (off, or 1 to 10 players), the rules, and Confirm. Mounted
+ * on every opening, so no old error or player count stays.
+ */
 function ConfirmBooking({
   facilityId,
   date,
@@ -149,7 +155,10 @@ function ConfirmBooking({
 }) {
   const t = useT();
   const router = useRouter();
-  // `action={book}` is fine: the form holds only hidden fields.
+  const id = useId();
+  const [find, setFind] = useState(false);
+  const [players, setPlayers] = useState(1);
+  // `action={book}` is fine: the form holds only hidden fields (the toggle and stepper are buttons).
   const [result, book, pending] = useActionState(async (_: BookActionResult, formData: FormData): Promise<BookActionResult> => {
     try {
       const done = await bookSlot(formData);
@@ -170,6 +179,7 @@ function ConfirmBooking({
       <input type="hidden" name="facility" value={facilityId} />
       <input type="hidden" name="date" value={date} />
       <input type="hidden" name="hour" value={slot.hour} />
+      <input type="hidden" name="players" value={find ? players : 0} />
       <ul className="flex flex-col gap-2.5">
         {rows.map((r, i) => (
           <li key={r.icon} className="flex items-center gap-3">
@@ -183,6 +193,50 @@ function ConfirmBooking({
           </li>
         ))}
       </ul>
+      <div className="flex flex-col gap-2 rounded-2xl border-[1.5px] border-line px-3.5 py-3">
+        <div className="flex min-h-11 items-center justify-between gap-2.5">
+          <span className="flex min-w-0 flex-col">
+            <span id={`${id}-find`} className="text-[15px] font-bold">
+              <span aria-hidden="true">🙋 </span>
+              {t('book.players.find')}
+            </span>
+            <span id={`${id}-hint`} className="text-xs text-muted-2">
+              {t('book.players.findHint')}
+            </span>
+          </span>
+          <Switch checked={find} onChange={setFind} aria-labelledby={`${id}-find`} aria-describedby={`${id}-hint`} />
+        </div>
+        {find && (
+          <div className="flex items-center justify-between gap-2.5">
+            <span id={`${id}-needed`} className="text-sm font-semibold text-muted-2">
+              {t('book.players.needed')}
+            </span>
+            <div className="flex items-center gap-2.5">
+              <button
+                type="button"
+                aria-label={t('book.players.fewer')}
+                disabled={players <= 1}
+                onClick={() => setPlayers(players - 1)}
+                className={stepper}
+              >
+                −
+              </button>
+              <output aria-labelledby={`${id}-needed`} className="min-w-5 text-center text-lg font-extrabold">
+                {players}
+              </output>
+              <button
+                type="button"
+                aria-label={t('book.players.more')}
+                disabled={players >= MAX_PLAYERS}
+                onClick={() => setPlayers(players + 1)}
+                className={stepper}
+              >
+                +
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
       <ul className="flex list-disc flex-col gap-1 rounded-[14px] bg-soft py-3 pl-8 pr-3.5 text-sm text-muted-2">
         <li>{t('book.rule.hours')}</li>
         <li>{t('book.rule.cancel')}</li>

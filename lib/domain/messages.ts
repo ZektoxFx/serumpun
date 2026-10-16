@@ -2,7 +2,7 @@ import type { MessageKey } from '@/lib/i18n';
 
 // supabase/migrations/0008_messages.sql enforces the same context types and message length.
 
-/** What a conversation is about: a group post now; services, Share & Lend items and open games as their tasks land. */
+/** What a conversation is about: a Share & Lend group post, a service, a Share & Lend item or an open game. */
 export const CONTEXT_TYPES = ['post', 'service', 'listing', 'game'] as const;
 export type ContextType = (typeof CONTEXT_TYPES)[number];
 export const CONTEXT_ICON: Record<ContextType, string> = { post: '💬', service: '🤝', listing: '🔁', game: '🏸' };

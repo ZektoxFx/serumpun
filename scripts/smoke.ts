@@ -56,6 +56,14 @@ async function checks() {
     'Daniel cannot give himself points',
     refused(await daniel.client.from('points_ledger').insert({ user_id: daniel.id, delta: 1000, reason: 'event', ref_id: crypto.randomUUID() })),
   );
+  const games = ((await daniel.client.rpc('open_games')).data ?? []) as { booking_id: string; i_joined: boolean }[];
+  const joiners = await daniel.client.from('booking_players').select('user_id').limit(1);
+  const theirs = await daniel.client.rpc('game_players', { p_booking: games[0]?.booking_id });
+  check(
+    "Daniel cannot read who joined a neighbour's game",
+    refused(joiners) && !theirs.error && theirs.data?.length === 0,
+    `${said(joiners)} / ${theirs.error?.message ?? `${theirs.data?.length} rows`}`,
+  );
 
   console.log('— pending users');
   check('Nur (pending) cannot drop an alert', refused(await nur.client.rpc('create_alert', { p_type: 'snake', p_severity: 'high', ...CENTRE }), 'not_verified'));
@@ -145,6 +153,15 @@ async function checks() {
     both.filter((r) => !r.error).length === 1 && both.some((r) => refused(r, 'slot_taken')),
     both.map(said).join(' / '),
   );
+  const game = games.find((g) => !g.i_joined);
+  if (!game) throw new Error('no open game for Daniel to join');
+  const joins = await Promise.all([1, 2].map(() => daniel.client.rpc('join_game', { p_booking: game.booking_id })));
+  const { count } = await admin
+    .from('booking_players')
+    .select('user_id', { count: 'exact', head: true })
+    .eq('booking_id', game.booking_id)
+    .eq('user_id', daniel.id);
+  check('Joining a game twice at once takes one spot', joins.every((r) => !r.error) && count === 1, `${joins.map(said).join(' / ')}, ${count} rows`);
 
   console.log('— limits');
   let day = dates[0];

@@ -3,9 +3,22 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { AppHeader } from '@/components/app/AppHeader';
 import { CancelBooking } from '@/components/book/CancelBooking';
+import { Avatar } from '@/components/ui/Avatar';
 import { buttonClasses } from '@/components/ui/Button';
 import { QR } from '@/components/ui/QR';
-import { MY_BOOKING_COLUMNS, SPORT_ICON, canCancel, slotRange, slotStartUtc, type MyBooking } from '@/lib/domain/booking';
+import { Tag } from '@/components/ui/Tag';
+import { TimeAgo } from '@/components/ui/TimeAgo';
+import {
+  MY_BOOKING_COLUMNS,
+  SPORT_ICON,
+  canCancel,
+  slotRange,
+  slotStartUtc,
+  spotsLabel,
+  spotsLeft,
+  type GamePlayer,
+  type MyBooking,
+} from '@/lib/domain/booking';
 import { eventDay, eventTime } from '@/lib/domain/events';
 import { isUuid } from '@/lib/domain/reports';
 import { t } from '@/lib/i18n';
@@ -20,8 +33,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /**
- * The booking pass (canvas "3 · Booking pass"): the court and the hour, a QR and booking number to show if asked, Add to
- * calendar (.ics) and Cancel, free until 2 hours before. A cancelled or finished booking says so instead.
+ * The booking pass (canvas "3 · Booking pass"): the court and the hour, a QR and booking number to show if asked, who
+ * joined a game that needs players and the spots left, Add to calendar (.ics) and Cancel, free until 2 hours before. A
+ * cancelled or finished booking says so instead.
  */
 export default async function BookingPassPage({ params }: PageProps<'/book/[id]'>) {
   const profile = await requireMember();
@@ -43,6 +57,13 @@ export default async function BookingPassPage({ params }: PageProps<'/book/[id]'
   const live = b.status === 'booked' && start.getTime() + HOUR > now.getTime();
   const free = live && canCancel(b.date, b.start_hour, now);
   const cancelBy = new Date(start.getTime() - 2 * HOUR);
+  let players: GamePlayer[] = [];
+  if (live && b.players_needed > 0) {
+    const found = await supabase.rpc('game_players', { p_booking: b.id });
+    if (found.error) throw new Error(`players lookup failed: ${found.error.message}`);
+    players = (found.data ?? []) as GamePlayer[];
+  }
+  const left = spotsLeft(b.players_needed, players.length);
 
   return (
     <>
@@ -66,6 +87,36 @@ export default async function BookingPassPage({ params }: PageProps<'/book/[id]'
             <p className="text-xs text-muted-2">{t(lang, 'book.pass.number', { n: b.id.slice(0, 6).toUpperCase() })}</p>
           </div>
         </section>
+
+        {live && b.players_needed > 0 && (
+          <section aria-labelledby="players-title" className="flex flex-col gap-2.5 rounded-2xl border border-line bg-surface p-3.5 shadow-card">
+            <div className="flex items-center justify-between gap-2">
+              <h2 id="players-title" className="text-[15px] font-bold">
+                <span aria-hidden="true">🙋 </span>
+                {t(lang, left > 0 ? 'book.game.finding' : 'book.game.found')}
+              </h2>
+              <Tag variant={left > 0 ? 'amber' : 'green'}>{spotsLabel(left, lang)}</Tag>
+            </div>
+            {players.length === 0 ? (
+              <p className="text-sm text-muted-2">{t(lang, 'book.game.none')}</p>
+            ) : (
+              <ul className="flex flex-col gap-2.5">
+                {players.map((p) => (
+                  <li key={`${p.full_name} ${p.joined_at}`} className="flex items-center gap-2.5">
+                    <Avatar name={p.full_name} size={36} />
+                    <span className="flex min-w-0 flex-col">
+                      <span className="break-words text-sm font-bold">{t(lang, 'book.game.joinedBy', { name: p.full_name })}</span>
+                      <span className="text-xs text-muted-2">
+                        {p.neighbourhood} · <TimeAgo date={p.joined_at} />
+                      </span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p className="text-xs text-muted-2">{t(lang, 'book.game.shown')}</p>
+          </section>
+        )}
 
         {live ? (
           <>

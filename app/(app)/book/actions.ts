@@ -18,7 +18,10 @@ function failed(rpc: string, error: { message: string }): BookActionResult {
   return { ok: false, error: key };
 }
 
-/** "Confirm booking": one slot of one court. Refreshes Book a Court either way, so a slot someone just took shows as taken. */
+/**
+ * "Confirm booking": one slot of one court, and how many players it needs (0 without Find players). Refreshes Book a
+ * Court either way, so a slot someone just took shows as taken.
+ */
 export async function bookSlot(formData: FormData): Promise<BookActionResult> {
   await requireVerified();
   const supabase = await createClient();
@@ -26,7 +29,7 @@ export async function bookSlot(formData: FormData): Promise<BookActionResult> {
     p_facility: field(formData, 'facility'),
     p_date: field(formData, 'date'),
     p_hour: Number(field(formData, 'hour')),
-    p_players_needed: 0, // Find players comes with Task 21
+    p_players_needed: Number(field(formData, 'players') || 0),
   });
   refresh();
   if (error) return failed('book_slot', error);
@@ -39,6 +42,18 @@ export async function cancelBooking(formData: FormData): Promise<BookActionResul
   const supabase = await createClient();
   const { error } = await supabase.rpc('cancel_booking', { p_booking: field(formData, 'id') });
   if (error) return failed('cancel_booking', error);
+  refresh();
+  return { ok: true };
+}
+
+/** "Join" an open game (join = "yes"), or leave it. */
+export async function setJoined(formData: FormData): Promise<BookActionResult> {
+  await requireVerified();
+  const supabase = await createClient();
+  const rpc = field(formData, 'join') === 'yes' ? 'join_game' : 'leave_game';
+  const { error } = await supabase.rpc(rpc, { p_booking: field(formData, 'id') });
+  // No refresh on a failure: the card stays to say why (full, started, cancelled).
+  if (error) return failed(rpc, error);
   refresh();
   return { ok: true };
 }

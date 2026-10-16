@@ -26,16 +26,16 @@ number.
 
 | Screen | Where | What it does |
 |---|---|---|
-| Home | `/home` | Greeting, township and points; "Report an issue" (straight to the office); 8 tiles; **Happening now**: the nearest neighbour alert, the office's latest announcement and your next event. |
+| Home | `/home` | Greeting, township and points; "Report an issue" (straight to the office); 8 tiles; **Happening now**: the nearest neighbour alert, the office's latest announcement and your next event; **Open games** that need players. |
 | Live Map | `/map` | Alerts as pins (accident, snake, suspicious person, stray dogs, flood, fallen tree, walkway blocked, streetlight, police, and the office's road works and water cuts). Neighbours vote **Still there** or **Gone**; an alert fades 2 hours after its last confirmation. Search, filters, drop an alert, and "Send to Management Office" for lasting problems. **Safe Walk**: pick the mall, the park, the courts or a spot on the map, and the walking route goes around confirmed high and medium hazards (blue, with the usual way dashed red and a banner saying what it avoided and how many minutes it adds), or warns when there is no way round. |
 | Report an issue · Issue Board | `/reports/new` · `/reports` | Category, photo and place; "Already reported nearby?" offers **Me too** instead of a duplicate. Timeline: submitted → acknowledged → in progress → resolved, then the reporter confirms the fix (or it reopens). Private reports (security) are seen only by the reporter and the office. |
 | Management Office | `/dashboard` | Reports board with updates and after-photos, residents to approve, official map pins, events to approve (points), announcements, rewards and vouchers, and Reset demo data. |
 | Community | `/community` | **Groups** (posts, questions with a top answer, Helpful), **Events** (Going, QR check-in, points), **Services** (offers and requests in Tutoring, Repairs, Cleaning, Food, Childcare, Eldercare, Pets, Others), **Share & Lend** (lend, give away or swap; borrowing in 4 steps). |
-| Messages | `/messages` | One-to-one chats about a post, a service or a listing; live, with unread badges. |
-| Book a Court | `/book` | Badminton (2 courts), futsal, tennis and the hall. Free 1-hour slots from 7 am to 11 pm, up to 7 days ahead, 2 hours a day per household; a booking pass with QR and a calendar file; cancel up to 2 hours before. |
+| Messages | `/messages` | One-to-one chats about a post, a service, a listing or an open game; live, with unread badges. |
+| Book a Court | `/book` | Badminton (2 courts), futsal, tennis and the hall. Free 1-hour slots from 7 am to 11 pm, up to 7 days ahead, 2 hours a day per household; a booking pass with QR and a calendar file; cancel up to 2 hours before. **Find players**: ask for 1 to 10 neighbours when booking; the game shows under **Open games** (here and on Home) until it is full, neighbours tap Join or message the host, and the pass shows who joined. |
 | Rewards | `/rewards` | Vouchers for points at Elmina Lakeside Mall; "Slide to use" at the counter. |
 | Me | `/me` | Points and the next reward; my vouchers, reports, bookings and listings; points history; dark mode; language; township; sign out. |
-| Notifications | `/notifications` | Report updates, borrow steps, comments, announcements and account news, with a live bell. |
+| Notifications | `/notifications` | Report updates, borrow steps, comments, players joining or leaving your game (or a game you joined being cancelled), announcements and account news, with a live bell. |
 
 **The 5-minute demo story**
 
@@ -46,7 +46,8 @@ number.
 4. On a laptop: **Try as Management Office** → move a report to *In progress* with an update → Aisyah's phone updates
    **live** → the Issue Board.
 5. **Events**: check in with the event's QR → points → **Rewards** → redeem Free kopi → slide to use.
-6. **Community**: the Mommies group's top answer · message a tutor · borrow a ladder · **Book a Court**.
+6. **Community**: the Mommies group's top answer · message a tutor · borrow a ladder · **Book a Court** with Find
+   players (Daniel joins Aisyah's Saturday game from Open games, and her bell and booking pass show it).
 7. **Me**: dark mode. Close on "built for every SDP township".
 
 ## 3. Roles and verification
@@ -126,7 +127,7 @@ Every township-level table has `township_id`. Residents read through the views a
 | Messages | `conversations`, `conversation_members`, `messages` | `my_conversations`, their own messages |
 | Services | `services` | `public_services` |
 | Share & Lend | `listings`, `borrow_requests` | `public_listings`, `my_borrows` |
-| Book a Court | `facilities`, `bookings`, `booking_players` | the courts, their own bookings, `booked_slots()` |
+| Book a Court | `facilities`, `bookings`, `booking_players` | the courts, their own bookings, `booked_slots()`, `open_games()`, `game_players()` (the host's own game) |
 
 ## 6. Security model
 
@@ -139,10 +140,11 @@ Every township-level table has `township_id`. Residents read through the views a
 - **Photos** get random file names. A private report's photos sit in a private bucket, shown through short-lived signed
   links.
 - **Only trusted code sends notifications**, so nobody can message a fake notice.
-- **Double taps count once**: unique keys and locks make Me too, check-in, redeem (a request id per press), borrowing
-  and booking (one per slot, 2 hours per household) safe to tap twice or at the same time.
+- **Double taps count once**: unique keys and locks make Me too, check-in, redeem (a request id per press), borrowing,
+  booking (one per slot, 2 hours per household) and joining a game (one spot each, never past full) safe to tap twice or
+  at the same time.
 - **Every page and action checks the session itself.** `proxy.ts` only sends signed-out visitors to the landing page.
-- `npm run smoke` tries these rules against the live database as the demo accounts (15 checks).
+- `npm run smoke` tries these rules against the live database as the demo accounts (17 checks).
 
 ## 7. Points
 
@@ -221,8 +223,10 @@ Apply new migrations before deploying code that needs them. The smoke test ends 
 
 ## 13. Known limits and Later
 
-- **Later**: Find players and open games for court bookings, ratings for services, and return-day reminders,
-  cross-posting listings to groups and the remaining notifications.
+- **Later**: ratings for services, and return-day reminders, cross-posting listings to groups and the remaining
+  notifications.
+- **Open games and the booking pass** show who joined when they are opened or after your own tap; the host's bell is the
+  live part. Find players is set when booking, not changed afterwards.
 - **Safe Walk** knows only the paths OpenStreetMap has (refresh them with `node scripts/build-walk-graph.mjs`), sets off
   from your neighbourhood's centre when the phone gives no location in the township, and does not guide turn by turn.
 - **Not in this version**: payments (services are paid between neighbours, courts are free), push notifications (they

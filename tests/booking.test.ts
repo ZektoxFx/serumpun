@@ -6,6 +6,7 @@ import {
   householdHoursLeft,
   slotStartUtc,
   slotStates,
+  spotsLeft,
   toIcs,
 } from '@/lib/domain/booking';
 import { t } from '@/lib/i18n';
@@ -52,10 +53,15 @@ describe('the rules', () => {
     expect(HOUSEHOLD_DAILY_HOURS).toBe(2);
     expect([0, 1, 2, 3].map(householdHoursLeft)).toEqual([2, 1, 0, 0]);
   });
-  it('names every booking error in both languages', () => {
+  it('counts the spots a game has left, never below none', () => {
+    expect(spotsLeft(2, 1)).toBe(1);
+    expect(spotsLeft(2, 3)).toBe(0);
+    expect(spotsLeft(2, 0)).toBe(2);
+  });
+  it('names every booking and game error in both languages', () => {
     const codes = [
       'not_verified', 'not_found', 'bad_date', 'bad_slot', 'bad_players', 'slot_started', 'slot_taken', 'household_limit',
-      'no_unit', 'too_late',
+      'no_unit', 'too_late', 'own_game', 'game_full', 'game_started',
     ];
     for (const code of codes) {
       const key = bookingErrorKey(code);
@@ -87,7 +93,7 @@ describe('the calendar file', () => {
 describe('the seeded courts', () => {
   const now = new Date('2026-10-13T02:00:00Z'); // Tue 13 Oct, 10 am in Malaysia
   const people = { townshipId: 'elmina', ids: new Proxy({}, { get: (_, key) => String(key) }) } as People;
-  const { facilities, bookings } = bookingRows(now, people);
+  const { facilities, bookings, players } = bookingRows(now, people);
 
   it('are the five courts of Elmina Valley Central Park', () => {
     expect(facilities.map((f) => [f.sport, f.court_label])).toEqual([
@@ -120,5 +126,22 @@ describe('the seeded courts', () => {
   it('leave Daniel a household of his own, and Sunday free for Aisyah', () => {
     expect(unitOf('daniel')).not.toBe(unitOf('aisyah'));
     expect(bookings.some((b) => b.user_id === 'aisyah' && b.date === '2026-10-18')).toBe(false);
+  });
+
+  it('have open games with a spot left, joined by neighbours other than their host, and one tomorrow', () => {
+    const games = bookings.filter((b) => b.players_needed > 0);
+    expect(games.length).toBeGreaterThanOrEqual(3);
+    for (const game of games) {
+      const joined = players.filter((p) => p.booking_id === game.id).map((p) => p.user_id);
+      expect(joined.length, game.user_id).toBeLessThan(game.players_needed);
+      expect(joined).not.toContain(game.user_id);
+    }
+    expect(players.length).toBeGreaterThan(0);
+    expect(players.every((p) => games.some((g) => g.id === p.booking_id))).toBe(true);
+    // Daniel joins Aisyah's game in the demo (canvas: "1 spot left · Daniel joined"), so nobody has yet.
+    expect(players.filter((p) => p.booking_id === games.find((g) => g.user_id === 'aisyah')?.id)).toEqual([]);
+    expect(players.some((p) => p.user_id === 'daniel')).toBe(false);
+    // A game on another day still shows when Saturday's are over.
+    expect(games.some((g) => g.date === '2026-10-14')).toBe(true);
   });
 });

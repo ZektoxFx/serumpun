@@ -17,7 +17,7 @@ laptop for the dashboard.
 3. Report an issue → "Already reported nearby?" → Me too → the report's timeline
 4. Management Office dashboard: the reports board, moving a report on (the resident's phone updates live)
 5. Community: Groups, Events (QR check-in for points), Services, Share & Lend
-6. Book a Court: the slot picker and the booking pass
+6. Book a Court: the slot picker with Find players, Open games and the booking pass
 7. Rewards: a voucher with Slide to use
 8. Me: dark mode and Bahasa Malaysia
 

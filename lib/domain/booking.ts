@@ -1,4 +1,4 @@
-import type { Lang, MessageKey } from '@/lib/i18n';
+import { t, type Lang, type MessageKey } from '@/lib/i18n/core';
 import { intlLocale } from './events';
 import { TZ, mytDate } from './time';
 
@@ -13,6 +13,8 @@ export const OPEN_HOUR = 7;
 export const LAST_START_HOUR = 22;
 export const DAYS_AHEAD = 7;
 export const HOUSEHOLD_DAILY_HOURS = 2;
+/** Find players: a booker asks for 1 to 10 neighbours to join (0 = not looking). */
+export const MAX_PLAYERS = 10;
 
 const HOUR_MS = 3_600_000;
 /** Free cancellation ends this long before the start. */
@@ -23,8 +25,43 @@ export type Facility = { id: string; sport: Sport; court_label: string; place_na
 export const FACILITY_COLUMNS = 'id, sport, court_label, place_name, lat, lng';
 
 /** One of the reader's own bookings, with its court. */
-export type MyBooking = { id: string; date: string; start_hour: number; status: 'booked' | 'cancelled'; facility: Facility };
-export const MY_BOOKING_COLUMNS = `id, date, start_hour, status, facility:facilities(${FACILITY_COLUMNS})`;
+export type MyBooking = {
+  id: string;
+  date: string;
+  start_hour: number;
+  status: 'booked' | 'cancelled';
+  players_needed: number;
+  facility: Facility;
+};
+export const MY_BOOKING_COLUMNS = `id, date, start_hour, status, players_needed, facility:facilities(${FACILITY_COLUMNS})`;
+
+/** A row of `open_games()`: a neighbour's coming game that still needs players, or one the reader has joined. */
+export type OpenGame = {
+  booking_id: string;
+  sport: Sport;
+  court_label: string;
+  place_name: string;
+  date: string;
+  start_hour: number;
+  needed: number;
+  joined: number;
+  host_name: string;
+  host_neighbourhood: string;
+  i_joined: boolean;
+};
+
+/** A row of `game_players(booking)`: who joined the reader's own game, for its pass. */
+export type GamePlayer = { full_name: string; neighbourhood: string; joined_at: string };
+
+/** "1 spot left": what a game still needs, never below none. */
+export function spotsLeft(needed: number, joined: number): number {
+  return Math.max(0, needed - joined);
+}
+
+/** "2 spots left", "1 spot left" or "Full". */
+export function spotsLabel(left: number, lang: Lang): string {
+  return left === 0 ? t(lang, 'book.game.full') : left === 1 ? t(lang, 'book.game.spot') : t(lang, 'book.game.spots', { n: left });
+}
 
 export type SlotState = 'available' | 'booked' | 'past';
 
@@ -101,8 +138,11 @@ export function toIcs(b: { title: string; location: string; date: string; hour: 
   ].join('\r\n');
 }
 
-// The `raise exception` codes of book_slot and cancel_booking.
+// The `raise exception` codes of book_slot, cancel_booking, join_game and leave_game.
 const BOOKING_ERRORS: Record<string, MessageKey> = {
+  own_game: 'book.error.ownGame',
+  game_full: 'book.error.gameFull',
+  game_started: 'book.error.gameStarted',
   not_verified: 'common.pendingCantAct',
   not_found: 'book.error.notFound',
   bad_date: 'book.error.date',
@@ -115,7 +155,7 @@ const BOOKING_ERRORS: Record<string, MessageKey> = {
   too_late: 'book.error.tooLate',
 };
 
-/** What to tell a resident whose booking or cancellation failed. Anything unexpected is the generic error. */
+/** What to tell a resident whose booking, cancellation, join or leave failed. Anything unexpected is the generic error. */
 export function bookingErrorKey(code: string | undefined): MessageKey {
   return code !== undefined && Object.hasOwn(BOOKING_ERRORS, code) ? BOOKING_ERRORS[code] : 'common.error';
 }
