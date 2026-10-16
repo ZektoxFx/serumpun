@@ -93,6 +93,21 @@ export function isAlertActive(a: { status: string; is_official: boolean; expires
   return a.status === 'active' && (a.is_official || (a.expires_at !== null && Date.parse(a.expires_at) > now.getTime()));
 }
 
+/**
+ * Home's "Happening now": the live neighbour alert closest to `from`, or null. The reader's own alerts are left out (they
+ * know), and so are official pins: the office's announcement card speaks for them.
+ */
+export function nearestAlert<
+  T extends LatLng & { status: string; is_official: boolean; is_mine: boolean; expires_at: string | null },
+>(alerts: readonly T[], from: LatLng, now: Date): T | null {
+  let best: T | null = null;
+  for (const a of alerts) {
+    if (a.is_official || a.is_mine || !isAlertActive(a, now)) continue;
+    if (best === null || distanceMeters(from, a) < distanceMeters(from, best)) best = a;
+  }
+  return best;
+}
+
 /** vote_alert refuses the poster, so one "still there" means someone else saw it too. Official pins count as confirmed. */
 export function isConfirmedHazard(a: { is_official: boolean; confirm_count: number }): boolean {
   return a.is_official || a.confirm_count >= 1;

@@ -134,5 +134,14 @@ export async function seedAlerts(admin: SupabaseClient, now: Date, people: Peopl
   if (alertError) throw new Error(`alerts: ${alertError.message}`);
   const { error: voteError } = await admin.from('alert_votes').insert(votes);
   if (voteError) throw new Error(`alert_votes: ${voteError.message}`);
-  console.log(`alerts: ${alerts.length} with ${votes.length} votes`);
+  // The office's notice for the water cut pin above: Home's "Happening now" shows the latest announcement.
+  const { error: noticeError } = await admin.from('announcements').insert({
+    township_id: people.townshipId,
+    title: 'Water disruption in Elmina Valley 3',
+    body: 'Pipe repairs today. A water tanker is at the Elmina Valley 3 playground until the supply is back. Thank you for your patience.',
+    created_by: people.ids.office,
+    created_at: at(300).toISOString(),
+  });
+  if (noticeError) throw new Error(`announcements: ${noticeError.message}`);
+  console.log(`alerts: ${alerts.length} with ${votes.length} votes, and 1 announcement`);
 }

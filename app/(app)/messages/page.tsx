@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { AppHeader } from '@/components/app/AppHeader';
 import { LiveMessages } from '@/components/app/LiveMessages';
 import { Avatar } from '@/components/ui/Avatar';
+import { buttonClasses } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { TimeAgo } from '@/components/ui/TimeAgo';
 import { CONTEXT_ICON, CONVERSATION_COLUMNS, type Conversation } from '@/lib/domain/messages';
@@ -36,7 +37,16 @@ export default async function MessagesPage() {
       <LiveMessages />
       <main className="grid grid-cols-1 gap-3 px-4 py-4">
         {chats.length === 0 ? (
-          <EmptyState icon="💬" title={t(lang, 'messages.empty')} description={t(lang, 'messages.emptyHint')} />
+          <EmptyState
+            icon="💬"
+            title={t(lang, 'messages.empty')}
+            description={t(lang, 'messages.emptyHint')}
+            action={
+              <Link href="/community?tab=services" className={buttonClasses('primary')}>
+                {t(lang, 'community.tab.services')}
+              </Link>
+            }
+          />
         ) : (
           <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface shadow-card">
             {chats.map((c) => {

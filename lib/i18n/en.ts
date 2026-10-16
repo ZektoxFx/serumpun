@@ -51,6 +51,13 @@ const en = {
   'home.tile.issues': 'Issue Board',
   'home.happening': 'Happening now',
   'home.happening.empty': 'All quiet right now',
+  'home.alert.tag': 'ALERT · {distance} away',
+  'home.alert.title': '{type} near {place}',
+  'home.alert.confirmedOne': '1 neighbour confirmed',
+  'home.alert.confirmedMany': '{n} neighbours confirmed',
+  'home.office.tag': 'MANAGEMENT OFFICE · Official',
+  'home.event.tag': 'EVENT',
+  'home.event.points': 'EVENT · +{n} points',
   'home.happening.emptyHint': 'Alerts, notices from the Management Office and events nearby will show up here.',
 
   // Points (the ★ is drawn next to the number, not part of the text)
@@ -861,6 +868,15 @@ const en = {
   'book.error.household': 'Your household has already booked 2 hours that day.',
   'book.error.noUnit': 'Only residents with a home in the township can book courts.',
   'book.error.tooLate': 'Too late to cancel: it starts in less than 2 hours.',
+
+  // Loading, errors and missing pages
+  'common.loading': 'Loading…',
+  'error.title': 'Something went wrong',
+  'error.body': 'This page could not load. Check your connection and try again.',
+  'error.retry': 'Try again',
+  'error.home': 'Go to Home',
+  'notFound.title': 'Page not found',
+  'notFound.body': 'It may have been removed, or the link is wrong.',
 } satisfies Record<string, string>;
 
 export default en;

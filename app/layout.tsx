@@ -20,6 +20,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 // Browser chrome follows the phone's setting; the in-app switch only changes the page itself.
 export const viewport: Viewport = {
+  // Edge to edge on notched phones; the fixed bars pad themselves with env(safe-area-inset-bottom).
+  viewportFit: 'cover',
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#F6F7F9' },
     { media: '(prefers-color-scheme: dark)', color: '#0B1220' },

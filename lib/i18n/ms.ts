@@ -52,6 +52,13 @@ const ms: Record<keyof typeof en, string> = {
   'home.tile.issues': 'Papan Isu',
   'home.happening': 'Sedang berlaku',
   'home.happening.empty': 'Tiada apa-apa buat masa ini',
+  'home.alert.tag': 'AMARAN · {distance} dari anda',
+  'home.alert.title': '{type} dekat {place}',
+  'home.alert.confirmedOne': '1 jiran mengesahkan',
+  'home.alert.confirmedMany': '{n} jiran mengesahkan',
+  'home.office.tag': 'PEJABAT PENGURUSAN · Rasmi',
+  'home.event.tag': 'ACARA',
+  'home.event.points': 'ACARA · +{n} mata',
   'home.happening.emptyHint': 'Amaran, notis daripada Pejabat Pengurusan dan acara berdekatan akan dipaparkan di sini.',
 
   // Points (the ★ is drawn next to the number, not part of the text)
@@ -862,6 +869,15 @@ const ms: Record<keyof typeof en, string> = {
   'book.error.household': 'Isi rumah anda sudah menempah 2 jam pada hari itu.',
   'book.error.noUnit': 'Hanya penduduk yang mempunyai rumah di perbandaran ini boleh menempah gelanggang.',
   'book.error.tooLate': 'Sudah terlambat untuk membatalkan: ia bermula dalam masa kurang daripada 2 jam.',
+
+  // Memuatkan, ralat dan halaman yang tiada
+  'common.loading': 'Memuatkan…',
+  'error.title': 'Ada masalah',
+  'error.body': 'Halaman ini tidak dapat dimuatkan. Semak sambungan anda dan cuba lagi.',
+  'error.retry': 'Cuba lagi',
+  'error.home': 'Ke Utama',
+  'notFound.title': 'Halaman tidak dijumpai',
+  'notFound.body': 'Ia mungkin telah dibuang, atau pautannya salah.',
 };
 
 export default ms;

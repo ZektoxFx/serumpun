@@ -11,6 +11,7 @@ import {
   isAlertActive,
   isConfirmedHazard,
   isFresh,
+  nearestAlert,
   parseFilters,
   searchAlerts,
   type AlertType,
@@ -51,6 +52,20 @@ it('drops the distance filter for "all of Elmina" or when the location is unknow
   expect(filterAlerts(sample, { ...all, maxDistanceM: 500 }, null).map((a) => a.id)).toEqual(['a1', 'a2', 'a3']);
   expect(filterAlerts(sample, { ...all, maxDistanceM: 500 }, centre).map((a) => a.id)).toEqual(['a1', 'a2']);
   expect(filterAlerts(sample, { ...all, types: ['police', 'stray_dogs'] }, centre).map((a) => a.id)).toEqual(['a2', 'a3']);
+});
+
+it("Home shows the nearest live neighbour alert, never an official pin, an expired one or the reader's own", () => {
+  const now = new Date('2026-10-13T10:00:00Z');
+  const live = { status: 'active', is_official: false, is_mine: false, expires_at: '2026-10-13T11:00:00Z' };
+  const alerts = [
+    { id: 'far', lat: 3.1932, lng: 101.5156, ...live }, // 1.5 km north
+    { id: 'near', lat: 3.1806, lng: 101.5156, ...live }, // 100 m north
+    { id: 'official', lat: 3.1797, lng: 101.5156, ...live, is_official: true, expires_at: null }, // right here
+    { id: 'expired', lat: 3.1798, lng: 101.5156, ...live, expires_at: '2026-10-13T09:59:59Z' },
+    { id: 'mine', lat: 3.1797, lng: 101.5157, ...live, is_mine: true },
+  ];
+  expect(nearestAlert(alerts, centre, now)?.id).toBe('near');
+  expect(nearestAlert(alerts.slice(2), centre, now)).toBeNull();
 });
 
 it('a hazard is confirmed by someone other than the poster, or official', () => {

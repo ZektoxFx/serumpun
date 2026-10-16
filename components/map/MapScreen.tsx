@@ -57,21 +57,25 @@ export function MapScreen({
 }) {
   const t = useT();
   const lang = useLang();
+  const params = useSearchParams();
+  // Home's "Happening now" links its alert as /map?alert=<id>: the map opens on that pin with its sheet up.
+  const linked = initialAlerts.find((a) => a.id === params.get('alert')) ?? null;
   const [alerts, setAlerts] = useState(initialAlerts);
   const [now, setNow] = useState(() => new Date());
   const [fix, setFix] = useState<LatLng | null>(null);
   const [view, setView] = useState(centre);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(linked?.id ?? null);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [query, setQuery] = useState('');
-  const [focus, setFocus] = useState<LatLng | null>(null);
+  const [focus, setFocus] = useState<LatLng | null>(linked && { lat: linked.lat, lng: linked.lng });
   const [toast, setToast] = useState<{ text: string; focusMap?: boolean } | null>(null);
   const [filters, setFilters] = useMapFilters();
   const mapRegion = useRef<HTMLDivElement>(null);
 
   // The + menu's "Drop a map alert" lands on /map?drop=1. The parameter is consumed at once, so a reload does not reopen
   // the sheet and the next tap on that menu item (from this page too) opens it again.
-  const wantsDrop = useSearchParams().get('drop') === '1';
+  const wantsDrop = params.get('drop') === '1';
+  const hasAlertLink = params.has('alert');
   const [dropOpen, setDropOpen] = useState(wantsDrop);
   const [seenDrop, setSeenDrop] = useState(wantsDrop);
   if (wantsDrop !== seenDrop) {
@@ -80,12 +84,13 @@ export function MapScreen({
   }
   const router = useRouter();
   useEffect(() => {
-    if (!wantsDrop) return;
+    if (!wantsDrop && !hasAlertLink) return;
     const url = new URL(window.location.href);
-    url.searchParams.delete('drop'); // only this one: other parameters (Safe Walk's later) stay
+    url.searchParams.delete('drop'); // only these two: other parameters (Safe Walk's later) stay
+    url.searchParams.delete('alert');
     // Through the router, not history.replaceState: during the first render the router would keep its old drop=1.
     router.replace(url.pathname + url.search, { scroll: false });
-  }, [wantsDrop, router]);
+  }, [wantsDrop, hasAlertLink, router]);
 
   // Pins fade out when they expire, and their "confirmed 5 min ago" names stay true.
   useEffect(() => {

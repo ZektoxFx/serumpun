@@ -96,7 +96,16 @@ export default async function ReportsPage({ searchParams }: PageProps<'/reports'
               }
             />
           ) : (
-            <EmptyState icon="📋" title={t(lang, 'report.board.empty')} description={t(lang, 'report.board.emptyHint')} />
+            <EmptyState
+              icon="📋"
+              title={t(lang, 'report.board.empty')}
+              description={t(lang, 'report.board.emptyHint')}
+              action={
+                <Link href="/reports/new" className={buttonClasses('primary')}>
+                  {t(lang, 'create.report')}
+                </Link>
+              }
+            />
           )
         ) : (
           <ul className="grid gap-2">

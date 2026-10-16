@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { AppHeader } from '@/components/app/AppHeader';
+import { buttonClasses } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { eventDay } from '@/lib/domain/events';
 import { balance, formatPoints, rewardTitle, type Reward } from '@/lib/domain/points';
@@ -47,7 +49,16 @@ export default async function PointsHistoryPage() {
           <span aria-hidden="true">★</span> {t(lang, 'points.count', { n: formatPoints(balance(entries), lang) })}
         </p>
         {entries.length === 0 ? (
-          <EmptyState icon="★" title={t(lang, 'points.empty')} description={t(lang, 'points.emptyHint')} />
+          <EmptyState
+            icon="★"
+            title={t(lang, 'points.empty')}
+            description={t(lang, 'points.emptyHint')}
+            action={
+              <Link href="/community?tab=events" className={buttonClasses('primary')}>
+                {t(lang, 'community.tab.events')}
+              </Link>
+            }
+          />
         ) : (
           <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface shadow-card">
             {entries.map((e) => (

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { AppHeader } from '@/components/app/AppHeader';
 import { RedeemButton } from '@/components/rewards/RedeemButton';
+import { buttonClasses } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Tag } from '@/components/ui/Tag';
 import { eventDay, eventTime } from '@/lib/domain/events';
@@ -85,7 +86,16 @@ export default async function RewardsPage({ searchParams }: PageProps<'/rewards'
 
         {mine ? (
           vouchers.data!.length === 0 ? (
-            <EmptyState icon="🎟️" title={t(lang, 'reward.mine.empty')} description={t(lang, 'reward.mine.emptyHint')} />
+            <EmptyState
+              icon="🎟️"
+              title={t(lang, 'reward.mine.empty')}
+              description={t(lang, 'reward.mine.emptyHint')}
+              action={
+                <Link href="/rewards" className={buttonClasses('primary')}>
+                  {t(lang, 'home.tile.rewards')}
+                </Link>
+              }
+            />
           ) : (
             <ul className="grid gap-2">
               {vouchers.data!.map((v) => {

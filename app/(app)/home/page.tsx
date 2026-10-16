@@ -67,7 +67,7 @@ export default async function HomePage() {
           ))}
         </ul>
 
-        <HappeningNow />
+        <HappeningNow profile={profile} lang={lang} />
       </main>
     </>
   );
