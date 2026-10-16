@@ -2,15 +2,17 @@
 
 import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { IconButton } from '@/components/ui/IconButton';
 import {
+  ALERT_ICON,
   DEFAULT_FILTERS,
   PIN_TYPES,
   PUBLIC_ALERT_COLUMNS,
   SEVERITIES,
   filterAlerts,
   isAlertActive,
+  isConfirmedHazard,
   searchAlerts,
   type AlertType,
   type PublicAlert,
@@ -18,12 +20,15 @@ import {
 import { formatDistance, resolveStartLocation, type LatLng } from '@/lib/domain/geo';
 import { timeAgo } from '@/lib/domain/time';
 import { useLang, useT } from '@/lib/i18n';
+import { findRoute } from '@/lib/route/findRoute';
+import { loadGraph, type Graph, type GraphFile } from '@/lib/route/graph';
 import { createBrowserClient } from '@/lib/supabase/client';
 import { useTownshipEvents } from '@/lib/supabase/useRealtime';
 import { AlertSheet } from './AlertSheet';
 import { DropAlertSheet } from './DropAlertSheet';
 import { FilterSheet, useMapFilters } from './FilterSheet';
-import type { MapPin } from './LiveMap';
+import type { MapPin, WalkLines } from './LiveMap';
+import { SafeWalkBanner, SafeWalkPanel, type WalkPlace } from './SafeWalkPanel';
 
 // Leaflet needs `window`, so the map itself only ever renders in the browser.
 const LiveMap = dynamic(() => import('./LiveMap').then((m) => m.LiveMap), {
@@ -36,6 +41,21 @@ const chip = (on: boolean) =>
     on ? 'bg-ink text-on-ink' : 'bg-surface text-text'
   }`;
 
+let graphLoad: Promise<Graph> | null = null;
+/** Safe Walk's paths (public/data/elmina-walk.json, a few hundred kB): fetched the first time it is used, then kept. */
+function walkGraph(): Promise<Graph> {
+  graphLoad ??= fetch('/data/elmina-walk.json')
+    .then((res) => {
+      if (!res.ok) throw new Error(`walking paths: ${res.status}`);
+      return res.json() as Promise<GraphFile>;
+    })
+    .then(loadGraph);
+  graphLoad.catch(() => {
+    graphLoad = null; // the next tap tries again
+  });
+  return graphLoad;
+}
+
 /**
  * The Live Map (canvas "Live Map v2"): the township's live alerts on a street map, a search and filters on top, and
  * sheets to read, vote on and drop alerts. Pins arrive with the page, then refresh whenever the township's channel
@@ -47,6 +67,9 @@ export function MapScreen({
   centre,
   canPost,
   initialAlerts,
+  home,
+  places,
+  walkTo,
 }: {
   townshipId: string;
   township: string;
@@ -54,6 +77,12 @@ export function MapScreen({
   /** Verified residents post and vote; pending ones browse. */
   canPost: boolean;
   initialAlerts: PublicAlert[];
+  /** The centre of the resident's neighbourhood: where Safe Walk sets off without a GPS fix in the township. */
+  home: LatLng | null;
+  /** Safe Walk's places. */
+  places: WalkPlace[];
+  /** A walk to start on (Book a Court's Directions: /map?walkTo=<court>). */
+  walkTo: WalkPlace | null;
 }) {
   const t = useT();
   const lang = useLang();
@@ -71,11 +100,18 @@ export function MapScreen({
   const [toast, setToast] = useState<{ text: string; focusMap?: boolean } | null>(null);
   const [filters, setFilters] = useMapFilters();
   const mapRegion = useRef<HTMLDivElement>(null);
+  // Safe Walk: the list of places, waiting for a tap on the map, and the walk itself: where to, and where it set off (a
+  // snapshot, so a moving GPS fix does not keep re-routing it).
+  const [walkChoosing, setWalkChoosing] = useState(false);
+  const [picking, setPicking] = useState(false);
+  const [walk, setWalk] = useState<{ to: WalkPlace; from: LatLng } | null>(walkTo && { to: walkTo, from: home ?? centre });
+  const [graph, setGraph] = useState<Graph | null>(null);
+  const [graphFailed, setGraphFailed] = useState(false);
 
   // The + menu's "Drop a map alert" lands on /map?drop=1. The parameter is consumed at once, so a reload does not reopen
   // the sheet and the next tap on that menu item (from this page too) opens it again.
   const wantsDrop = params.get('drop') === '1';
-  const hasAlertLink = params.has('alert');
+  const hasLink = params.has('alert') || params.has('walkTo');
   const [dropOpen, setDropOpen] = useState(wantsDrop);
   const [seenDrop, setSeenDrop] = useState(wantsDrop);
   if (wantsDrop !== seenDrop) {
@@ -84,13 +120,17 @@ export function MapScreen({
   }
   const router = useRouter();
   useEffect(() => {
-    if (!wantsDrop && !hasAlertLink) return;
+    if (!wantsDrop && !hasLink) return;
     const url = new URL(window.location.href);
-    url.searchParams.delete('drop'); // only these two: other parameters (Safe Walk's later) stay
-    url.searchParams.delete('alert');
+    for (const name of ['drop', 'alert', 'walkTo']) url.searchParams.delete(name); // only these: any other parameter stays
     // Through the router, not history.replaceState: during the first render the router would keep its old drop=1.
     router.replace(url.pathname + url.search, { scroll: false });
-  }, [wantsDrop, hasAlertLink, router]);
+  }, [wantsDrop, hasLink, router]);
+
+  // Directions from Book a Court opens the map already walking: fetch the paths at once.
+  useEffect(() => {
+    if (walkTo) walkGraph().then(setGraph, () => setGraphFailed(true));
+  }, [walkTo]);
 
   // Pins fade out when they expire, and their "confirmed 5 min ago" names stay true.
   useEffect(() => {
@@ -167,6 +207,32 @@ export function MapScreen({
     label: pinLabel(a),
   }));
 
+  // Safe Walk keeps away from confirmed high and medium hazards (a low one, like a streetlight out, it walks past). Worked
+  // out again when the alerts change, so a hazard cleared on the way opens the usual route again.
+  const route = useMemo(() => {
+    if (!graph || !walk) return null;
+    const hazards = alerts
+      .filter((a) => isAlertActive(a, now) && isConfirmedHazard(a) && a.severity !== 'low')
+      .map((a) => ({ id: a.id, lat: a.lat, lng: a.lng, label: a.type }));
+    return findRoute(graph, walk.from, walk.to, hazards);
+  }, [graph, walk, alerts, now]);
+  const walkLines = useMemo<WalkLines | null>(
+    () => route && walk && { safe: route.path, usual: route.avoided.length > 0 && !route.blocked ? route.usualPath : null, to: walk.to },
+    [route, walk],
+  );
+  const avoided = route ? active.filter((a) => route.avoided.includes(a.id)) : [];
+  const openSafeWalk = () => {
+    setWalkChoosing(true);
+    setGraphFailed(false);
+    walkGraph().then(setGraph, () => setGraphFailed(true));
+  };
+  const startWalk = (to: WalkPlace) => {
+    setWalk({ to, from: me ?? home ?? centre });
+    setWalkChoosing(false);
+    setPicking(false);
+    setSelectedId(null);
+  };
+
   const narrowed = shown.length < active.length;
   const closeDrop = () => setDropOpen(false);
 
@@ -206,8 +272,16 @@ export function MapScreen({
           )}
         </form>
 
-        {/* Safe Walk's chip joins these in Task 20. */}
         <div className="pointer-events-auto -mx-3 flex gap-2 overflow-x-auto px-3 pb-1 [scrollbar-width:none]">
+          {/* Solid red rather than the canvas gradient: small white text only reads on the solid colour. */}
+          <button
+            type="button"
+            aria-haspopup="dialog"
+            onClick={openSafeWalk}
+            className="inline-flex min-h-11 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-red px-4 text-sm font-bold text-white shadow-md"
+          >
+            <span aria-hidden="true">🚶</span> {t('walk.chip')}
+          </button>
           <button type="button" aria-haspopup="dialog" onClick={() => setFiltersOpen(true)} className={chip(filters.maxDistanceM !== null)}>
             {filters.maxDistanceM === null
               ? t('map.filter.chip.distance')
@@ -249,6 +323,24 @@ export function MapScreen({
         {!canPost && (
           <p className="pointer-events-auto rounded-xl bg-tint-amber px-3 py-2 text-sm font-bold text-amber-text shadow-md">{t('map.readOnly')}</p>
         )}
+        {picking && (
+          <p
+            role="status"
+            className="pointer-events-auto flex min-h-11 items-center gap-1 justify-self-start rounded-full bg-[#001C3C] pl-4 pr-1 text-sm font-bold text-white shadow-md"
+          >
+            {t('walk.tapHint')}
+            <button type="button" onClick={() => setPicking(false)} className="min-h-11 rounded-full px-3 underline-offset-2 hover:underline">
+              {t('common.cancel')}
+            </button>
+          </p>
+        )}
+        {route && (
+          <SafeWalkBanner
+            route={route}
+            hazards={avoided.map((a) => `${ALERT_ICON[a.type]} ${typeLabel(a.type)}`).join(', ')}
+            confirmed={avoided[0] ? timeAgo(new Date(avoided[0].last_confirmed_at), now, lang) : ''}
+          />
+        )}
       </div>
 
       <LiveMap
@@ -261,17 +353,22 @@ export function MapScreen({
         onViewChange={setView}
         township={township}
         regionRef={mapRegion}
+        walk={walkLines}
+        onMapClick={picking ? (p) => startWalk({ ...p, label: t('walk.pinned'), icon: '📍' }) : null}
       />
 
-      <button
-        type="button"
-        aria-haspopup="dialog"
-        onClick={() => setDropOpen(true)}
-        className="absolute bottom-7 left-3 inline-flex min-h-12 items-center gap-2 rounded-full bg-red px-5 text-base font-extrabold text-white shadow-lg transition-transform duration-150 active:scale-95 motion-reduce:transition-none motion-reduce:active:scale-100"
-      >
-        <span aria-hidden="true">⚠️</span>
-        {t('map.drop.open')}
-      </button>
+      {/* Safe Walk's card takes this corner while walking. */}
+      {!walk && (
+        <button
+          type="button"
+          aria-haspopup="dialog"
+          onClick={() => setDropOpen(true)}
+          className="absolute bottom-7 left-3 inline-flex min-h-12 items-center gap-2 rounded-full bg-red px-5 text-base font-extrabold text-white shadow-lg transition-transform duration-150 active:scale-95 motion-reduce:transition-none motion-reduce:active:scale-100"
+        >
+          <span aria-hidden="true">⚠️</span>
+          {t('map.drop.open')}
+        </button>
+      )}
 
       {/* Clear of the zoom buttons on the right. */}
       <div role="status" className="pointer-events-none absolute bottom-24 left-3 right-16 flex justify-center">
@@ -307,6 +404,23 @@ export function MapScreen({
         onChange={setFilters}
         count={shown.length}
         hasLocation={me !== null}
+      />
+      <SafeWalkPanel
+        places={places}
+        choosing={walkChoosing}
+        onClose={() => setWalkChoosing(false)}
+        onChoose={startWalk}
+        onTapMap={() => {
+          setWalkChoosing(false);
+          setPicking(true);
+        }}
+        walking={walk?.to ?? null}
+        route={route}
+        status={graphFailed ? 'error' : graph ? 'none' : 'loading'}
+        onEnd={() => {
+          setWalk(null);
+          setPicking(false);
+        }}
       />
     </main>
   );

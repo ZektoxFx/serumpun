@@ -878,6 +878,25 @@ const ms: Record<keyof typeof en, string> = {
   'error.home': 'Ke Utama',
   'notFound.title': 'Halaman tidak dijumpai',
   'notFound.body': 'Ia mungkin telah dibuang, atau pautannya salah.',
+
+  // Jalan Selamat
+  'walk.chip': 'Jalan Selamat',
+  'walk.where': 'Anda berjalan ke mana?',
+  'walk.hint': 'Jalan Selamat mengelak bahaya tahap tinggi dan sederhana yang disahkan di peta.',
+  'walk.tapMap': 'Tempat lain: ketik peta',
+  'walk.tapHint': 'Ketik peta di tempat yang anda tuju',
+  'walk.pinned': 'tempat yang anda pilih',
+  'walk.to': 'Jalan Selamat ke {place}',
+  'walk.meta': '{minutes} min · {distance}',
+  'walk.loading': 'Memuatkan laluan pejalan kaki…',
+  'walk.loadError': 'Laluan pejalan kaki tidak dapat dimuatkan. Ketik Jalan Selamat untuk cuba lagi.',
+  'walk.noRoute': 'Tiada laluan pejalan kaki ke sana.',
+  'walk.changed': 'Laluan ditukar untuk mengelak {hazards} (disahkan {time}). +{n} min',
+  'walk.changedSame': 'Laluan ditukar untuk mengelak {hazards} (disahkan {time}), masa lebih kurang sama.',
+  'walk.blocked': 'Tiada laluan selamat mengelak {hazards}. Berhati-hati, atau pilih tempat lain.',
+  'walk.legend.safe': 'Laluan selamat',
+  'walk.legend.usual': 'Laluan biasa (bahaya)',
+  'walk.end': 'Tamat',
 };
 
 export default ms;

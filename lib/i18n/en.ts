@@ -877,6 +877,25 @@ const en = {
   'error.home': 'Go to Home',
   'notFound.title': 'Page not found',
   'notFound.body': 'It may have been removed, or the link is wrong.',
+
+  // Safe Walk
+  'walk.chip': 'Safe Walk',
+  'walk.where': 'Where are you walking to?',
+  'walk.hint': 'Safe Walk goes around confirmed high and medium hazards on the map.',
+  'walk.tapMap': 'Somewhere else: tap the map',
+  'walk.tapHint': 'Tap the map where you are going',
+  'walk.pinned': 'the place you picked',
+  'walk.to': 'Safe Walk to {place}',
+  'walk.meta': '{minutes} min · {distance}',
+  'walk.loading': 'Loading the walking paths…',
+  'walk.loadError': 'The walking paths did not load. Tap Safe Walk to try again.',
+  'walk.noRoute': 'No walking route reaches there.',
+  'walk.changed': 'Route changed to avoid {hazards} (confirmed {time}). +{n} min',
+  'walk.changedSame': 'Route changed to avoid {hazards} (confirmed {time}), about the same time.',
+  'walk.blocked': 'No safe way round {hazards}. Take care, or pick another place.',
+  'walk.legend.safe': 'Safe route',
+  'walk.legend.usual': 'Usual way (hazard)',
+  'walk.end': 'End',
 } satisfies Record<string, string>;
 
 export default en;

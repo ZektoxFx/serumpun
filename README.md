@@ -13,7 +13,7 @@ laptop for the dashboard.
 ## Screens to see
 
 1. Home: Happening now (nearest alert, the office's announcement, your next event)
-2. Live Map: an alert with Still there / Gone
+2. Live Map: an alert with Still there / Gone, and Safe Walk going around it
 3. Report an issue → "Already reported nearby?" → Me too → the report's timeline
 4. Management Office dashboard: the reports board, moving a report on (the resident's phone updates live)
 5. Community: Groups, Events (QR check-in for points), Services, Share & Lend

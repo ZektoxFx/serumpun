@@ -11,6 +11,9 @@ import { useT } from '@/lib/i18n';
 /** One alert as the map draws it. `label` is the pin's accessible name: type, severity and how fresh it is. */
 export type MapPin = { id: string; lat: number; lng: number; type: AlertType; severity: Severity; official: boolean; label: string };
 
+/** Safe Walk's lines: the route in blue, the usual way dashed red beside it (when they differ), and where it ends. */
+export type WalkLines = { safe: LatLng[]; usual: LatLng[] | null; to: LatLng };
+
 const ZOOM = 16;
 const TILES = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 const CREDIT = '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
@@ -64,6 +67,8 @@ export function LiveMap({
   onViewChange,
   township,
   regionRef,
+  walk = null,
+  onMapClick = null,
 }: {
   pins: MapPin[];
   selectedId: string | null;
@@ -78,6 +83,9 @@ export function LiveMap({
   township: string;
   /** The map's own region element (Leaflet makes it focusable), so the screen can move keyboard focus onto it. */
   regionRef: RefObject<HTMLDivElement | null>;
+  walk?: WalkLines | null;
+  /** A tap on the map itself (not a pin): Safe Walk's "tap the map". */
+  onMapClick?: ((p: LatLng) => void) | null;
 }) {
   const t = useT();
   const map = useRef<L.Map | null>(null);
@@ -87,6 +95,9 @@ export function LiveMap({
   const moved = useRef(false); // the resident moved the map, so a late GPS fix no longer pulls it away
   const select = useEffectEvent(onSelect);
   const viewChanged = useEffectEvent(onViewChange);
+  const mapClicked = useEffectEvent((p: LatLng) => onMapClick?.(p));
+  const walkLayer = useRef<L.LayerGroup | null>(null);
+  const fittedTo = useRef<string | null>(null);
 
   useEffect(() => {
     const m = L.map(regionRef.current!, { zoomControl: false, center: opening.current, zoom: ZOOM });
@@ -98,6 +109,7 @@ export function LiveMap({
       const { lat, lng } = m.getCenter();
       viewChanged({ lat, lng });
     });
+    m.on('click', (e: L.LeafletMouseEvent) => mapClicked({ lat: e.latlng.lat, lng: e.latlng.lng }));
     map.current = m;
     const drawn = markers.current;
     return () => {
@@ -165,6 +177,31 @@ export function LiveMap({
   useEffect(() => {
     if (focus) map.current?.panTo(focus);
   }, [focus]);
+
+  // Safe Walk's lines, drawn again whenever the route is worked out again (alerts change); the view fits the walk once
+  // per destination, so a refresh never pulls the map away from where the walker moved it.
+  useEffect(() => {
+    const m = map.current;
+    if (!m) return;
+    walkLayer.current?.remove();
+    walkLayer.current = null;
+    if (!walk) {
+      fittedTo.current = null;
+      return;
+    }
+    const group = L.layerGroup().addTo(m);
+    if (walk.usual) L.polyline(walk.usual, { color: '#D51A21', weight: 4, opacity: 0.8, dashArray: '6 8', interactive: false }).addTo(group);
+    const line = L.polyline(walk.safe, { color: '#1E6FFF', weight: 6, lineCap: 'round', lineJoin: 'round', interactive: false }).addTo(group);
+    L.circleMarker(walk.to, { radius: 8, color: '#001C3C', weight: 3, fillColor: '#FFFFFF', fillOpacity: 1, interactive: false }).addTo(group);
+    walkLayer.current = group;
+    const key = `${walk.to.lat},${walk.to.lng}`;
+    if (fittedTo.current !== key) {
+      fittedTo.current = key;
+      moved.current = true; // a late GPS fix must not pull the map off the walk
+      // Room for the search, chips and banner above, and the walk's card below.
+      m.fitBounds(line.getBounds(), { paddingTopLeft: [24, 200], paddingBottomRight: [72, 170], maxZoom: 17 });
+    }
+  }, [walk]);
 
   const zoomBy = (step: number) => {
     moved.current = true;

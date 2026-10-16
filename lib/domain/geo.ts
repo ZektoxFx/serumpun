@@ -25,7 +25,7 @@ export function formatDistance(m: number): string {
   return metres < 1000 ? `${metres} m` : `${Number((m / 1000).toFixed(1))} km`;
 }
 
-/** Minutes on foot at 80 m a minute (about 5 km/h), never under 1. */
+/** Minutes on foot at 78 m a minute (about 4.7 km/h), rounded up and never under 1. */
 export function walkMinutes(m: number): number {
-  return Math.max(1, Math.ceil(m / 80));
+  return Math.max(1, Math.ceil(m / 78));
 }

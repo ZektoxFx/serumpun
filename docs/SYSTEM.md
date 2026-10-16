@@ -27,7 +27,7 @@ number.
 | Screen | Where | What it does |
 |---|---|---|
 | Home | `/home` | Greeting, township and points; "Report an issue" (straight to the office); 8 tiles; **Happening now**: the nearest neighbour alert, the office's latest announcement and your next event. |
-| Live Map | `/map` | Alerts as pins (accident, snake, suspicious person, stray dogs, flood, fallen tree, walkway blocked, streetlight, police, and the office's road works and water cuts). Neighbours vote **Still there** or **Gone**; an alert fades 2 hours after its last confirmation. Search, filters, drop an alert, and "Send to Management Office" for lasting problems. |
+| Live Map | `/map` | Alerts as pins (accident, snake, suspicious person, stray dogs, flood, fallen tree, walkway blocked, streetlight, police, and the office's road works and water cuts). Neighbours vote **Still there** or **Gone**; an alert fades 2 hours after its last confirmation. Search, filters, drop an alert, and "Send to Management Office" for lasting problems. **Safe Walk**: pick the mall, the park, the courts or a spot on the map, and the walking route goes around confirmed high and medium hazards (blue, with the usual way dashed red and a banner saying what it avoided and how many minutes it adds), or warns when there is no way round. |
 | Report an issue · Issue Board | `/reports/new` · `/reports` | Category, photo and place; "Already reported nearby?" offers **Me too** instead of a duplicate. Timeline: submitted → acknowledged → in progress → resolved, then the reporter confirms the fix (or it reopens). Private reports (security) are seen only by the reporter and the office. |
 | Management Office | `/dashboard` | Reports board with updates and after-photos, residents to approve, official map pins, events to approve (points), announcements, rewards and vouchers, and Reset demo data. |
 | Community | `/community` | **Groups** (posts, questions with a top answer, Helpful), **Events** (Going, QR check-in, points), **Services** (offers and requests in Tutoring, Repairs, Cleaning, Food, Childcare, Eldercare, Pets, Others), **Share & Lend** (lend, give away or swap; borrowing in 4 steps). |
@@ -40,7 +40,8 @@ number.
 **The 5-minute demo story**
 
 1. Landing → **Try as Aisyah** → switch to Bahasa Malaysia (Me › Language).
-2. Home › Happening now → the nearest alert opens the **Live Map** on it → vote Still there.
+2. Home › Happening now → the nearest alert opens the **Live Map** on it → vote Still there → **Safe Walk** to Elmina
+   Lakeside Mall goes around the stray dogs on the park track.
 3. **Report** a broken streetlight → "Already reported nearby?" → **Me too** → open the report's timeline.
 4. On a laptop: **Try as Management Office** → move a report to *In progress* with an update → Aisyah's phone updates
    **live** → the Issue Board.
@@ -90,6 +91,9 @@ flowchart LR
   fetch again through the privacy views; messages and notifications arrive as row changes under row-level security.
 - **Time**: every "today", slot and window is worked out in Malaysia time (Asia/Kuala_Lumpur); servers run in UTC.
 - **Maps** use Leaflet with OpenStreetMap tiles (no paid keys). QR codes are made in the app.
+- **Safe Walk** routes in the phone: Elmina's walking paths from OpenStreetMap (`public/data/elmina-walk.json`, built
+  by `scripts/build-walk-graph.mjs`) load the first time it is used, and A* finds the shortest way, then the shortest
+  way that keeps 40 m from every confirmed high or medium hazard. It is worked out again whenever the alerts change.
 
 | Folder | What is in it |
 |---|---|
@@ -98,11 +102,12 @@ flowchart LR
 | `app/dashboard` | The Management Office |
 | `components/<feature>` | Screens' parts, by feature |
 | `lib/domain` | The rules as plain, tested functions (time, points, booking, reports, alerts…) |
+| `lib/route` | Safe Walk's walking graph and route finder |
 | `lib/supabase` | Clients, the session and role checks, realtime hooks |
 | `lib/i18n` | English and Bahasa Malaysia (`en.ts`, `ms.ts`) |
 | `lib/seed` | The demo township |
 | `supabase/migrations` | Schema, row-level security and RPCs, applied in order |
-| `scripts` | `migrate.ts`, `seed.ts`, `smoke.ts` |
+| `scripts` | `migrate.ts`, `seed.ts`, `smoke.ts`, and `build-walk-graph.mjs` (refreshes the walking paths) |
 | `tests` | Vitest unit tests |
 
 ## 5. Data model
@@ -216,8 +221,10 @@ Apply new migrations before deploying code that needs them. The smoke test ends 
 
 ## 13. Known limits and Later
 
-- **Later**: Safe Walk (walking routes that avoid confirmed hazards), Find players and open games for court bookings,
-  ratings for services, and return-day reminders, cross-posting listings to groups and the remaining notifications.
+- **Later**: Find players and open games for court bookings, ratings for services, and return-day reminders,
+  cross-posting listings to groups and the remaining notifications.
+- **Safe Walk** knows only the paths OpenStreetMap has (refresh them with `node scripts/build-walk-graph.mjs`), sets off
+  from your neighbourhood's centre when the phone gives no location in the township, and does not guide turn by turn.
 - **Not in this version**: payments (services are paid between neighbours, courts are free), push notifications (they
   are in the app), checking in at a court (the "3 no-shows" rule is shown, not enforced), offline use, and photos for
   listings (they have an emoji).
@@ -227,8 +234,8 @@ Apply new migrations before deploying code that needs them. The smoke test ends 
 
 ## 14. Credits
 
-Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors, available under the Open Database
-License (ODbL). Maps by Leaflet. Built with Next.js, React, Tailwind CSS, Supabase and Vercel. Font: Plus Jakarta Sans
+Map data and Safe Walk's walking paths © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors,
+available under the Open Database License (ODbL). Maps by Leaflet. Built with Next.js, React, Tailwind CSS, Supabase and Vercel. Font: Plus Jakarta Sans
 (SIL Open Font License). Made for the SDP Hackathon 2026.
 
 ## 15. Links
