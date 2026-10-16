@@ -11,10 +11,10 @@ import { mytDate } from '@/lib/domain/time';
 import { useT } from '@/lib/i18n';
 
 /**
- * "List an item": lend it, give it away or swap it; what it is, its condition and a picture; what a swap wants, and how
- * long a lend item is there. The new listing opens once it is up.
+ * "List an item": lend it, give it away or swap it; what it is, its condition and a picture; what a swap wants, how long
+ * a lend item is there, and a group of the resident's to post it in too. The new listing opens once it is up.
  */
-export function ListingForm({ canPost }: { canPost: boolean }) {
+export function ListingForm({ canPost, groups }: { canPost: boolean; groups: { id: string; name: string }[] }) {
   const t = useT();
   const router = useRouter();
   const [kind, setKind] = useState<ListingKind>('lend');
@@ -81,6 +81,20 @@ export function ListingForm({ canPost }: { canPost: boolean }) {
             {(control) => <input {...control} type="date" name="availableUntil" min={mytDate(new Date())} disabled={!canPost} />}
           </Field>
         </Fragment>
+      )}
+      {groups.length > 0 && (
+        <Field label={t('share.new.group')} hint={t('share.new.groupHint')}>
+          {(control) => (
+            <select {...control} name="group" defaultValue="" disabled={!canPost}>
+              <option value="">{t('share.new.groupNone')}</option>
+              {groups.map((g) => (
+                <option key={g.id} value={g.id}>
+                  {g.name}
+                </option>
+              ))}
+            </select>
+          )}
+        </Field>
       )}
       <p className="text-sm text-muted-2">{t('share.noSelling')}</p>
       {result && !result.ok && (

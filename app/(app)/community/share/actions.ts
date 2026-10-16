@@ -18,7 +18,7 @@ function failed(rpc: string, error: { message: string }): ShareActionResult {
   return { ok: false, error: key };
 }
 
-/** "List an item": something to lend, give away or swap. */
+/** "List an item": something to lend, give away or swap, and, if a group is picked, a post about it there. */
 export async function createListing(formData: FormData): Promise<ShareActionResult> {
   await requireVerified();
   const supabase = await createClient();
@@ -29,6 +29,7 @@ export async function createListing(formData: FormData): Promise<ShareActionResu
     p_emoji: field(formData, 'emoji'),
     p_swap_for: field(formData, 'swapFor'),
     p_available_until: field(formData, 'availableUntil') || null,
+    p_group: field(formData, 'group') || null,
   });
   if (error) return failed('create_listing', error);
   return { ok: true, id: String(data) };

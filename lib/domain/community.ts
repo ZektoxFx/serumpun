@@ -1,4 +1,5 @@
 import type { MessageKey } from '@/lib/i18n';
+import { mytDate } from './time';
 
 // supabase/migrations/0007_groups.sql enforces the same categories, colours and post types.
 
@@ -37,11 +38,14 @@ export type PublicPost = {
   author_neighbourhood: string | null;
   type: PostType;
   body: string;
+  /** The Share & Lend item a post is about ("Also post to a group"), if any. */
+  listing_id: string | null;
   comment_count: number;
   created_at: string;
   is_mine: boolean;
 };
-export const PUBLIC_POST_COLUMNS = 'id, group_id, author_id, author_name, author_neighbourhood, type, body, comment_count, created_at, is_mine';
+export const PUBLIC_POST_COLUMNS =
+  'id, group_id, author_id, author_name, author_neighbourhood, type, body, listing_id, comment_count, created_at, is_mine';
 
 /** A row of `public_comments`, with whether the caller marked it Helpful. */
 export type PublicComment = {
@@ -187,6 +191,12 @@ export function canAdvanceBorrow(from: BorrowStatus, to: BorrowStatus, actor: 'o
   return (borrowMoves(from, actor) as readonly BorrowStatus[]).includes(to);
 }
 
+/** The return-day reminders (app/api/cron/reminders): what is picked up and due back today, in Malaysia. */
+export function dueToday<T extends { to_date: string; status: BorrowStatus }>(borrows: readonly T[], now: Date): T[] {
+  const today = mytDate(now);
+  return borrows.filter((b) => b.status === 'picked_up' && b.to_date === today);
+}
+
 // The `raise exception` codes of the Share & Lend RPCs.
 const SHARE_ERRORS: Record<string, MessageKey> = {
   not_verified: 'common.pendingCantAct',
@@ -201,6 +211,7 @@ const SHARE_ERRORS: Record<string, MessageKey> = {
   bad_step: 'share.error.step',
   overlap: 'share.error.overlap',
   on_loan: 'share.error.onLoan',
+  not_member: 'share.error.notMember',
 };
 
 export function shareErrorKey(code: string | undefined): MessageKey {

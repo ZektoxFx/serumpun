@@ -3,6 +3,7 @@ import {
   POST_TYPES,
   SERVICE_CATEGORIES,
   averageRating,
+  dueToday,
   groupErrorKey,
   newSince,
   serviceErrorKey,
@@ -122,6 +123,20 @@ describe('the seeded groups', () => {
   });
 });
 
+describe('dueToday', () => {
+  const borrows = [
+    { id: 'out-today', to_date: '2026-10-18', status: 'picked_up' },
+    { id: 'out-yesterday', to_date: '2026-10-17', status: 'picked_up' },
+    { id: 'not-picked-up', to_date: '2026-10-18', status: 'approved' },
+    { id: 'back-already', to_date: '2026-10-18', status: 'returned' },
+  ] as const;
+  it('takes what is still out and due back today in Malaysia', () => {
+    // 16:30 UTC on the 17th is half past midnight on the 18th in Malaysia.
+    expect(dueToday(borrows, new Date('2026-10-17T16:30:00Z')).map((b) => b.id)).toEqual(['out-today']);
+    expect(dueToday(borrows, new Date('2026-10-17T15:59:59Z')).map((b) => b.id)).toEqual(['out-yesterday']);
+  });
+});
+
 describe('averageRating', () => {
   it('is null with no ratings', () => {
     expect(averageRating([])).toBeNull();
@@ -149,7 +164,7 @@ it('names every service error and category in both languages', () => {
 describe('the seeded services', () => {
   const now = new Date('2026-10-16T06:00:00Z');
   const people = { townshipId: 'elmina', ids: new Proxy({}, { get: (_, key) => String(key) }) } as People;
-  const { services, reviews } = communityRows(now, people);
+  const { services, reviews, posts, listings } = communityRows(now, people);
   const newest = (kind: string) => services.filter((s) => s.kind === kind).sort((a, b) => b.created_at.localeCompare(a.created_at));
 
   it('open with the three cards of the approved canvas, among 13', () => {
@@ -173,6 +188,12 @@ describe('the seeded services', () => {
 
   it('fill every category chip', () => {
     expect(new Set(services.map((s) => s.category))).toEqual(new Set(SERVICE_CATEGORIES));
+  });
+
+  it("link Priya's stroller post to her stroller, so the group shows the item (ruling R6)", () => {
+    const linked = posts.filter((p) => p.listing_id !== null);
+    expect(linked.map((p) => [p.author_id, p.type])).toEqual([['priya', 'share_lend']]);
+    expect(listings.find((l) => l.id === linked[0].listing_id)).toMatchObject({ title: 'Baby stroller', owner_id: 'priya' });
   });
 
   it("rate Cikgu Farah 4.9 and Ravi 4.7 as the canvas does, one rating per neighbour, never the provider's own", () => {

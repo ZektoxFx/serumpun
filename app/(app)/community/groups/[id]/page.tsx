@@ -5,7 +5,7 @@ import { cache } from 'react';
 import { AppHeader } from '@/components/app/AppHeader';
 import { JoinButton } from '@/components/groups/JoinButton';
 import { MarkVisited } from '@/components/groups/MarkVisited';
-import { PostCard } from '@/components/groups/PostCard';
+import { PostCard, type PostListing } from '@/components/groups/PostCard';
 import { PostComposer } from '@/components/groups/PostComposer';
 import { GROUP_TILE } from '@/components/groups/groupStyle';
 import { Avatar, initials } from '@/components/ui/Avatar';
@@ -132,6 +132,12 @@ async function Posts({ group, profile, lang }: { group: PublicGroup; profile: Se
         .overrideTypes<PublicComment[], { merge: false }>()
     : { data: [], error: null };
   if (error) throw new Error(`group comments lookup failed: ${error.message}`);
+  // A Share & Lend post about an item that is still up shows the item under it.
+  const listingIds = posts.data!.flatMap((p) => (p.listing_id ? [p.listing_id] : []));
+  const { data: items, error: itemsError } = listingIds.length
+    ? await supabase.from('public_listings').select('id, kind, title, emoji').in('id', listingIds).overrideTypes<PostListing[], { merge: false }>()
+    : { data: [], error: null };
+  if (itemsError) throw new Error(`group listings lookup failed: ${itemsError.message}`);
 
   const next = events.data![0];
   const pinned = next && (
@@ -183,6 +189,7 @@ async function Posts({ group, profile, lang }: { group: PublicGroup; profile: Se
             <li key={p.id}>
               <PostCard
                 post={p}
+                listing={items.find((l) => l.id === p.listing_id)}
                 comments={comments.filter((c) => c.post_id === p.id)}
                 lang={lang}
                 canAct={canAct}

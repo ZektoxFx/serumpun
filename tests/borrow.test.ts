@@ -50,7 +50,7 @@ describe('neighbourhoodDistance', () => {
 it('names every Share & Lend error, kind and status in both languages', () => {
   const codes = [
     'not_verified', 'not_found', 'bad_kind', 'bad_title', 'bad_dates', 'not_lendable', 'own_listing',
-    'already_requested', 'not_allowed', 'bad_step', 'overlap', 'on_loan',
+    'already_requested', 'not_allowed', 'bad_step', 'overlap', 'on_loan', 'not_member',
   ];
   for (const code of codes) {
     const key = shareErrorKey(code);

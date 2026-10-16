@@ -30,12 +30,12 @@ number.
 | Live Map | `/map` | Alerts as pins (accident, snake, suspicious person, stray dogs, flood, fallen tree, walkway blocked, streetlight, police, and the office's road works and water cuts). Neighbours vote **Still there** or **Gone**; an alert fades 2 hours after its last confirmation. Search, filters, drop an alert, and "Send to Management Office" for lasting problems. **Safe Walk**: pick the mall, the park, the courts or a spot on the map, and the walking route goes around confirmed high and medium hazards (blue, with the usual way dashed red and a banner saying what it avoided and how many minutes it adds), or warns when there is no way round. |
 | Report an issue · Issue Board | `/reports/new` · `/reports` | Category, photo and place; "Already reported nearby?" offers **Me too** instead of a duplicate. Timeline: submitted → acknowledged → in progress → resolved, then the reporter confirms the fix (or it reopens). Private reports (security) are seen only by the reporter and the office. |
 | Management Office | `/dashboard` | Reports board with updates and after-photos, residents to approve, official map pins, events to approve (points), announcements, rewards and vouchers, and Reset demo data. |
-| Community | `/community` | **Groups** (posts, questions with a top answer, Helpful), **Events** (Going, QR check-in, points), **Services** (offers and requests in Tutoring, Repairs, Cleaning, Food, Childcare, Eldercare, Pets, Others; offers show their ⭐ average and jobs), **Share & Lend** (lend, give away or swap; borrowing in 4 steps). |
+| Community | `/community` | **Groups** (posts, questions with a top answer, Helpful), **Events** (Going, QR check-in, points), **Services** (offers and requests in Tutoring, Repairs, Cleaning, Food, Childcare, Eldercare, Pets, Others; offers show their ⭐ average and jobs), **Share & Lend** (lend, give away or swap; borrowing in 4 steps; "Also post to a group" puts the item in one of your groups, where its post links to it). |
 | Messages | `/messages` | One-to-one chats about a post, a service, a listing or an open game; live, with unread badges. In a chat about someone's offer, **Rate** gives it 1 to 5 stars (once per neighbour, changeable). |
 | Book a Court | `/book` | Badminton (2 courts), futsal, tennis and the hall. Free 1-hour slots from 7 am to 11 pm, up to 7 days ahead, 2 hours a day per household; a booking pass with QR and a calendar file; cancel up to 2 hours before. **Find players**: ask for 1 to 10 neighbours when booking; the game shows under **Open games** (here and on Home) until it is full, neighbours tap Join or message the host, and the pass shows who joined. |
 | Rewards | `/rewards` | Vouchers for points at Elmina Lakeside Mall; "Slide to use" at the counter. |
 | Me | `/me` | Points and the next reward; my vouchers, reports, bookings and listings; points history; dark mode; language; township; sign out. |
-| Notifications | `/notifications` | Report updates, borrow steps, comments, players joining or leaving your game (or a game you joined being cancelled), announcements and account news, with a live bell. |
+| Notifications | `/notifications` | Report updates, borrow steps and a reminder at 8 am on the return day (to the borrower and the owner), comments, events approved or not for points, players joining or leaving your game (or a game you joined being cancelled), announcements and account news, with a live bell. |
 
 **The 5-minute demo story**
 
@@ -95,6 +95,8 @@ flowchart LR
 - **Safe Walk** routes in the phone: Elmina's walking paths from OpenStreetMap (`public/data/elmina-walk.json`, built
   by `scripts/build-walk-graph.mjs`) load the first time it is used, and A* finds the shortest way, then the shortest
   way that keeps 40 m from every confirmed high or medium hazard. It is worked out again whenever the alerts change.
+- **Scheduled**: Vercel Cron calls `/api/cron/reminders` every day at 00:00 UTC (8 am in Malaysia, `vercel.ts`) with the
+  project's `CRON_SECRET`; it sends the return-day reminders once per day, however often it is called.
 
 | Folder | What is in it |
 |---|---|
@@ -196,7 +198,8 @@ npm run dev
 
 Variables (names only, never commit `.env*`): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` (or
 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`), `SUPABASE_SERVICE_ROLE_KEY` (or `SUPABASE_SECRET_KEY`),
-`POSTGRES_URL_NON_POOLING` (or `POSTGRES_URL`) for migrations, and `DEMO_PASSWORD`.
+`POSTGRES_URL_NON_POOLING` (or `POSTGRES_URL`) for migrations, `DEMO_PASSWORD`, and `CRON_SECRET` (any long random
+value; Production has its own, and the reminders route refuses every call without it).
 
 | Script | Does |
 |---|---|
@@ -226,9 +229,10 @@ Apply new migrations before deploying code that needs them. The smoke test ends 
 
 ## 13. Known limits and Later
 
-- **Later**: return-day reminders, cross-posting listings to groups and the remaining notifications.
 - **Open games and the booking pass** show who joined when they are opened or after your own tap; the host's bell is the
   live part. Find players is set when booking, not changed afterwards.
+- **Return-day reminders** go out once a day at about 8 am (on Vercel's Hobby plan a daily job may start any time in
+  that hour), and only for items the owner marked as picked up.
 - **Safe Walk** knows only the paths OpenStreetMap has (refresh them with `node scripts/build-walk-graph.mjs`), sets off
   from your neighbourhood's centre when the phone gives no location in the township, and does not guide turn by turn.
 - **Not in this version**: payments (services are paid between neighbours, courts are free), push notifications (they

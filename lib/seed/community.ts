@@ -264,6 +264,7 @@ export function communityRows(now: Date, people: People) {
         author_id: people.ids[p.by],
         type: p.type,
         body: p.body,
+        listing_id: null as string | null,
         comment_count: p.comments?.length ?? 0,
         created_at: ago(p.hoursAgo * HOUR),
       });
@@ -316,6 +317,8 @@ export function communityRows(now: Date, people: People) {
     available_until: l.availableDays === undefined ? null : dayFromNow(l.availableDays),
     created_at: ago(l.daysAgo * DAY),
   }));
+  // Ruling R6: Priya's stroller post is about her Share & Lend stroller, so the group shows the item under it.
+  posts.find((p) => p.body.startsWith('Lending our stroller'))!.listing_id = listings.find((l) => l.title === 'Baby stroller')!.id;
   // Aisyah borrows Ahmad's ladder (their chat in lib/seed/messages.ts): he has said yes, she picks it up tomorrow.
   const borrows = [
     {

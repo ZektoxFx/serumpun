@@ -1,26 +1,34 @@
+import Link from 'next/link';
 import { MessageButton } from '@/components/app/MessageButton';
 import { CommentForm } from '@/components/groups/CommentForm';
 import { HelpfulButton } from '@/components/groups/HelpfulButton';
 import { POST_TYPE_TAG } from '@/components/groups/groupStyle';
+import { KIND_TAG, tintFor } from '@/components/share/shareStyle';
 import { Avatar } from '@/components/ui/Avatar';
 import { Tag } from '@/components/ui/Tag';
 import { TimeAgo } from '@/components/ui/TimeAgo';
-import { topAnswer, type PublicComment, type PublicPost } from '@/lib/domain/community';
+import { topAnswer, type PublicComment, type PublicListing, type PublicPost } from '@/lib/domain/community';
 import { t, type Lang } from '@/lib/i18n';
 
+/** The Share & Lend item a post is about, as the group shows it. */
+export type PostListing = Pick<PublicListing, 'id' | 'kind' | 'title' | 'emoji'>;
+
 /**
- * A post in a group: author, type, text, a question's Top answer, and its comments behind "Comments · n", each with
- * Helpful. Members (`canAct`) comment and vote; everyone else reads. A Share & Lend post offers "Message [owner]" to any
- * verified resident (`canMessage`) but its owner.
+ * A post in a group: author, type, text, the Share & Lend item it is about (opens it), a question's Top answer, and its
+ * comments behind "Comments · n", each with Helpful. Members (`canAct`) comment and vote; everyone else reads. A Share &
+ * Lend post offers "Message [owner]" to any verified resident (`canMessage`) but its owner.
  */
 export function PostCard({
   post,
+  listing,
   comments,
   lang,
   canAct,
   canMessage,
 }: {
   post: PublicPost;
+  /** Only while the item is still up. */
+  listing?: PostListing;
   comments: PublicComment[];
   lang: Lang;
   canAct: boolean;
@@ -46,6 +54,23 @@ export function PostCard({
         {tag && <Tag variant={tag}>{t(lang, `group.type.${post.type}`)}</Tag>}
       </header>
       <p className="whitespace-pre-line break-words">{post.body}</p>
+      {listing && (
+        <Link href={`/community/share/${listing.id}`} className="flex items-center gap-3 rounded-xl border border-line p-2.5 hover:bg-soft">
+          <span aria-hidden="true" className={`grid size-12 shrink-0 place-items-center rounded-xl text-2xl ${tintFor(listing.id)}`}>
+            {listing.emoji}
+          </span>
+          <span className="flex min-w-0 flex-1 flex-col items-start gap-1">
+            <span className="break-words font-bold">
+              <span className="sr-only">{t(lang, 'share.post.open')}: </span>
+              {listing.title}
+            </span>
+            <Tag variant={KIND_TAG[listing.kind]}>{t(lang, `share.tag.${listing.kind}`)}</Tag>
+          </span>
+          <span aria-hidden="true" className="text-xl text-muted">
+            ›
+          </span>
+        </Link>
+      )}
       {post.type === 'share_lend' && post.author_id && !post.is_mine && (
         <MessageButton
           contextType="post"
