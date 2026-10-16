@@ -12,19 +12,21 @@ type Contexts = {
   tuition: { id: string; title: string };
   /** Tan Wei Ming's request for someone to fix his sink. */
   sink: { id: string; title: string };
+  /** Ahmad's ladder, which Aisyah is borrowing. */
+  ladder: { id: string; title: string };
 };
+const CONTEXT_TYPE: Record<keyof Contexts, ContextType> = { stroller: 'post', tuition: 'service', sink: 'service', ladder: 'listing' };
 
 type SeedChat = {
   /** Two people. The first last read it `readHoursAgo` hours ago (null: not since it started); the second, at its end. */
   between: [PersonKey, PersonKey];
-  context: keyof Contexts | { type: ContextType; title: string };
+  context: keyof Contexts;
   readHoursAgo: number | null;
   messages: [from: 0 | 1, hoursAgo: number, body: string][];
 };
 
-// Plan Task 13: Aisyah's chats about Cikgu Farah's tuition, Ahmad's ladder and Priya's stroller, 2 messages unread (the
-// ladder has no listing row until Task 15, so no context id either). Task 14: the two neighbours who offered to fix Tan
-// Wei Ming's sink, the canvas card's "2 offered to help".
+// Plan Task 13: Aisyah's chats about Cikgu Farah's tuition, Ahmad's ladder and Priya's stroller, 2 messages unread.
+// Task 14: the two neighbours who offered to fix Tan Wei Ming's sink, the canvas card's "2 offered to help".
 const CHATS: SeedChat[] = [
   {
     between: ['aisyah', 'farah'],
@@ -39,7 +41,7 @@ const CHATS: SeedChat[] = [
   },
   {
     between: ['aisyah', 'ahmad'],
-    context: { type: 'listing', title: 'Ladder (6 ft), to borrow' },
+    context: 'ladder',
     readHoursAgo: 48,
     messages: [
       [1, 72, 'Hi Aisyah, the ladder is free this weekend if you still need it.'],
@@ -85,11 +87,9 @@ export function messageRows(now: Date, people: People, contexts: Contexts) {
     const [a, b] = chat.between.map((key) => people.ids[key]);
     // As start_conversation titles them: a post by its text, a service by its title.
     const context =
-      typeof chat.context === 'object'
-        ? { ...chat.context, id: null }
-        : chat.context === 'stroller'
-          ? { type: 'post' as const, id: contexts.stroller.id, title: titleOf(contexts.stroller.body) }
-          : { type: 'service' as const, ...contexts[chat.context] };
+      chat.context === 'stroller'
+        ? { type: CONTEXT_TYPE.stroller, id: contexts.stroller.id, title: titleOf(contexts.stroller.body) }
+        : { type: CONTEXT_TYPE[chat.context], ...contexts[chat.context] };
     const last = at(Math.min(...chat.messages.map(([, hoursAgo]) => hoursAgo)));
     conversations.push({
       id,
@@ -111,12 +111,14 @@ export function messageRows(now: Date, people: People, contexts: Contexts) {
 
 /** The seeded conversations. Runs after seedCommunity, which makes the post and services they are about. */
 export async function seedMessages(admin: SupabaseClient, now: Date, people: People): Promise<void> {
-  const [stroller, services] = await Promise.all([
+  const [stroller, services, ladder] = await Promise.all([
     admin.from('posts').select('id, body').eq('author_id', people.ids.priya).ilike('body', 'Lending our stroller%').single(),
     admin.from('services').select('id, title, provider_id'),
+    admin.from('listings').select('id, title').eq('owner_id', people.ids.ahmad).ilike('title', 'Aluminium ladder%').single(),
   ]);
   if (stroller.error) throw new Error(`stroller post: ${stroller.error.message}`);
   if (services.error) throw new Error(`services: ${services.error.message}`);
+  if (ladder.error) throw new Error(`ladder listing: ${ladder.error.message}`);
   const service = (by: PersonKey, title: string) => {
     const found = services.data.find((s) => s.provider_id === people.ids[by] && s.title.startsWith(title));
     if (!found) throw new Error(`service "${title}" is not seeded`);
@@ -126,6 +128,7 @@ export async function seedMessages(admin: SupabaseClient, now: Date, people: Peo
     stroller: stroller.data,
     tuition: service('farah', 'Maths & Science tuition'),
     sink: service('weiMing', 'Need someone to fix a leaking sink'),
+    ladder: ladder.data,
   });
   const tables: [string, Record<string, unknown>[]][] = [
     ['conversations', conversations],

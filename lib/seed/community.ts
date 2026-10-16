@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { GroupCategory, GroupColour, PostType, ServiceCategory, ServiceKind } from '@/lib/domain/community';
+import type { GroupCategory, GroupColour, ListingKind, PostType, ServiceCategory, ServiceKind } from '@/lib/domain/community';
 import { mytDate } from '@/lib/domain/time';
 import type { People, PersonKey } from './people';
 
@@ -167,6 +167,38 @@ const SERVICES: SeedService[] = [
   { by: 'arif', kind: 'request', category: 'tutoring', title: 'Looking for an SPM English tutor', daysAgo: 5, budget: 'RM40 / hour' },
 ];
 
+type SeedListing = {
+  by: PersonKey;
+  kind: ListingKind;
+  emoji: string;
+  title: string;
+  description: string;
+  daysAgo: number;
+  swapFor?: string;
+  /** A lend item is there for this many more days. */
+  availableDays?: number;
+};
+
+// Plan Task 15: the six cards of the approved canvas (newest first), then six more. The canvas's "Nur" is Nurul Huda: the
+// demo's Nur is still waiting for approval, and only verified residents list items.
+const LISTINGS: SeedListing[] = [
+  { by: 'ahmad', kind: 'lend', emoji: '🪜', title: 'Aluminium ladder (6 ft)', description: 'Good condition', daysAgo: 4, availableDays: 30 },
+  { by: 'priya', kind: 'lend', emoji: '👶', title: 'Baby stroller', description: 'Barely used, folds flat', daysAgo: 5, availableDays: 45 },
+  { by: 'meiLing', kind: 'give', emoji: '📚', title: 'Form 3 textbooks', description: 'Science, Maths and Sejarah, in good condition', daysAgo: 6 },
+  {
+    by: 'nurul', kind: 'swap', emoji: '🪴', title: 'Monstera ↔ herbs', description: 'A healthy Monstera cutting in a small pot',
+    swapFor: 'Basil, mint or curry leaf cuttings', daysAgo: 7,
+  },
+  { by: 'ravi', kind: 'lend', emoji: '🛠️', title: 'Cordless drill', description: 'With two batteries and a set of bits', daysAgo: 8, availableDays: 60 },
+  { by: 'daniel', kind: 'lend', emoji: '🏸', title: 'Badminton rackets', description: 'Two rackets and a tube of shuttlecocks', daysAgo: 9, availableDays: 60 },
+  { by: 'siti', kind: 'give', emoji: '🧸', title: 'Baby clothes, 6–12 months', description: 'A bag of about 20 pieces, washed', daysAgo: 10 },
+  { by: 'kavitha', kind: 'lend', emoji: '⛺', title: 'Camping tent for four', description: 'Easy to set up, with pegs and a ground sheet', daysAgo: 11, availableDays: 90 },
+  { by: 'hafiz', kind: 'lend', emoji: '🔧', title: 'Pressure washer', description: 'Great for cars and porches', daysAgo: 12, availableDays: 60 },
+  { by: 'jason', kind: 'swap', emoji: '🎮', title: 'Board games to swap', description: 'Monopoly and Scrabble, complete', swapFor: 'Any family board game', daysAgo: 13 },
+  { by: 'farah', kind: 'give', emoji: '📖', title: "Children's storybooks", description: 'Bahasa Melayu and English, ages 4 to 8', daysAgo: 14 },
+  { by: 'arif', kind: 'lend', emoji: '🚲', title: "Kids' bicycle (16 inch)", description: 'With training wheels', daysAgo: 15, availableDays: 30 },
+];
+
 /** The groups' rows, relative to `now`. Counters are what the RPCs would have left, except the larger shown counts. */
 export function communityRows(now: Date, people: People) {
   const ago = (ms: number) => new Date(now.getTime() - ms).toISOString();
@@ -242,7 +274,33 @@ export function communityRows(now: Date, people: People) {
     provider_id: people.ids[s.by],
     created_at: ago(s.daysAgo * DAY),
   }));
-  return { groups, members, posts, comments, helpful, eventGroups: EVENT_GROUPS, services };
+  // As create_listing leaves them: only a swap says what it wants, only a lend item has an end date.
+  const dayFromNow = (days: number) => mytDate(new Date(now.getTime() + days * DAY));
+  const listings = LISTINGS.map((l) => ({
+    id: crypto.randomUUID(),
+    township_id: people.townshipId,
+    kind: l.kind,
+    title: l.title,
+    description: l.description,
+    emoji: l.emoji,
+    swap_for: l.swapFor ?? null,
+    owner_id: people.ids[l.by],
+    available_until: l.availableDays === undefined ? null : dayFromNow(l.availableDays),
+    created_at: ago(l.daysAgo * DAY),
+  }));
+  // Aisyah borrows Ahmad's ladder (their chat in lib/seed/messages.ts): he has said yes, she picks it up tomorrow.
+  const borrows = [
+    {
+      listing_id: listings.find((l) => l.title === 'Aluminium ladder (6 ft)')!.id,
+      borrower_id: people.ids.aisyah,
+      from_date: dayFromNow(1),
+      to_date: dayFromNow(3),
+      status: 'approved',
+      created_at: ago(71 * HOUR),
+      updated_at: ago(70 * HOUR),
+    },
+  ];
+  return { groups, members, posts, comments, helpful, eventGroups: EVENT_GROUPS, services, listings, borrows };
 }
 
 /**
@@ -250,7 +308,7 @@ export function communityRows(now: Date, people: People) {
  * and the services offered and requested.
  */
 export async function seedCommunity(admin: SupabaseClient, now: Date, people: People): Promise<void> {
-  const { groups, members, posts, comments, helpful, eventGroups, services } = communityRows(now, people);
+  const { groups, members, posts, comments, helpful, eventGroups, services, listings, borrows } = communityRows(now, people);
   const tables: [string, Record<string, unknown>[]][] = [
     ['groups', groups],
     ['group_members', members],
@@ -258,6 +316,8 @@ export async function seedCommunity(admin: SupabaseClient, now: Date, people: Pe
     ['comments', comments],
     ['comment_helpful', helpful],
     ['services', services],
+    ['listings', listings],
+    ['borrow_requests', borrows],
   ];
   for (const [table, rows] of tables) {
     const { error } = await admin.from(table).insert(rows);
@@ -272,5 +332,5 @@ export async function seedCommunity(admin: SupabaseClient, now: Date, people: Pe
     if (error) throw new Error(`events (${title}): ${error.message}`);
   }
   console.log(`groups: ${groups.length} with ${members.length} members, ${posts.length} posts and ${comments.length} comments`);
-  console.log(`services: ${services.length}`);
+  console.log(`services: ${services.length}; listings: ${listings.length} with ${borrows.length} borrow`);
 }

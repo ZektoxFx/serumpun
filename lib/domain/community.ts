@@ -104,6 +104,93 @@ export type PublicService = {
 export const PUBLIC_SERVICE_COLUMNS =
   'id, kind, category, title, description, price_text, availability_text, budget_text, needed_by, created_at, provider_name, provider_neighbourhood, is_mine, conversation_count';
 
+// supabase/migrations/0010_share.sql enforces the same listing kinds, borrow statuses and moves.
+
+export const LISTING_KINDS = ['lend', 'give', 'swap'] as const;
+export type ListingKind = (typeof LISTING_KINDS)[number];
+/** The pictures a new listing can pick from (no photos yet). */
+export const LISTING_EMOJI = ['📦', '🪜', '🛠️', '🔧', '👶', '🧸', '📚', '🏸', '⚽', '🚲', '⛺', '🪴', '🍳', '🎮', '👗', '🧹'] as const;
+
+/** A row of `public_listings`: an item that is up in the township, or one of the caller's own. */
+export type PublicListing = {
+  id: string;
+  kind: ListingKind;
+  title: string;
+  description: string | null;
+  emoji: string;
+  swap_for: string | null;
+  available_until: string | null;
+  status: 'available' | 'given' | 'hidden';
+  created_at: string;
+  owner_name: string;
+  owner_neighbourhood: string;
+  is_mine: boolean;
+  /** On the caller's own listing, the borrow requests waiting for their answer. */
+  waiting_count: number;
+};
+export const PUBLIC_LISTING_COLUMNS =
+  'id, kind, title, description, emoji, swap_for, available_until, status, created_at, owner_name, owner_neighbourhood, is_mine, waiting_count';
+
+/** The four steps of borrowing (spec §8.7); a request can also end declined (by the owner) or cancelled (by the borrower). */
+export const BORROW_STEPS = ['requested', 'approved', 'picked_up', 'returned'] as const;
+export type BorrowStatus = (typeof BORROW_STEPS)[number] | 'declined' | 'cancelled';
+
+/** A row of `my_borrows`: a borrow request the caller made, or one made for something they lend. */
+export type MyBorrow = {
+  id: string;
+  listing_id: string;
+  from_date: string;
+  to_date: string;
+  status: BorrowStatus;
+  updated_at: string;
+  listing_title: string;
+  listing_emoji: string;
+  my_role: 'owner' | 'borrower';
+  borrower_name: string;
+  borrower_neighbourhood: string;
+  owner_name: string;
+};
+export const MY_BORROW_COLUMNS =
+  'id, listing_id, from_date, to_date, status, updated_at, listing_title, listing_emoji, my_role, borrower_name, borrower_neighbourhood, owner_name';
+
+/** Where a request can be moved to: anywhere but back to the start. */
+export type BorrowMoveTo = Exclude<BorrowStatus, 'requested'>;
+
+// Who may move a borrow request on, and where to. advance_borrow (0010_share.sql) keeps the same table.
+const BORROW_MOVES: Record<'owner' | 'borrower', Partial<Record<BorrowStatus, readonly BorrowMoveTo[]>>> = {
+  owner: { requested: ['approved', 'declined'], approved: ['picked_up'], picked_up: ['returned'] },
+  borrower: { requested: ['cancelled'], approved: ['cancelled'] },
+};
+
+/** Where `actor` may move a request that is at `from`: the buttons they see. */
+export function borrowMoves(from: BorrowStatus, actor: 'owner' | 'borrower'): readonly BorrowMoveTo[] {
+  return BORROW_MOVES[actor][from] ?? [];
+}
+
+export function canAdvanceBorrow(from: BorrowStatus, to: BorrowStatus, actor: 'owner' | 'borrower'): boolean {
+  return (borrowMoves(from, actor) as readonly BorrowStatus[]).includes(to);
+}
+
+// The `raise exception` codes of the Share & Lend RPCs.
+const SHARE_ERRORS: Record<string, MessageKey> = {
+  not_verified: 'common.pendingCantAct',
+  not_found: 'share.error.notFound',
+  bad_kind: 'share.error.kind',
+  bad_title: 'share.error.title',
+  bad_dates: 'share.error.dates',
+  not_lendable: 'share.error.notLendable',
+  own_listing: 'share.error.own',
+  already_requested: 'share.error.already',
+  not_allowed: 'share.error.notAllowed',
+  bad_step: 'share.error.step',
+  overlap: 'share.error.overlap',
+  on_loan: 'share.error.onLoan',
+};
+
+export function shareErrorKey(code: string | undefined): MessageKey {
+  return lookup(SHARE_ERRORS, code);
+}
+
 const lookup = (keys: Record<string, MessageKey>, code: string | undefined): MessageKey =>
   code !== undefined && Object.hasOwn(keys, code) ? keys[code] : 'common.error';
 

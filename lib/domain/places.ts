@@ -19,6 +19,29 @@ export const PLACES: readonly Place[] = [
   { label: 'place.valley3', lat: 3.17585, lng: 101.51665 },
 ];
 
+// Rough centres of Elmina's neighbourhoods (sample points, like PLACES; Valley 3 is place.valley3), lower case.
+const NEIGHBOURHOOD_CENTRES: Record<string, LatLng> = {
+  'elmina valley 2': { lat: 3.1725, lng: 101.5205 },
+  'elmina valley 3': { lat: 3.17585, lng: 101.51665 },
+  'elmina green': { lat: 3.185, lng: 101.519 },
+  'elmina gardens': { lat: 3.1858, lng: 101.508 },
+};
+
+function centreOf(neighbourhood: string): LatLng | null {
+  const key = neighbourhood.trim().toLowerCase();
+  return Object.hasOwn(NEIGHBOURHOOD_CENTRES, key) ? NEIGHBOURHOOD_CENTRES[key] : null;
+}
+
+/**
+ * How far apart two neighbourhoods are, centre to centre, in metres: 0 within one, null when either is not on the list
+ * (residents type theirs at sign-up). Share & Lend shows this, never anything closer to a home.
+ */
+export function neighbourhoodDistance(from: string, to: string): number | null {
+  const a = centreOf(from);
+  const b = centreOf(to);
+  return a && b ? distanceMeters(a, b) : null;
+}
+
 /** Further than this, "near" would mislead. */
 const NEAR_M = 400;
 

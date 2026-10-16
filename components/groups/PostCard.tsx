@@ -6,7 +6,6 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Tag } from '@/components/ui/Tag';
 import { TimeAgo } from '@/components/ui/TimeAgo';
 import { topAnswer, type PublicComment, type PublicPost } from '@/lib/domain/community';
-import { firstName } from '@/lib/domain/profile';
 import { t, type Lang } from '@/lib/i18n';
 
 /**
@@ -53,7 +52,7 @@ export function PostCard({
           contextId={post.id}
           label={
             <>
-              <span aria-hidden="true">💬</span> {t(lang, 'messages.messageOwner', { name: firstName(author) })}
+              <span aria-hidden="true">💬</span> {t(lang, 'messages.messageOwner', { name: author })}
             </>
           }
           canAct={canMessage}

@@ -23,7 +23,8 @@ describe("Aisyah's seeded conversations", () => {
   const stroller = { id: 'stroller-post', body: 'Lending our stroller, barely used.\nHappy to lend it for a few weeks if you have a newborn or visitors with a baby coming 🍼' };
   const tuition = { id: 'tuition-service', title: 'Maths & Science tuition, Form 1–3' };
   const sink = { id: 'sink-request', title: 'Need someone to fix a leaking sink this week' };
-  const { conversations, members, messages } = messageRows(now, people, { stroller, tuition, sink });
+  const ladder = { id: 'ladder-listing', title: 'Aluminium ladder (6 ft)' };
+  const { conversations, members, messages } = messageRows(now, people, { stroller, tuition, sink, ladder });
   const mine = members.filter((m) => m.user_id === 'aisyah');
 
   it('are with Cikgu Farah, Ahmad and Priya, two messages unread', () => {
@@ -58,6 +59,8 @@ describe("Aisyah's seeded conversations", () => {
     const helpers = conversations.filter((c) => c.context_id === sink.id);
     expect(helpers).toHaveLength(2);
     for (const h of helpers) expect([h.context_type, h.context_title]).toEqual(['service', sink.title]);
+    const ahmad = conversations.find((c) => c.context_type === 'listing')!;
+    expect([ahmad.context_id, ahmad.context_title]).toEqual([ladder.id, ladder.title]);
   });
 
   it('never show a phone number', () => {
