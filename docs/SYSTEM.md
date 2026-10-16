@@ -30,8 +30,8 @@ number.
 | Live Map | `/map` | Alerts as pins (accident, snake, suspicious person, stray dogs, flood, fallen tree, walkway blocked, streetlight, police, and the office's road works and water cuts). Neighbours vote **Still there** or **Gone**; an alert fades 2 hours after its last confirmation. Search, filters, drop an alert, and "Send to Management Office" for lasting problems. **Safe Walk**: pick the mall, the park, the courts or a spot on the map, and the walking route goes around confirmed high and medium hazards (blue, with the usual way dashed red and a banner saying what it avoided and how many minutes it adds), or warns when there is no way round. |
 | Report an issue · Issue Board | `/reports/new` · `/reports` | Category, photo and place; "Already reported nearby?" offers **Me too** instead of a duplicate. Timeline: submitted → acknowledged → in progress → resolved, then the reporter confirms the fix (or it reopens). Private reports (security) are seen only by the reporter and the office. |
 | Management Office | `/dashboard` | Reports board with updates and after-photos, residents to approve, official map pins, events to approve (points), announcements, rewards and vouchers, and Reset demo data. |
-| Community | `/community` | **Groups** (posts, questions with a top answer, Helpful), **Events** (Going, QR check-in, points), **Services** (offers and requests in Tutoring, Repairs, Cleaning, Food, Childcare, Eldercare, Pets, Others), **Share & Lend** (lend, give away or swap; borrowing in 4 steps). |
-| Messages | `/messages` | One-to-one chats about a post, a service, a listing or an open game; live, with unread badges. |
+| Community | `/community` | **Groups** (posts, questions with a top answer, Helpful), **Events** (Going, QR check-in, points), **Services** (offers and requests in Tutoring, Repairs, Cleaning, Food, Childcare, Eldercare, Pets, Others; offers show their ⭐ average and jobs), **Share & Lend** (lend, give away or swap; borrowing in 4 steps). |
+| Messages | `/messages` | One-to-one chats about a post, a service, a listing or an open game; live, with unread badges. In a chat about someone's offer, **Rate** gives it 1 to 5 stars (once per neighbour, changeable). |
 | Book a Court | `/book` | Badminton (2 courts), futsal, tennis and the hall. Free 1-hour slots from 7 am to 11 pm, up to 7 days ahead, 2 hours a day per household; a booking pass with QR and a calendar file; cancel up to 2 hours before. **Find players**: ask for 1 to 10 neighbours when booking; the game shows under **Open games** (here and on Home) until it is full, neighbours tap Join or message the host, and the pass shows who joined. |
 | Rewards | `/rewards` | Vouchers for points at Elmina Lakeside Mall; "Slide to use" at the counter. |
 | Me | `/me` | Points and the next reward; my vouchers, reports, bookings and listings; points history; dark mode; language; township; sign out. |
@@ -46,8 +46,8 @@ number.
 4. On a laptop: **Try as Management Office** → move a report to *In progress* with an update → Aisyah's phone updates
    **live** → the Issue Board.
 5. **Events**: check in with the event's QR → points → **Rewards** → redeem Free kopi → slide to use.
-6. **Community**: the Mommies group's top answer · message a tutor · borrow a ladder · **Book a Court** with Find
-   players (Daniel joins Aisyah's Saturday game from Open games, and her bell and booking pass show it).
+6. **Community**: the Mommies group's top answer · message a tutor and rate her ⭐ · borrow a ladder · **Book a Court**
+   with Find players (Daniel joins Aisyah's Saturday game from Open games, and her bell and booking pass show it).
 7. **Me**: dark mode. Close on "built for every SDP township".
 
 ## 3. Roles and verification
@@ -125,7 +125,7 @@ Every township-level table has `township_id`. Residents read through the views a
 | Rewards | `rewards`, `redemptions` | the catalogue, their own vouchers |
 | Groups | `groups`, `group_members`, `posts`, `comments`, `comment_helpful` | `public_groups`, `public_group_members`, `public_posts`, `public_comments` |
 | Messages | `conversations`, `conversation_members`, `messages` | `my_conversations`, their own messages |
-| Services | `services` | `public_services` |
+| Services | `services`, `service_reviews` | `public_services`, `public_service_ratings` (the stars, never who gave them) |
 | Share & Lend | `listings`, `borrow_requests` | `public_listings`, `my_borrows` |
 | Book a Court | `facilities`, `bookings`, `booking_players` | the courts, their own bookings, `booked_slots()`, `open_games()`, `game_players()` (the host's own game) |
 
@@ -133,8 +133,11 @@ Every township-level table has `township_id`. Residents read through the views a
 
 - **Row-level security on every table.** Policies go through `my_township()`, `is_verified()` and `is_management()`,
   so a rejected account matches nothing and nobody sees another township.
-- **Privacy views.** Residents read names and neighbourhoods only: never a unit number, a phone, or who posted an alert
-  or a report. Tables that would leak (votes, Me toos, who wrote a step) give residents nothing at all.
+- **Privacy views.** Residents read names and neighbourhoods only: never a unit number, a phone, who posted an alert or
+  a report, or who rated a service. Tables that would leak (votes, Me toos, who wrote a step, who joined a game, who
+  rated) give residents nothing at all.
+- **Ratings need a real contact**: a service can be rated only by a neighbour who has a conversation with its provider
+  about it, never by the provider.
 - **Writes only through RPCs**: security-definer functions with an empty `search_path` and explicit grants. Each checks
   who is calling (verified, same township, owner) and the rule (dates, slots, steps, limits) again.
 - **Photos** get random file names. A private report's photos sit in a private bucket, shown through short-lived signed
@@ -144,7 +147,7 @@ Every township-level table has `township_id`. Residents read through the views a
   booking (one per slot, 2 hours per household) and joining a game (one spot each, never past full) safe to tap twice or
   at the same time.
 - **Every page and action checks the session itself.** `proxy.ts` only sends signed-out visitors to the landing page.
-- `npm run smoke` tries these rules against the live database as the demo accounts (17 checks).
+- `npm run smoke` tries these rules against the live database as the demo accounts (18 checks).
 
 ## 7. Points
 
@@ -223,8 +226,7 @@ Apply new migrations before deploying code that needs them. The smoke test ends 
 
 ## 13. Known limits and Later
 
-- **Later**: ratings for services, and return-day reminders, cross-posting listings to groups and the remaining
-  notifications.
+- **Later**: return-day reminders, cross-posting listings to groups and the remaining notifications.
 - **Open games and the booking pass** show who joined when they are opened or after your own tap; the host's bell is the
   live part. Find players is set when booking, not changed afterwards.
 - **Safe Walk** knows only the paths OpenStreetMap has (refresh them with `node scripts/build-walk-graph.mjs`), sets off

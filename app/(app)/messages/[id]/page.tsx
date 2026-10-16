@@ -4,6 +4,7 @@ import { cache } from 'react';
 import { AppHeader } from '@/components/app/AppHeader';
 import { LiveThread } from '@/components/messages/LiveThread';
 import { MessageComposer } from '@/components/messages/MessageComposer';
+import { RateService } from '@/components/services/RateService';
 import { CONTEXT_ICON, CONVERSATION_COLUMNS, type Conversation } from '@/lib/domain/messages';
 import { isUuid } from '@/lib/domain/reports';
 import { clockTime } from '@/lib/domain/time';
@@ -32,8 +33,9 @@ export async function generateMetadata({ params }: PageProps<'/messages/[id]'>):
 }
 
 /**
- * One conversation (spec §8.8): who it is with, a card with what it is about, the messages, and the composer where the
- * navigation bar would be (the bar hides here). New messages arrive live; opening it marks it read.
+ * One conversation (spec §8.8): who it is with, a card with what it is about (and Rate, for the client of an offer), the
+ * messages, and the composer where the navigation bar would be (the bar hides here). New messages arrive live; opening
+ * it marks it read.
  */
 export default async function ConversationPage({ params }: PageProps<'/messages/[id]'>) {
   const profile = await requireMember();
@@ -51,6 +53,16 @@ export default async function ConversationPage({ params }: PageProps<'/messages/
   if (error) throw new Error(`messages lookup failed: ${error.message}`);
   const messages = data.reverse();
   const now = new Date();
+  // About someone else's offer: the client can rate it (with the stars they gave, if any).
+  let rate: { serviceId: string; rating: number | null } | null = null;
+  if (chat.context_type === 'service' && chat.context_id) {
+    const [service, mine] = await Promise.all([
+      supabase.from('public_services').select('kind, is_mine').eq('id', chat.context_id).maybeSingle(),
+      supabase.from('public_service_ratings').select('rating').eq('service_id', chat.context_id).eq('is_mine', true).maybeSingle(),
+    ]);
+    for (const { error: e } of [service, mine]) if (e) throw new Error(`rating lookup failed: ${e.message}`);
+    if (service.data?.kind === 'offer' && !service.data.is_mine) rate = { serviceId: chat.context_id, rating: mine.data?.rating ?? null };
+  }
 
   return (
     <>
@@ -77,6 +89,7 @@ export default async function ConversationPage({ params }: PageProps<'/messages/
             <span aria-hidden="true">🔒 </span>
             {t(lang, 'messages.privacy')}
           </p>
+          {rate && <RateService serviceId={rate.serviceId} name={chat.other_name} rating={rate.rating} canAct={profile.status === 'verified'} />}
         </section>
         <ol className="flex flex-col gap-2">
           {messages.map((m) => {

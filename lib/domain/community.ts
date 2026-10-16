@@ -114,6 +114,12 @@ export type PublicService = {
 export const PUBLIC_SERVICE_COLUMNS =
   'id, kind, category, title, description, price_text, availability_text, budget_text, needed_by, created_at, provider_name, provider_neighbourhood, is_mine, conversation_count';
 
+/** "4.7": the mean of the stars to one decimal, or null with none. supabase/migrations/0014_reviews.sql keeps 1 to 5. */
+export function averageRating(ratings: readonly { rating: number }[]): number | null {
+  if (ratings.length === 0) return null;
+  return Math.round((ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length) * 10) / 10;
+}
+
 // supabase/migrations/0010_share.sql enforces the same listing kinds, borrow statuses and moves.
 
 export const LISTING_KINDS = ['lend', 'give', 'swap'] as const;
@@ -204,13 +210,17 @@ export function shareErrorKey(code: string | undefined): MessageKey {
 const lookup = (keys: Record<string, MessageKey>, code: string | undefined): MessageKey =>
   code !== undefined && Object.hasOwn(keys, code) ? keys[code] : 'common.error';
 
-// The `raise exception` codes of create_service.
+// The `raise exception` codes of create_service and rate_service.
 const SERVICE_ERRORS: Record<string, MessageKey> = {
   not_verified: 'common.pendingCantAct',
   bad_kind: 'service.error.kind',
   bad_category: 'service.error.category',
   bad_title: 'service.error.title',
   bad_date: 'service.error.date',
+  not_found: 'service.error.notFound',
+  self: 'service.error.self',
+  bad_rating: 'service.error.rating',
+  no_conversation: 'service.error.noConversation',
 };
 
 export function serviceErrorKey(code: string | undefined): MessageKey {

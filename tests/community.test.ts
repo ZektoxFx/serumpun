@@ -2,6 +2,7 @@ import {
   GROUP_CATEGORIES,
   POST_TYPES,
   SERVICE_CATEGORIES,
+  averageRating,
   groupErrorKey,
   newSince,
   serviceErrorKey,
@@ -121,8 +122,19 @@ describe('the seeded groups', () => {
   });
 });
 
+describe('averageRating', () => {
+  it('is null with no ratings', () => {
+    expect(averageRating([])).toBeNull();
+  });
+  it('is the mean to one decimal', () => {
+    expect(averageRating([{ rating: 5 }, { rating: 4 }, { rating: 5 }])).toBe(4.7);
+    expect(averageRating([{ rating: 4 }, { rating: 5 }])).toBe(4.5);
+    expect(averageRating([{ rating: 5 }])).toBe(5);
+  });
+});
+
 it('names every service error and category in both languages', () => {
-  for (const code of ['not_verified', 'bad_kind', 'bad_category', 'bad_title', 'bad_date']) {
+  for (const code of ['not_verified', 'bad_kind', 'bad_category', 'bad_title', 'bad_date', 'not_found', 'self', 'bad_rating', 'no_conversation']) {
     const key = serviceErrorKey(code);
     expect(key, code).not.toBe('common.error');
     expect(t('ms', key)).not.toBe(t('en', key));
@@ -137,7 +149,7 @@ it('names every service error and category in both languages', () => {
 describe('the seeded services', () => {
   const now = new Date('2026-10-16T06:00:00Z');
   const people = { townshipId: 'elmina', ids: new Proxy({}, { get: (_, key) => String(key) }) } as People;
-  const { services } = communityRows(now, people);
+  const { services, reviews } = communityRows(now, people);
   const newest = (kind: string) => services.filter((s) => s.kind === kind).sort((a, b) => b.created_at.localeCompare(a.created_at));
 
   it('open with the three cards of the approved canvas, among 13', () => {
@@ -161,5 +173,24 @@ describe('the seeded services', () => {
 
   it('fill every category chip', () => {
     expect(new Set(services.map((s) => s.category))).toEqual(new Set(SERVICE_CATEGORIES));
+  });
+
+  it("rate Cikgu Farah 4.9 and Ravi 4.7 as the canvas does, one rating per neighbour, never the provider's own", () => {
+    const average = (title: string) => {
+      const id = services.find((s) => s.title === title)!.id;
+      return averageRating(reviews.filter((r) => r.service_id === id));
+    };
+    expect(average('Maths & Science tuition, Form 1–3')).toBe(4.9);
+    expect(average('Aircon servicing & small repairs')).toBe(4.7);
+    expect(new Set(reviews.map((r) => `${r.service_id} ${r.reviewer_id}`)).size).toBe(reviews.length);
+    for (const r of reviews) {
+      const service = services.find((s) => s.id === r.service_id)!;
+      expect(service.kind).toBe('offer');
+      expect(r.reviewer_id).not.toBe(service.provider_id);
+      expect(r.rating).toBeGreaterThanOrEqual(1);
+      expect(r.rating).toBeLessThanOrEqual(5);
+    }
+    // The demo accounts have rated nothing yet: Aisyah rates Cikgu Farah in the demo.
+    expect(reviews.some((r) => ['aisyah', 'daniel', 'nur', 'office'].includes(r.reviewer_id))).toBe(false);
   });
 });

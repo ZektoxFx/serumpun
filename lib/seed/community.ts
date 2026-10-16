@@ -150,25 +150,46 @@ type SeedService = {
   availability?: string;
   budget?: string;
   neededInDays?: number;
+  /** An offer's stars, one per neighbour of RATERS (skipping the provider). */
+  ratings?: number[];
 };
 
 // Plan Task 14: the three cards of the approved canvas first (newest), then ten more, so every category has one. Tan Wei Ming is the canvas's
-// "Mr Tan". The canvas cards have no availability or date, so they look exactly as approved.
+// "Mr Tan". The canvas cards have no availability or date, so they look exactly as approved. Plan Task 22: the canvas's
+// ⭐ 4.9 and ⭐ 4.7, from as many neighbours as the seed has (the canvas's 23 and 41 jobs would need more people).
 const SERVICES: SeedService[] = [
-  { by: 'farah', kind: 'offer', category: 'tutoring', title: 'Maths & Science tuition, Form 1–3', daysAgo: 1, price: 'RM40 / hour' },
-  { by: 'ravi', kind: 'offer', category: 'repairs', title: 'Aircon servicing & small repairs', daysAgo: 2, price: 'From RM80' },
+  {
+    by: 'farah', kind: 'offer', category: 'tutoring', title: 'Maths & Science tuition, Form 1–3', daysAgo: 1, price: 'RM40 / hour',
+    ratings: [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4],
+  },
+  {
+    by: 'ravi', kind: 'offer', category: 'repairs', title: 'Aircon servicing & small repairs', daysAgo: 2, price: 'From RM80',
+    ratings: [5, 5, 5, 5, 5, 5, 5, 4, 4, 4],
+  },
   { by: 'weiMing', kind: 'request', category: 'repairs', title: 'Need someone to fix a leaking sink this week', daysAgo: 1, budget: 'RM50–80' },
-  { by: 'kavitha', kind: 'offer', category: 'pet_care', title: 'Dog walking and pet sitting', daysAgo: 4, price: 'RM15 / walk', availability: 'Mornings and evenings' },
-  { by: 'hafiz', kind: 'offer', category: 'repairs', title: 'Plumbing: leaking taps and blocked drains', daysAgo: 6, price: 'From RM50', availability: 'Weekends' },
+  {
+    by: 'kavitha', kind: 'offer', category: 'pet_care', title: 'Dog walking and pet sitting', daysAgo: 4, price: 'RM15 / walk',
+    availability: 'Mornings and evenings', ratings: [5, 4, 5],
+  },
+  {
+    by: 'hafiz', kind: 'offer', category: 'repairs', title: 'Plumbing: leaking taps and blocked drains', daysAgo: 6, price: 'From RM50',
+    availability: 'Weekends', ratings: [4, 5, 4, 4],
+  },
   { by: 'nurul', kind: 'offer', category: 'cleaning', title: 'House cleaning, 3-hour sessions', daysAgo: 8, price: 'RM60 / session', availability: 'Weekday mornings' },
   { by: 'jason', kind: 'offer', category: 'tutoring', title: 'Guitar lessons for beginners', daysAgo: 12, price: 'RM50 / hour', availability: 'Weekday evenings' },
   { by: 'priya', kind: 'request', category: 'pet_care', title: 'Cat sitter needed for 3 days next week', daysAgo: 2, budget: 'RM30 / day', neededInDays: 7 },
   { by: 'ahmad', kind: 'request', category: 'other', title: 'Two people to help move a sofa', daysAgo: 3, budget: 'RM100', neededInDays: 4 },
   { by: 'arif', kind: 'request', category: 'tutoring', title: 'Looking for an SPM English tutor', daysAgo: 5, budget: 'RM40 / hour' },
-  { by: 'siti', kind: 'offer', category: 'food', title: 'Home-cooked nasi lemak, weekday lunch orders', daysAgo: 3, price: 'RM8 / pack', availability: 'Order by 9 am' },
+  {
+    by: 'siti', kind: 'offer', category: 'food', title: 'Home-cooked nasi lemak, weekday lunch orders', daysAgo: 3, price: 'RM8 / pack',
+    availability: 'Order by 9 am', ratings: [5, 5, 4, 5, 5],
+  },
   { by: 'meiLing', kind: 'offer', category: 'childcare', title: 'After-school babysitting, ages 4–10', daysAgo: 5, price: 'RM15 / hour', availability: 'Weekdays, 2–6 pm' },
   { by: 'hafiz', kind: 'request', category: 'eldercare', title: "Companion for my mother's clinic visits", daysAgo: 4, budget: 'RM30 / visit', neededInDays: 5 },
 ];
+
+/** Who rated the seeded offers: every seeded neighbour but the demo accounts (Aisyah rates in the demo) and the office. */
+const RATERS: PersonKey[] = ['meiLing', 'priya', 'ahmad', 'ravi', 'farah', 'weiMing', 'siti', 'hafiz', 'kavitha', 'jason', 'nurul', 'arif'];
 
 type SeedListing = {
   by: PersonKey;
@@ -277,6 +298,10 @@ export function communityRows(now: Date, people: People) {
     provider_id: people.ids[s.by],
     created_at: ago(s.daysAgo * DAY),
   }));
+  const reviews = SERVICES.flatMap((s, i) => {
+    const raters = RATERS.filter((who) => who !== s.by);
+    return (s.ratings ?? []).map((rating, j) => ({ service_id: services[i].id, reviewer_id: people.ids[raters[j]], rating }));
+  });
   // As create_listing leaves them: only a swap says what it wants, only a lend item has an end date.
   const dayFromNow = (days: number) => mytDate(new Date(now.getTime() + days * DAY));
   const listings = LISTINGS.map((l) => ({
@@ -303,15 +328,15 @@ export function communityRows(now: Date, people: People) {
       updated_at: ago(70 * HOUR),
     },
   ];
-  return { groups, members, posts, comments, helpful, eventGroups: EVENT_GROUPS, services, listings, borrows };
+  return { groups, members, posts, comments, helpful, eventGroups: EVENT_GROUPS, services, reviews, listings, borrows };
 }
 
 /**
  * The five groups with their members, posts, comments and Helpful votes (pinning three upcoming events in their groups),
- * and the services offered and requested.
+ * the services offered and requested with their ratings, and the Share & Lend items.
  */
 export async function seedCommunity(admin: SupabaseClient, now: Date, people: People): Promise<void> {
-  const { groups, members, posts, comments, helpful, eventGroups, services, listings, borrows } = communityRows(now, people);
+  const { groups, members, posts, comments, helpful, eventGroups, services, reviews, listings, borrows } = communityRows(now, people);
   const tables: [string, Record<string, unknown>[]][] = [
     ['groups', groups],
     ['group_members', members],
@@ -319,6 +344,7 @@ export async function seedCommunity(admin: SupabaseClient, now: Date, people: Pe
     ['comments', comments],
     ['comment_helpful', helpful],
     ['services', services],
+    ['service_reviews', reviews],
     ['listings', listings],
     ['borrow_requests', borrows],
   ];
@@ -335,5 +361,5 @@ export async function seedCommunity(admin: SupabaseClient, now: Date, people: Pe
     if (error) throw new Error(`events (${title}): ${error.message}`);
   }
   console.log(`groups: ${groups.length} with ${members.length} members, ${posts.length} posts and ${comments.length} comments`);
-  console.log(`services: ${services.length}; listings: ${listings.length} with ${borrows.length} borrow`);
+  console.log(`services: ${services.length} with ${reviews.length} ratings; listings: ${listings.length} with ${borrows.length} borrow`);
 }

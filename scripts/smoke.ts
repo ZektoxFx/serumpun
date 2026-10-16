@@ -59,6 +59,8 @@ async function checks() {
   const games = ((await daniel.client.rpc('open_games')).data ?? []) as { booking_id: string; i_joined: boolean }[];
   const joiners = await daniel.client.from('booking_players').select('user_id').limit(1);
   const theirs = await daniel.client.rpc('game_players', { p_booking: games[0]?.booking_id });
+  const raters = await daniel.client.from('service_reviews').select('reviewer_id').limit(1);
+  check('Daniel cannot read who rated a service', refused(raters), said(raters));
   check(
     "Daniel cannot read who joined a neighbour's game",
     refused(joiners) && !theirs.error && theirs.data?.length === 0,

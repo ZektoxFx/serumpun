@@ -3,7 +3,14 @@ import { MessageButton } from '@/components/app/MessageButton';
 import { buttonClasses } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Tag } from '@/components/ui/Tag';
-import { PUBLIC_SERVICE_COLUMNS, SERVICE_CATEGORIES, SERVICE_ICON, type PublicService, type ServiceCategory } from '@/lib/domain/community';
+import {
+  PUBLIC_SERVICE_COLUMNS,
+  SERVICE_CATEGORIES,
+  SERVICE_ICON,
+  averageRating,
+  type PublicService,
+  type ServiceCategory,
+} from '@/lib/domain/community';
 import { eventDay, mytDateTime } from '@/lib/domain/events';
 import { t, type Lang } from '@/lib/i18n';
 import type { SessionProfile } from '@/lib/supabase/auth';
@@ -11,8 +18,8 @@ import { createClient } from '@/lib/supabase/server';
 
 /**
  * Community › Services (the approved canvas artboard): what neighbours offer, or ask for (`?view=requested`), by
- * category (`?cat=`), newest first, with Message on an offer and "I can help" on a request. Payment is arranged between
- * neighbours.
+ * category (`?cat=`), newest first, with an offer's stars and Message, and "I can help" on a request. Payment is arranged
+ * between neighbours.
  */
 export async function ServicesTab({
   profile,
@@ -26,12 +33,18 @@ export async function ServicesTab({
   const requested = params.view === 'requested';
   const cat = SERVICE_CATEGORIES.find((c) => c === params.cat) ?? null;
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from('public_services')
-    .select(PUBLIC_SERVICE_COLUMNS)
-    .order('created_at', { ascending: false })
-    .overrideTypes<PublicService[], { merge: false }>();
-  if (error) throw new Error(`services lookup failed: ${error.message}`);
+  const [found, stars] = await Promise.all([
+    supabase
+      .from('public_services')
+      .select(PUBLIC_SERVICE_COLUMNS)
+      .order('created_at', { ascending: false })
+      .overrideTypes<PublicService[], { merge: false }>(),
+    // shortcut: every rating of the township, averaged here; aggregate in the view if there are ever thousands.
+    supabase.from('public_service_ratings').select('service_id, rating').overrideTypes<{ service_id: string; rating: number }[], { merge: false }>(),
+  ]);
+  for (const { error } of [found, stars]) if (error) throw new Error(`services lookup failed: ${error.message}`);
+  const data = found.data!;
+  const ratings = Map.groupBy(stars.data!, (r) => r.service_id);
   const offers = data.filter((s) => s.kind === 'offer');
   const requests = data.filter((s) => s.kind === 'request');
   const shown = (requested ? requests : offers).filter((s) => cat === null || s.category === cat);
@@ -77,7 +90,7 @@ export async function ServicesTab({
         <ul className="flex flex-col gap-3">
           {shown.map((s) => (
             <li key={s.id}>
-              <ServiceCard service={s} lang={lang} canAct={profile.status === 'verified'} />
+              <ServiceCard service={s} ratings={ratings.get(s.id) ?? []} lang={lang} canAct={profile.status === 'verified'} />
             </li>
           ))}
         </ul>
@@ -90,11 +103,26 @@ export async function ServicesTab({
   );
 }
 
-/** A card of the canvas: tag, title, who and where, the price (offers) or budget (requests), and the button. */
-function ServiceCard({ service: s, lang, canAct }: { service: PublicService; lang: Lang; canAct: boolean }) {
+/** A card of the canvas: tag, title, who and where (and an offer's ⭐), the price (offers) or budget (requests), and the button. */
+function ServiceCard({
+  service: s,
+  ratings,
+  lang,
+  canAct,
+}: {
+  service: PublicService;
+  ratings: { rating: number }[];
+  lang: Lang;
+  canAct: boolean;
+}) {
   const offer = s.kind === 'offer';
   const who = [s.provider_name, s.provider_neighbourhood];
   if (!offer && s.conversation_count > 0) who.push(t(lang, 'service.helpers', { n: s.conversation_count }));
+  const average = averageRating(ratings);
+  if (offer && average !== null) {
+    const rating = average.toFixed(1);
+    who.push(ratings.length === 1 ? t(lang, 'service.ratingOne', { rating }) : t(lang, 'service.rating', { rating, n: ratings.length }));
+  }
   const when = s.availability_text ?? (s.needed_by && t(lang, 'service.neededBy', { date: eventDay(mytDateTime(s.needed_by, '12:00')!, lang) }));
   return (
     <article className="flex flex-col gap-1 rounded-2xl border border-line bg-surface p-3.5 shadow-card">

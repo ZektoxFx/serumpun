@@ -11,6 +11,8 @@ export const CONTEXT_ICON: Record<ContextType, string> = { post: '💬', service
 export type Conversation = {
   id: string;
   context_type: ContextType;
+  /** The post, service, listing or game it is about (0014_reviews.sql added it to the view). */
+  context_id: string | null;
   context_title: string;
   last_message_at: string;
   other_name: string;
@@ -20,7 +22,7 @@ export type Conversation = {
   unread_count: number;
 };
 export const CONVERSATION_COLUMNS =
-  'id, context_type, context_title, last_message_at, other_name, other_neighbourhood, last_body, last_is_mine, unread_count';
+  'id, context_type, context_id, context_title, last_message_at, other_name, other_neighbourhood, last_body, last_is_mine, unread_count';
 
 // The `raise exception` codes of the message RPCs.
 const ERROR_KEYS: Record<string, MessageKey> = {
