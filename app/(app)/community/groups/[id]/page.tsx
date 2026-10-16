@@ -181,7 +181,13 @@ async function Posts({ group, profile, lang }: { group: PublicGroup; profile: Se
         <ul className="flex flex-col gap-3">
           {posts.data!.map((p) => (
             <li key={p.id}>
-              <PostCard post={p} comments={comments.filter((c) => c.post_id === p.id)} lang={lang} canAct={canAct} />
+              <PostCard
+                post={p}
+                comments={comments.filter((c) => c.post_id === p.id)}
+                lang={lang}
+                canAct={canAct}
+                canMessage={profile.status === 'verified'}
+              />
             </li>
           ))}
         </ul>

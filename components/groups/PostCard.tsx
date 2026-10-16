@@ -1,3 +1,4 @@
+import { MessageButton } from '@/components/app/MessageButton';
 import { CommentForm } from '@/components/groups/CommentForm';
 import { HelpfulButton } from '@/components/groups/HelpfulButton';
 import { POST_TYPE_TAG } from '@/components/groups/groupStyle';
@@ -5,20 +6,34 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Tag } from '@/components/ui/Tag';
 import { TimeAgo } from '@/components/ui/TimeAgo';
 import { topAnswer, type PublicComment, type PublicPost } from '@/lib/domain/community';
+import { firstName } from '@/lib/domain/profile';
 import { t, type Lang } from '@/lib/i18n';
 
 /**
  * A post in a group: author, type, text, a question's Top answer, and its comments behind "Comments · n", each with
- * Helpful. Members (`canAct`) comment and vote; everyone else reads.
+ * Helpful. Members (`canAct`) comment and vote; everyone else reads. A Share & Lend post offers "Message [owner]" to any
+ * verified resident (`canMessage`) but its owner.
  */
-export function PostCard({ post, comments, lang, canAct }: { post: PublicPost; comments: PublicComment[]; lang: Lang; canAct: boolean }) {
+export function PostCard({
+  post,
+  comments,
+  lang,
+  canAct,
+  canMessage,
+}: {
+  post: PublicPost;
+  comments: PublicComment[];
+  lang: Lang;
+  canAct: boolean;
+  canMessage: boolean;
+}) {
   const top = post.type === 'question' ? comments.find((c) => c.id === topAnswer(comments)) : undefined;
   const tag = POST_TYPE_TAG[post.type];
   const author = post.author_name ?? '–';
   // Flex columns, not grids: a grid column grows to its widest child (a comment box is 20 characters wide by default),
   // which would push the page sideways on a narrow phone.
   return (
-    <article className="flex flex-col gap-2.5rounded-2xl border border-line bg-surface p-3.5 shadow-card">
+    <article className="flex flex-col gap-2.5 rounded-2xl border border-line bg-surface p-3.5 shadow-card">
       <header className="flex items-center gap-2.5">
         <Avatar name={author} size={36} />
         {/* These lines wrap rather than truncate: no-wrap text would widen the page on a narrow phone. */}
@@ -32,6 +47,14 @@ export function PostCard({ post, comments, lang, canAct }: { post: PublicPost; c
         {tag && <Tag variant={tag}>{t(lang, `group.type.${post.type}`)}</Tag>}
       </header>
       <p className="whitespace-pre-line break-words">{post.body}</p>
+      {post.type === 'share_lend' && post.author_id && !post.is_mine && (
+        <MessageButton
+          contextType="post"
+          contextId={post.id}
+          label={t(lang, 'messages.messageOwner', { name: firstName(author) })}
+          canAct={canMessage}
+        />
+      )}
       {top && (
         <div className="grid gap-1 rounded-xl bg-tint-green p-3">
           <p className="text-xs font-extrabold text-green-text">

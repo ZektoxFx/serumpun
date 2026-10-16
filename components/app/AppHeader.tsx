@@ -8,6 +8,7 @@ import { getSessionProfile } from '@/lib/supabase/auth';
 import { createClient } from '@/lib/supabase/server';
 import { BackButton } from './BackButton';
 import { LiveBell } from './LiveBell';
+import { LiveMessages } from './LiveMessages';
 
 /** Notifications the signed-in user has not opened. LiveBell renders the page again when they change. */
 async function unreadNotifications() {
@@ -24,6 +25,17 @@ async function unreadNotifications() {
   return count ?? 0;
 }
 
+/** The other people's messages the signed-in user has not read. LiveMessages renders the page again on a new one. */
+async function unreadMessages() {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc('unread_message_count');
+  if (error) {
+    console.error(`unread messages were not counted: ${error.message}`);
+    return 0; // a missing badge beats a broken page
+  }
+  return Number(data ?? 0);
+}
+
 function Glyph({ children }: { children: ReactNode }) {
   return (
     <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -32,12 +44,24 @@ function Glyph({ children }: { children: ReactNode }) {
   );
 }
 
+/** The red count on the bell or the inbox. Hidden from screen readers: the button's own label says the number. */
+function CountBadge({ text, gradient }: { text: string; gradient: boolean }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={`absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-red px-1 text-xs font-extrabold leading-none text-white ring-2 ${gradient ? 'ring-white' : 'ring-surface'}`}
+    >
+      {text}
+    </span>
+  );
+}
+
 /**
- * The top of a resident page: a title with the bell (notifications) and inbox (messages) on the right.
- * `tone="gradient"` is Home's brand header: its title is large and bold (small text cannot sit on the gradient), and
- * `children` sits under it (put small text on a HeroChip). On the plain tone the bar stays at the top while scrolling.
- * There is no messages badge until Task 13. `back` adds "←" before the title (plain tone): it goes back, or to `back`
- * when the page was opened first.
+ * The top of a resident page: a title with the bell (notifications) and inbox (messages) on the right, each with its
+ * unread count, kept live. `tone="gradient"` is Home's brand header: its title is large and bold (small text cannot sit
+ * on the gradient), and `children` sits under it (put small text on a HeroChip). On the plain tone the bar stays at the
+ * top while scrolling. `back` adds "←" before the title (plain tone): it goes back, or to `back` when the page was
+ * opened first.
  */
 export async function AppHeader({
   title,
@@ -54,12 +78,14 @@ export async function AppHeader({
   tone?: 'plain' | 'gradient';
   children?: ReactNode;
 }) {
-  const [lang, unread, profile] = await Promise.all([
+  const [lang, unread, profile, unreadChats] = await Promise.all([
     getLang(),
     showBell ? unreadNotifications() : 0,
     showBell ? getSessionProfile() : null, // cached: the page has already looked it up
+    showInbox ? unreadMessages() : 0,
   ]);
   const badge = unreadBadge(unread);
+  const inboxBadge = unreadBadge(unreadChats);
   const gradient = tone === 'gradient';
   const buttonClass = `relative ${iconButtonClasses(gradient ? 'overlay' : 'default')}`;
   return (
@@ -82,24 +108,23 @@ export async function AppHeader({
                 <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
                 <path d="M13.7 21a2 2 0 0 1-3.4 0" />
               </Glyph>
-              {badge && (
-                <span
-                  aria-hidden="true"
-                  className={`absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-red px-1 text-xs font-extrabold leading-none text-white ring-2 ${gradient ? 'ring-white' : 'ring-surface'}`}
-                >
-                  {badge}
-                </span>
-              )}
+              {badge && <CountBadge text={badge} gradient={gradient} />}
             </Link>
           )}
           {showBell && profile && <LiveBell userId={profile.id} />}
           {showInbox && (
-            <Link href="/messages" aria-label={t(lang, 'messages.title')} className={buttonClass}>
+            <Link
+              href="/messages"
+              aria-label={inboxBadge ? t(lang, 'messages.inboxUnread', { n: unreadChats }) : t(lang, 'messages.title')}
+              className={buttonClass}
+            >
               <Glyph>
                 <path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z" />
               </Glyph>
+              {inboxBadge && <CountBadge text={inboxBadge} gradient={gradient} />}
             </Link>
           )}
+          {showInbox && <LiveMessages />}
         </div>
       </div>
       {children}

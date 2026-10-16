@@ -668,6 +668,26 @@ const ms: Record<keyof typeof en, string> = {
   'group.error.adminLeave': 'Pentadbir tidak boleh keluar dari kumpulan.',
   'group.error.ownComment': 'Anda tidak boleh menandakan ulasan sendiri sebagai membantu.',
   'notify.group.comment': 'Ulasan baharu pada siaran anda',
+
+  // Mesej (lib/domain/messages.ts)
+  'messages.inboxUnread': 'Mesej, {n} belum dibaca',
+  'messages.empty': 'Belum ada mesej',
+  'messages.emptyHint': 'Mesej jiran dari siaran Kongsi & Pinjam mereka, dan perbualan akan muncul di sini.',
+  'messages.you': 'Anda: ',
+  'messages.unread': '{n} belum dibaca',
+  'messages.about': 'Tentang',
+  'messages.context.post': 'Siaran kumpulan',
+  'messages.context.service': 'Perkhidmatan',
+  'messages.context.listing': 'Kongsi & Pinjam',
+  'messages.context.game': 'Permainan terbuka',
+  'messages.privacy': 'Nombor telefon kekal peribadi. Kongsi nombor anda hanya jika anda mahu.',
+  'messages.composer': 'Tulis mesej',
+  'messages.send': 'Hantar',
+  'messages.messageOwner': 'Mesej {name}',
+  'messages.error.notFound': 'Perbualan ini tidak tersedia.',
+  'messages.error.context': 'Anda hanya boleh mesej jiran tentang sesuatu yang mereka siarkan.',
+  'messages.error.self': 'Ini siaran anda sendiri.',
+  'messages.error.body': 'Tulis mesej dahulu.',
 };
 
 export default ms;

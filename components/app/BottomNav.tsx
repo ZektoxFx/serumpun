@@ -41,6 +41,8 @@ export function BottomNav() {
   const t = useT();
   const pathname = usePathname();
   const [creating, setCreating] = useState(false);
+  // A conversation puts its composer where the bar would be (full-screen flows may hide it: Task 4 ruling).
+  if (/^\/messages\/[^/]+$/.test(pathname)) return null;
   return (
     <>
       <nav

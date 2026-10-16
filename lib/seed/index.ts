@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { seedAlerts } from './alerts';
 import { seedCommunity } from './community';
 import { seedEvents } from './events';
+import { seedMessages } from './messages';
 import { seedPeople, type People } from './people';
 import { seedReports } from './reports';
 import { seedRewards } from './rewards';
@@ -9,8 +10,9 @@ import { seedRewards } from './rewards';
 /** A feature seeder. Later tasks add theirs to `seeders`; each runs after the people exist, in list order. */
 export type Seeder = (admin: SupabaseClient, now: Date, people: People) => Promise<void>;
 
-// seedCommunity after seedEvents: it pins some of the events in their groups.
-const seeders: Seeder[] = [seedAlerts, seedReports, seedEvents, seedRewards, seedCommunity];
+// seedCommunity after seedEvents: it pins some of the events in their groups. seedMessages after seedCommunity: a
+// conversation is about Priya's stroller post.
+const seeders: Seeder[] = [seedAlerts, seedReports, seedEvents, seedRewards, seedCommunity, seedMessages];
 
 /**
  * Every uploaded photo goes with the reports and alerts that held them (the seed has none). Public photos sit at the root

@@ -667,6 +667,26 @@ const en = {
   'group.error.adminLeave': 'The admin cannot leave the group.',
   'group.error.ownComment': 'You cannot mark your own comment as helpful.',
   'notify.group.comment': 'New comment on your post',
+
+  // Messages (lib/domain/messages.ts)
+  'messages.inboxUnread': 'Messages, {n} unread',
+  'messages.empty': 'No messages yet',
+  'messages.emptyHint': 'Message a neighbour from their Share & Lend post, and the chat shows up here.',
+  'messages.you': 'You: ',
+  'messages.unread': '{n} unread',
+  'messages.about': 'About',
+  'messages.context.post': 'Group post',
+  'messages.context.service': 'Service',
+  'messages.context.listing': 'Share & Lend',
+  'messages.context.game': 'Open game',
+  'messages.privacy': 'Phone numbers stay private. Share yours only if you want to.',
+  'messages.composer': 'Write a message',
+  'messages.send': 'Send',
+  'messages.messageOwner': 'Message {name}',
+  'messages.error.notFound': 'This conversation is not available.',
+  'messages.error.context': 'You can only message a neighbour about something they posted.',
+  'messages.error.self': 'This is your own post.',
+  'messages.error.body': 'Write a message first.',
 } satisfies Record<string, string>;
 
 export default en;
