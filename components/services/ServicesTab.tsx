@@ -3,14 +3,11 @@ import { MessageButton } from '@/components/app/MessageButton';
 import { buttonClasses } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Tag } from '@/components/ui/Tag';
-import { PUBLIC_SERVICE_COLUMNS, SERVICE_ICON, type PublicService, type ServiceCategory } from '@/lib/domain/community';
+import { PUBLIC_SERVICE_COLUMNS, SERVICE_CATEGORIES, SERVICE_ICON, type PublicService, type ServiceCategory } from '@/lib/domain/community';
 import { eventDay, mytDateTime } from '@/lib/domain/events';
 import { t, type Lang } from '@/lib/i18n';
 import type { SessionProfile } from '@/lib/supabase/auth';
 import { createClient } from '@/lib/supabase/server';
-
-/** The chips under the switch (canvas): every category but "other", which only shows under All. */
-const CHIPS: readonly ServiceCategory[] = ['tutoring', 'repairs', 'home_help', 'pet_care'];
 
 /**
  * Community › Services (the approved canvas artboard): what neighbours offer, or ask for (`?view=requested`), by
@@ -27,7 +24,7 @@ export async function ServicesTab({
   params: Record<string, string | string[] | undefined>;
 }) {
   const requested = params.view === 'requested';
-  const cat = CHIPS.find((c) => c === params.cat) ?? null;
+  const cat = SERVICE_CATEGORIES.find((c) => c === params.cat) ?? null;
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('public_services')
@@ -67,7 +64,7 @@ export async function ServicesTab({
         <Link href={href({ requested })} aria-current={cat === null ? 'page' : undefined} className={chip(cat === null)}>
           {t(lang, 'event.all')}
         </Link>
-        {CHIPS.map((c) => (
+        {SERVICE_CATEGORIES.map((c) => (
           <Link key={c} href={href({ requested, cat: c })} aria-current={cat === c ? 'page' : undefined} className={chip(cat === c)}>
             <span aria-hidden="true">{SERVICE_ICON[c]}</span> {t(lang, `service.category.${c}`)}
           </Link>

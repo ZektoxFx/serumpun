@@ -75,13 +75,23 @@ export function newSince(items: readonly { created_at: string }[], lastVisit: st
   return items.filter((item) => Date.parse(item.created_at) > seen).length;
 }
 
-// supabase/migrations/0009_services.sql enforces the same service kinds and categories.
+// supabase/migrations/0009_services.sql enforces the same service kinds, and 0012_service_categories.sql these categories.
 
 export const SERVICE_KINDS = ['offer', 'request'] as const;
 export type ServiceKind = (typeof SERVICE_KINDS)[number];
-export const SERVICE_CATEGORIES = ['tutoring', 'repairs', 'home_help', 'pet_care', 'other'] as const;
+// The team's list. Pets keeps its first key, pet_care; Others is everything else (garden, beauty, transport, tech...).
+export const SERVICE_CATEGORIES = ['tutoring', 'repairs', 'cleaning', 'food', 'childcare', 'eldercare', 'pet_care', 'other'] as const;
 export type ServiceCategory = (typeof SERVICE_CATEGORIES)[number];
-export const SERVICE_ICON: Record<ServiceCategory, string> = { tutoring: '📚', repairs: '🔧', home_help: '🧹', pet_care: '🐾', other: '🤝' };
+export const SERVICE_ICON: Record<ServiceCategory, string> = {
+  tutoring: '📚',
+  repairs: '🔧',
+  cleaning: '🧹',
+  food: '🍲',
+  childcare: '👶',
+  eldercare: '🧓',
+  pet_care: '🐾',
+  other: '🤝',
+};
 
 /** A row of `public_services`: an offer or a request of the township, by name and neighbourhood (never a unit or phone). */
 export type PublicService = {

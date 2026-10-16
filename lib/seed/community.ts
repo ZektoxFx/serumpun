@@ -152,7 +152,7 @@ type SeedService = {
   neededInDays?: number;
 };
 
-// Plan Task 14: the three cards of the approved canvas first (newest), then seven more. Tan Wei Ming is the canvas's
+// Plan Task 14: the three cards of the approved canvas first (newest), then ten more, so every category has one. Tan Wei Ming is the canvas's
 // "Mr Tan". The canvas cards have no availability or date, so they look exactly as approved.
 const SERVICES: SeedService[] = [
   { by: 'farah', kind: 'offer', category: 'tutoring', title: 'Maths & Science tuition, Form 1–3', daysAgo: 1, price: 'RM40 / hour' },
@@ -160,11 +160,14 @@ const SERVICES: SeedService[] = [
   { by: 'weiMing', kind: 'request', category: 'repairs', title: 'Need someone to fix a leaking sink this week', daysAgo: 1, budget: 'RM50–80' },
   { by: 'kavitha', kind: 'offer', category: 'pet_care', title: 'Dog walking and pet sitting', daysAgo: 4, price: 'RM15 / walk', availability: 'Mornings and evenings' },
   { by: 'hafiz', kind: 'offer', category: 'repairs', title: 'Plumbing: leaking taps and blocked drains', daysAgo: 6, price: 'From RM50', availability: 'Weekends' },
-  { by: 'nurul', kind: 'offer', category: 'home_help', title: 'House cleaning, 3-hour sessions', daysAgo: 8, price: 'RM60 / session', availability: 'Weekday mornings' },
+  { by: 'nurul', kind: 'offer', category: 'cleaning', title: 'House cleaning, 3-hour sessions', daysAgo: 8, price: 'RM60 / session', availability: 'Weekday mornings' },
   { by: 'jason', kind: 'offer', category: 'tutoring', title: 'Guitar lessons for beginners', daysAgo: 12, price: 'RM50 / hour', availability: 'Weekday evenings' },
   { by: 'priya', kind: 'request', category: 'pet_care', title: 'Cat sitter needed for 3 days next week', daysAgo: 2, budget: 'RM30 / day', neededInDays: 7 },
-  { by: 'ahmad', kind: 'request', category: 'home_help', title: 'Two people to help move a sofa', daysAgo: 3, budget: 'RM100', neededInDays: 4 },
+  { by: 'ahmad', kind: 'request', category: 'other', title: 'Two people to help move a sofa', daysAgo: 3, budget: 'RM100', neededInDays: 4 },
   { by: 'arif', kind: 'request', category: 'tutoring', title: 'Looking for an SPM English tutor', daysAgo: 5, budget: 'RM40 / hour' },
+  { by: 'siti', kind: 'offer', category: 'food', title: 'Home-cooked nasi lemak, weekday lunch orders', daysAgo: 3, price: 'RM8 / pack', availability: 'Order by 9 am' },
+  { by: 'meiLing', kind: 'offer', category: 'childcare', title: 'After-school babysitting, ages 4–10', daysAgo: 5, price: 'RM15 / hour', availability: 'Weekdays, 2–6 pm' },
+  { by: 'hafiz', kind: 'request', category: 'eldercare', title: "Companion for my mother's clinic visits", daysAgo: 4, budget: 'RM30 / visit', neededInDays: 5 },
 ];
 
 type SeedListing = {

@@ -140,8 +140,8 @@ describe('the seeded services', () => {
   const { services } = communityRows(now, people);
   const newest = (kind: string) => services.filter((s) => s.kind === kind).sort((a, b) => b.created_at.localeCompare(a.created_at));
 
-  it('open with the three cards of the approved canvas, among 10', () => {
-    expect(services).toHaveLength(10);
+  it('open with the three cards of the approved canvas, among 13', () => {
+    expect(services).toHaveLength(13);
     expect(newest('offer').slice(0, 2).map((s) => [s.title, s.provider_id, s.price_text])).toEqual([
       ['Maths & Science tuition, Form 1–3', 'farah', 'RM40 / hour'],
       ['Aircon servicing & small repairs', 'ravi', 'From RM80'],
@@ -157,5 +157,9 @@ describe('the seeded services', () => {
       expect(SERVICE_CATEGORIES).toContain(s.category);
       if (s.needed_by) expect(s.needed_by >= mytDate(now), s.title).toBe(true);
     }
+  });
+
+  it('fill every category chip', () => {
+    expect(new Set(services.map((s) => s.category))).toEqual(new Set(SERVICE_CATEGORIES));
   });
 });

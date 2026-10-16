@@ -53,7 +53,7 @@ export function ServiceForm({ canPost }: { canPost: boolean }) {
         />
         <input type="hidden" name="kind" value={kind} />
       </div>
-      <Field label={t('service.new.category')}>
+      <Field label={t('service.new.category')} hint={t('service.new.categoryHint')}>
         {(control) => (
           <select {...control} name="category" defaultValue="tutoring" disabled={!canPost}>
             {SERVICE_CATEGORIES.map((category) => (
