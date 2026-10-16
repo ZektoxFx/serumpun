@@ -10,7 +10,8 @@
     "test": "vitest run",
     "typecheck": "next typegen && tsc --noEmit",
     "db:migrate": "tsx --env-file=.env.local scripts/migrate.ts",
-    "db:seed": "tsx --conditions=react-server --env-file=.env.local scripts/seed.ts"
+    "db:seed": "tsx --conditions=react-server --env-file=.env.local scripts/seed.ts",
+    "smoke": "tsx --conditions=react-server --env-file=.env.local scripts/smoke.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
