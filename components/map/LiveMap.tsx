@@ -12,6 +12,9 @@ import { useT } from '@/lib/i18n';
 /** One alert as the map draws it. `label` is the pin's accessible name: type, severity and how fresh it is. */
 export type MapPin = { id: string; lat: number; lng: number; type: AlertType; severity: Severity; official: boolean; label: string };
 
+/** Where the map goes: it pans to the point, or with a radius (metres) it frames that whole circle (an emergency). */
+export type MapFocus = LatLng & { radius?: number };
+
 /** Safe Walk's lines: the route in blue, the usual way dashed red beside it (when they differ), and where it ends. */
 export type WalkLines = { safe: LatLng[]; usual: LatLng[] | null; to: LatLng };
 
@@ -79,8 +82,8 @@ export function LiveMap({
   centre: LatLng;
   /** The device, only when it is in the township. */
   me: LatLng | null;
-  /** The map pans here whenever this changes (a freshly posted alert). */
-  focus: LatLng | null;
+  /** The map goes here whenever this changes (a freshly posted alert, an emergency's link). */
+  focus: MapFocus | null;
   onViewChange: (centre: LatLng) => void;
   township: string;
   /** The map's own region element (Leaflet makes it focusable), so the screen can move keyboard focus onto it. */
@@ -180,7 +183,12 @@ export function LiveMap({
   }, [me]);
 
   useEffect(() => {
-    if (focus) map.current?.panTo(focus);
+    const m = map.current;
+    if (!m || !focus) return;
+    if (!focus.radius) return void m.panTo(focus);
+    moved.current = true; // a late GPS fix must not pull the map off the circle
+    // Room for the emergency bar, search and chips above, and the bottom bar below.
+    m.fitBounds(L.latLng(focus).toBounds(focus.radius * 2), { paddingTopLeft: [16, 170], paddingBottomRight: [16, 90] });
   }, [focus]);
 
   // Safe Walk's lines, drawn again whenever the route is worked out again (alerts change); the view fits the walk once

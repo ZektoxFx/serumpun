@@ -15,6 +15,8 @@ import { EmergencySheet, type EmergencyState } from './EmergencySheet';
 function here(fallback: LatLng): Promise<LatLng> {
   return new Promise((resolve) => {
     if (!navigator.geolocation) return resolve(fallback);
+    // The timeout below does not count a permission prompt, so an unanswered "Allow location?" cannot hold the alert.
+    setTimeout(() => resolve(fallback), 6000);
     navigator.geolocation.getCurrentPosition(
       (p) => resolve(resolveStartLocation({ lat: p.coords.latitude, lng: p.coords.longitude }, fallback)),
       () => resolve(fallback),

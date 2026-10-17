@@ -17,7 +17,7 @@ import {
   type AlertType,
   type PublicAlert,
 } from '@/lib/domain/alerts';
-import { EMERGENCY_ICON, PUBLIC_EMERGENCY_COLUMNS, type PublicEmergency } from '@/lib/domain/emergency';
+import { ALERT_RADIUS_M, EMERGENCY_ICON, PUBLIC_EMERGENCY_COLUMNS, type PublicEmergency } from '@/lib/domain/emergency';
 import { formatDistance, resolveStartLocation, type LatLng } from '@/lib/domain/geo';
 import { timeAgo } from '@/lib/domain/time';
 import { useLang, useT } from '@/lib/i18n';
@@ -28,7 +28,7 @@ import { useTownshipEvents } from '@/lib/supabase/useRealtime';
 import { AlertSheet } from './AlertSheet';
 import { DropAlertSheet } from './DropAlertSheet';
 import { FilterSheet, useMapFilters } from './FilterSheet';
-import type { MapPin, WalkLines } from './LiveMap';
+import type { MapFocus, MapPin, WalkLines } from './LiveMap';
 import { SafeWalkBanner, SafeWalkPanel, type WalkPlace } from './SafeWalkPanel';
 
 // Leaflet needs `window`, so the map itself only ever renders in the browser.
@@ -103,9 +103,13 @@ export function MapScreen({
   const [selectedId, setSelectedId] = useState<string | null>(linked?.id ?? null);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [query, setQuery] = useState('');
-  const [focus, setFocus] = useState<LatLng | null>(
-    (linked && { lat: linked.lat, lng: linked.lng }) ?? (linkedEmergency && { lat: linkedEmergency.lat, lng: linkedEmergency.lng }),
-  );
+  const [focus, setFocus] = useState<MapFocus | null>(linked && { lat: linked.lat, lng: linked.lng });
+  // An emergency's link frames its whole 2 km circle, also when followed from this page (the popup's Show on map).
+  const [framed, setFramed] = useState<string | null>(null);
+  if ((linkedEmergency?.id ?? null) !== framed) {
+    setFramed(linkedEmergency?.id ?? null);
+    if (linkedEmergency) setFocus({ lat: linkedEmergency.lat, lng: linkedEmergency.lng, radius: ALERT_RADIUS_M });
+  }
   const [toast, setToast] = useState<{ text: string; focusMap?: boolean } | null>(null);
   const [filters, setFilters] = useMapFilters();
   const mapRegion = useRef<HTMLDivElement>(null);
