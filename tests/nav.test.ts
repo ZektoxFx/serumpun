@@ -56,6 +56,7 @@ describe('route contracts', () => {
       '/reports?view=mine',
       '/book?view=mine',
       '/community?tab=share&view=mine',
+      '/notices',
       '/me/points',
     ]);
   });

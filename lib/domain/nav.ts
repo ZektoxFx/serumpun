@@ -30,7 +30,8 @@ export const CREATE_ACTIONS = [
 
 /** The eight Home tiles (brainstorm mockup "A · Tiles first"). */
 export const HOME_TILES = [
-  { href: '/map', label: 'home.tile.map', icon: '🗺️' },
+  // The map has its own tab in the bottom bar; this tile tells the office about renovation, moving day and the like.
+  { href: '/notices/new', label: 'home.tile.notify', icon: '📝' },
   { href: '/book', label: 'home.tile.book', icon: '🏟️' },
   { href: '/community?tab=events', label: 'community.tab.events', icon: '📅' },
   { href: '/community?tab=groups', label: 'community.tab.groups', icon: '👥' },
@@ -46,5 +47,6 @@ export const ME_LINKS = [
   { href: '/reports?view=mine', label: 'me.reports', icon: '📋' },
   { href: '/book?view=mine', label: 'me.bookings', icon: '🏸' },
   { href: '/community?tab=share&view=mine', label: 'me.listings', icon: '🔁' },
+  { href: '/notices', label: 'me.notices', icon: '📝' },
   { href: '/me/points', label: 'me.pointsHistory', icon: '★' },
 ] as const satisfies readonly IconEntry[];

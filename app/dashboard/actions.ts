@@ -3,6 +3,7 @@
 import { refresh } from 'next/cache';
 import { alertErrorKey } from '@/lib/domain/alerts';
 import { eventErrorKey } from '@/lib/domain/events';
+import { noticeErrorKey } from '@/lib/domain/notices';
 import { reportErrorKey } from '@/lib/domain/reports';
 import type { MessageKey } from '@/lib/i18n';
 import { seedAll } from '@/lib/seed';
@@ -41,6 +42,16 @@ const RESIDENT_ERRORS: Record<string, MessageKey> = {
   not_management: 'map.error.notManagement',
   not_found: 'dashboard.residents.gone',
 };
+
+/** Marks a resident's notice noted, with the office's reply if any. note_notice tells the resident. */
+export async function noteNotice(formData: FormData): Promise<DashboardResult> {
+  await requireManagement();
+  const supabase = await createClient();
+  const { error } = await supabase.rpc('note_notice', { p_notice: field(formData, 'id'), p_reply: field(formData, 'reply') });
+  if (error) return failed('note_notice', error, noticeErrorKey(error.message));
+  refresh();
+  return { ok: true };
+}
 
 /** Approves (`verified`) or rejects a pending resident. set_resident_status tells them. */
 export async function decideResident(formData: FormData): Promise<DashboardResult> {
