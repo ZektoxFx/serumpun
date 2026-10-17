@@ -2,10 +2,12 @@
 
 **Your township, together.** Serumpun is a phone-first web app that replaces a Sime Darby Property township's
 Facebook group. Its heart is an official reporting channel to the Management Office with public status tracking:
-report a broken streetlight, see who else did (Me too), and follow it from *submitted* to *fixed*. Around it sit a live
-map of short-lived neighbourhood alerts, groups, events with points, services, share and lend, messages, free court
-booking and vouchers at SDP malls, in English and Bahasa Malaysia. Homes stay private: neighbours see names and
-neighbourhoods, never a unit number.
+report a broken streetlight, see who else did (Me too), and follow it from *submitted* to *fixed*. Around it sit an
+emergency button that alerts the office and neighbours within 2 km, notices to the office ahead of renovation or moving
+day, a live map of short-lived neighbourhood alerts, groups with a General chat for everyone, events with points,
+services, share and lend, messages, free facility booking (courts, hall, gym, BBQ pit) and vouchers at SDP malls, in
+English and Bahasa Malaysia, with adjustable text size. Homes stay private: neighbours see names and neighbourhoods,
+never a unit number.
 
 **Live:** https://serumpun-six.vercel.app — tap **Try as Aisyah** on a phone, and **Try as Management Office** on a
 laptop for the dashboard.
@@ -15,11 +17,16 @@ laptop for the dashboard.
 1. Home: Happening now (nearest alert, the office's announcement, your next event)
 2. Live Map: an alert with Still there / Gone, and Safe Walk going around it
 3. Report an issue → "Already reported nearby?" → Me too → the report's timeline
-4. Management Office dashboard: the reports board, moving a report on (the resident's phone updates live)
-5. Community: Groups, Events (QR check-in for points), Services with ⭐ ratings, Share & Lend
-6. Book a Court: the slot picker with Find players, Open games and the booking pass
-7. Rewards: a voucher with Slide to use
-8. Me: dark mode and Bahasa Malaysia
+4. Management Office dashboard: the reports board, moving a report on (the resident's phone updates live), resident
+   notices
+5. Emergency: hold ＋ for 3 seconds on one phone, tap the red **!**, and a neighbour's phone pops up with the red 2 km
+   circle on the map; the office's dashboard shows who and where
+6. Notify the office: renovation or moving day, noted by the office with a reply
+7. Community: General chat, Groups, Events (official or resident, QR check-in for points), Services with ⭐ ratings,
+   Share & Lend
+8. Facilities: courts, hall, gym and BBQ pit; Find players, Open games and the booking pass
+9. Rewards: a voucher with Slide to use
+10. Me: text size, dark mode and Bahasa Malaysia
 
 ## Quick start
 
