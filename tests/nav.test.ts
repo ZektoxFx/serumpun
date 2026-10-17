@@ -39,7 +39,7 @@ describe('route contracts', () => {
 
   it('the eight Home tiles', () => {
     expect(HOME_TILES.map((tile) => tile.href)).toEqual([
-      '/map',
+      '/notices/new', // the map has its own tab (feedback, 17 Oct)
       '/book',
       '/community?tab=events',
       '/community?tab=groups',
