@@ -61,6 +61,14 @@ async function checks() {
   const theirs = await daniel.client.rpc('game_players', { p_booking: games[0]?.booking_id });
   const raters = await daniel.client.from('service_reviews').select('reviewer_id').limit(1);
   check('Daniel cannot read who rated a service', refused(raters), said(raters));
+  // Row-level security answers residents with no rows (only the office's policy matches); phones give them nothing.
+  const raisers = await daniel.client.from('emergencies').select('created_by').limit(1);
+  const phones = await daniel.client.from('push_subscriptions').select('endpoint').limit(1);
+  check(
+    "Daniel cannot read who raised an emergency, or anyone's phone",
+    (refused(raisers) || raisers.data?.length === 0) && refused(phones),
+    `${raisers.error?.message ?? `${raisers.data?.length} rows`} / ${said(phones)}`,
+  );
   check(
     "Daniel cannot read who joined a neighbour's game",
     refused(joiners) && !theirs.error && theirs.data?.length === 0,

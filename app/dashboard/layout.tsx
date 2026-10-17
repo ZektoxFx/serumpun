@@ -1,7 +1,12 @@
+import Link from 'next/link';
 import { signOut } from '@/app/(auth)/actions';
+import { EmergencyPopup } from '@/components/app/EmergencyPopup';
 import { HeroChip } from '@/components/app/HeroChip';
 import { LanguageSwitch } from '@/components/app/LanguageSwitch';
 import { DashboardNav } from '@/components/dashboard/DashboardNav';
+import { ResolveEmergency } from '@/components/dashboard/ResolveEmergency';
+import { TimeAgo } from '@/components/ui/TimeAgo';
+import { EMERGENCY_ICON, type EmergencyKind } from '@/lib/domain/emergency';
 import { t } from '@/lib/i18n';
 import { getLang } from '@/lib/i18n/server';
 import { requireManagement } from '@/lib/supabase/auth';
@@ -28,6 +33,23 @@ export default async function DashboardLayout({ children }: LayoutProps<'/dashbo
     supabase.from('resident_notices').select('id', { count: 'exact', head: true }).eq('status', 'sent'),
   ]);
   for (const { error } of [open, waiting, asking, told]) if (error) console.error(`dashboard counts: ${error.message}`); // the menu still works
+  // Emergencies not yet resolved or cancelled, with who sent them and where they live: only the office sees that. They
+  // stay here until resolved, even after they fade from residents' maps at 2 hours.
+  const { data: live, error: liveError } = await supabase
+    .from('emergencies')
+    .select('id, created_by, kind, created_at')
+    .eq('status', 'active')
+    .order('created_at', { ascending: false })
+    .overrideTypes<{ id: string; created_by: string; kind: EmergencyKind; created_at: string }[], { merge: false }>();
+  if (liveError) console.error(`emergencies lookup: ${liveError.message}`);
+  const senders = live?.length
+    ? await Promise.all([
+        supabase.from('profiles').select('id, full_name, neighbourhood').in('id', live.map((e) => e.created_by)),
+        supabase.from('profile_private').select('id, unit_no, phone').in('id', live.map((e) => e.created_by)),
+      ])
+    : null;
+  const sender = new Map(senders?.[0].data?.map((p) => [p.id, p]) ?? []);
+  const home = new Map(senders?.[1].data?.map((p) => [p.id, p]) ?? []);
 
   return (
     <div className="min-h-dvh min-[900px]:flex">
@@ -84,7 +106,35 @@ export default async function DashboardLayout({ children }: LayoutProps<'/dashbo
           </div>
         </div>
       </aside>
-      <div className="min-w-0 flex-1">{children}</div>
+      <div className="min-w-0 flex-1">
+        {live && live.length > 0 && (
+          <section aria-label={t(lang, 'emergency.title')} className="grid gap-px bg-red text-white">
+            {live.map((e) => {
+              const who = sender.get(e.created_by);
+              const where = home.get(e.created_by);
+              return (
+                <div key={e.id} role="alert" className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 sm:px-6">
+                  <p className="min-w-0 flex-1 font-bold">
+                    <span aria-hidden="true">{EMERGENCY_ICON[e.kind]} </span>
+                    <span className="font-extrabold">{e.kind === 'unknown' ? t(lang, 'emergency.title') : t(lang, `emergency.kind.${e.kind}`)}</span>
+                    {' · '}
+                    {[who?.full_name, where?.unit_no, who?.neighbourhood, where?.phone].filter(Boolean).join(' · ')}
+                    {' · '}
+                    <TimeAgo date={e.created_at} />
+                  </p>
+                  <Link href={`/map?emergency=${e.id}`} className="min-h-11 content-center rounded-xl px-3 text-sm font-bold underline focus-visible:outline-white">
+                    {t(lang, 'emergency.showMap')}
+                  </Link>
+                  <ResolveEmergency id={e.id} />
+                </div>
+              );
+            })}
+          </section>
+        )}
+        {children}
+      </div>
+      {/* The office hears of every emergency in the township, and the banner above follows each change. */}
+      <EmergencyPopup townshipId={profile.township_id} home={null} refresh />
     </div>
   );
 }

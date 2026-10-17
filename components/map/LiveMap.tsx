@@ -5,6 +5,7 @@ import './map.css';
 import * as L from 'leaflet';
 import { useEffect, useEffectEvent, useRef, type ReactNode, type RefObject } from 'react';
 import { ALERT_ICON, type AlertType, type Severity } from '@/lib/domain/alerts';
+import { ALERT_RADIUS_M } from '@/lib/domain/emergency';
 import type { LatLng } from '@/lib/domain/geo';
 import { useT } from '@/lib/i18n';
 
@@ -69,6 +70,7 @@ export function LiveMap({
   regionRef,
   walk = null,
   onMapClick = null,
+  emergencies = [],
 }: {
   pins: MapPin[];
   selectedId: string | null;
@@ -86,6 +88,8 @@ export function LiveMap({
   walk?: WalkLines | null;
   /** A tap on the map itself (not a pin): Safe Walk's "tap the map". */
   onMapClick?: ((p: LatLng) => void) | null;
+  /** Live emergencies: each a red circle of the alert radius, and a dot in its middle that says what and when. */
+  emergencies?: (LatLng & { id: string; label: string })[];
 }) {
   const t = useT();
   const map = useRef<L.Map | null>(null);
@@ -98,6 +102,7 @@ export function LiveMap({
   const mapClicked = useEffectEvent((p: LatLng) => onMapClick?.(p));
   const walkLayer = useRef<L.LayerGroup | null>(null);
   const fittedTo = useRef<string | null>(null);
+  const redLayer = useRef<L.LayerGroup | null>(null);
 
   useEffect(() => {
     const m = L.map(regionRef.current!, { zoomControl: false, center: opening.current, zoom: ZOOM });
@@ -202,6 +207,23 @@ export function LiveMap({
       m.fitBounds(line.getBounds(), { paddingTopLeft: [24, 200], paddingBottomRight: [72, 170], maxZoom: 17 });
     }
   }, [walk]);
+
+  // Emergencies, drawn again whenever they change: the circle lets taps through to the pins under it.
+  const redKey = emergencies.map((e) => `${e.id} ${e.label}`).join('|');
+  useEffect(() => {
+    const m = map.current;
+    if (!m) return;
+    redLayer.current?.remove();
+    const group = L.layerGroup().addTo(m);
+    for (const e of emergencies) {
+      L.circle(e, { radius: ALERT_RADIUS_M, color: '#D51A21', weight: 2, fillColor: '#D51A21', fillOpacity: 0.12, interactive: false }).addTo(group);
+      L.circleMarker(e, { radius: 10, color: '#FFFFFF', weight: 3, fillColor: '#D51A21', fillOpacity: 1 })
+        .bindTooltip(`🚨 ${e.label}`, { direction: 'top', offset: [0, -10] })
+        .addTo(group);
+    }
+    redLayer.current = group;
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- redKey stands for the list, which is a new array each render
+  }, [redKey]);
 
   const zoomBy = (step: number) => {
     moved.current = true;

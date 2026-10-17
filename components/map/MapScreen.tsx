@@ -17,6 +17,7 @@ import {
   type AlertType,
   type PublicAlert,
 } from '@/lib/domain/alerts';
+import { EMERGENCY_ICON, PUBLIC_EMERGENCY_COLUMNS, type PublicEmergency } from '@/lib/domain/emergency';
 import { formatDistance, resolveStartLocation, type LatLng } from '@/lib/domain/geo';
 import { timeAgo } from '@/lib/domain/time';
 import { useLang, useT } from '@/lib/i18n';
@@ -67,6 +68,7 @@ export function MapScreen({
   centre,
   canPost,
   initialAlerts,
+  initialEmergencies,
   home,
   places,
   walkTo,
@@ -77,6 +79,8 @@ export function MapScreen({
   /** Verified residents post and vote; pending ones browse. */
   canPost: boolean;
   initialAlerts: PublicAlert[];
+  /** Live emergencies: a red 2 km circle each (/map?emergency=<id> opens on one). */
+  initialEmergencies: PublicEmergency[];
   /** The centre of the resident's neighbourhood: where Safe Walk sets off without a GPS fix in the township. */
   home: LatLng | null;
   /** Safe Walk's places. */
@@ -89,14 +93,19 @@ export function MapScreen({
   const params = useSearchParams();
   // Home's "Happening now" links its alert as /map?alert=<id>: the map opens on that pin with its sheet up.
   const linked = initialAlerts.find((a) => a.id === params.get('alert')) ?? null;
+  // An emergency's bell notification, phone alert or popup links it as /map?emergency=<id>: the map opens on it.
+  const linkedEmergency = initialEmergencies.find((e) => e.id === params.get('emergency')) ?? null;
   const [alerts, setAlerts] = useState(initialAlerts);
+  const [emergencies, setEmergencies] = useState(initialEmergencies);
   const [now, setNow] = useState(() => new Date());
   const [fix, setFix] = useState<LatLng | null>(null);
   const [view, setView] = useState(centre);
   const [selectedId, setSelectedId] = useState<string | null>(linked?.id ?? null);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [query, setQuery] = useState('');
-  const [focus, setFocus] = useState<LatLng | null>(linked && { lat: linked.lat, lng: linked.lng });
+  const [focus, setFocus] = useState<LatLng | null>(
+    (linked && { lat: linked.lat, lng: linked.lng }) ?? (linkedEmergency && { lat: linkedEmergency.lat, lng: linkedEmergency.lng }),
+  );
   const [toast, setToast] = useState<{ text: string; focusMap?: boolean } | null>(null);
   const [filters, setFilters] = useMapFilters();
   const mapRegion = useRef<HTMLDivElement>(null);
@@ -111,7 +120,7 @@ export function MapScreen({
   // The + menu's "Drop a map alert" lands on /map?drop=1. The parameter is consumed at once, so a reload does not reopen
   // the sheet and the next tap on that menu item (from this page too) opens it again.
   const wantsDrop = params.get('drop') === '1';
-  const hasLink = params.has('alert') || params.has('walkTo');
+  const hasLink = params.has('alert') || params.has('walkTo') || params.has('emergency');
   const [dropOpen, setDropOpen] = useState(wantsDrop);
   const [seenDrop, setSeenDrop] = useState(wantsDrop);
   if (wantsDrop !== seenDrop) {
@@ -122,7 +131,7 @@ export function MapScreen({
   useEffect(() => {
     if (!wantsDrop && !hasLink) return;
     const url = new URL(window.location.href);
-    for (const name of ['drop', 'alert', 'walkTo']) url.searchParams.delete(name); // only these: any other parameter stays
+    for (const name of ['drop', 'alert', 'walkTo', 'emergency']) url.searchParams.delete(name); // only these: any other parameter stays
     // Through the router, not history.replaceState: during the first render the router would keep its old drop=1.
     router.replace(url.pathname + url.search, { scroll: false });
   }, [wantsDrop, hasLink, router]);
@@ -166,17 +175,18 @@ export function MapScreen({
   const latest = useRef(0);
   async function load() {
     const ticket = ++latest.current;
-    const { data, error } = await createBrowserClient()
-      .from('public_alerts')
-      .select(PUBLIC_ALERT_COLUMNS)
-      .overrideTypes<PublicAlert[], { merge: false }>();
-    if (error) {
-      console.error(`alerts were not refreshed: ${error.message}`);
-      return; // the pins already shown stay
-    }
-    if (ticket === latest.current) setAlerts(data); // an older, slower answer never replaces a newer one
+    const supabase = createBrowserClient();
+    const [pins, red] = await Promise.all([
+      supabase.from('public_alerts').select(PUBLIC_ALERT_COLUMNS).overrideTypes<PublicAlert[], { merge: false }>(),
+      supabase.from('public_emergencies').select(PUBLIC_EMERGENCY_COLUMNS).overrideTypes<PublicEmergency[], { merge: false }>(),
+    ]);
+    if (ticket !== latest.current) return; // an older, slower answer never replaces a newer one
+    if (pins.error) console.error(`alerts were not refreshed: ${pins.error.message}`); // the pins already shown stay
+    else setAlerts(pins.data);
+    if (red.error) console.error(`emergencies were not refreshed: ${red.error.message}`);
+    else setEmergencies(red.data);
   }
-  useTownshipEvents(townshipId, ['alerts', 'alert_votes'], load);
+  useTownshipEvents(townshipId, ['alerts', 'alert_votes', 'emergencies'], load);
 
   // A fix far from the township (a visitor in KL) is not "near you": no blue dot, no distances.
   const me = fix && resolveStartLocation(fix, centre) === fix ? fix : null;
@@ -190,6 +200,9 @@ export function MapScreen({
     setToast({ text: t('map.error.notActive'), focusMap: true });
   }
 
+  // "Fire · reported 3 min ago": what the sender said it is (or just Emergency), and since when.
+  const emergencyLabel = (e: PublicEmergency) =>
+    `${e.kind === 'unknown' ? t('emergency.title') : t(`emergency.kind.${e.kind}`)} · ${t('emergency.reported', { ago: timeAgo(new Date(e.created_at), now, lang) })}`;
   const pinLabel = (a: PublicAlert) => {
     const what = { type: typeLabel(a.type), severity: t(`severity.${a.severity}`) };
     if (a.is_official) return t('map.pin.official', what);
@@ -242,6 +255,18 @@ export function MapScreen({
 
       {/* Before the map in the page, as on screen: keyboard users reach the search and filters first. */}
       <div className="pointer-events-none absolute inset-x-0 top-0 z-10 mx-auto grid max-w-md gap-2 p-3">
+        {/* What the red circles are, above everything else on the map. */}
+        {emergencies.length > 0 && (
+          <p role="status" className="pointer-events-auto flex items-center justify-between gap-2 rounded-2xl bg-red px-3 py-2 text-sm font-bold text-white shadow-md">
+            <span>
+              <span aria-hidden="true">{EMERGENCY_ICON[emergencies[0].kind]} </span>
+              {emergencyLabel(emergencies[0])}
+            </span>
+            <a href="tel:999" className="shrink-0 rounded-xl bg-white px-3 py-1.5 font-extrabold text-red focus-visible:outline-white">
+              {t('emergency.call')}
+            </a>
+          </p>
+        )}
         <form
           role="search"
           onSubmit={(event) => {
@@ -355,6 +380,7 @@ export function MapScreen({
         regionRef={mapRegion}
         walk={walkLines}
         onMapClick={picking ? (p) => startWalk({ ...p, label: t('walk.pinned'), icon: '📍' }) : null}
+        emergencies={emergencies.map((e) => ({ id: e.id, lat: e.lat, lng: e.lng, label: emergencyLabel(e) }))}
       />
 
       {/* Safe Walk's card takes this corner while walking. */}

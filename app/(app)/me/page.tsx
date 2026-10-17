@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { signOut } from '@/app/(auth)/actions';
 import { HeroChip } from '@/components/app/HeroChip';
 import { LanguageSwitch } from '@/components/app/LanguageSwitch';
+import { PushAlerts } from '@/components/app/PushAlerts';
 import { TextSizeSwitch } from '@/components/app/TextSizeSwitch';
 import { ThemeSwitch } from '@/components/app/ThemeSwitch';
 import { Avatar } from '@/components/ui/Avatar';
@@ -135,6 +136,16 @@ export default async function MePage() {
               {t(lang, 'me.darkMode')}
             </label>
             <ThemeSwitch id="dark-mode" />
+          </li>
+
+          <li className="grid gap-2 px-4 py-3">
+            <span className="flex items-center gap-3 text-base font-bold">
+              <span aria-hidden="true" className={rowIcon}>
+                🚨
+              </span>
+              {t(lang, 'alerts.title')}
+            </span>
+            <PushAlerts />
           </li>
 
           <li className="grid gap-2 px-4 py-3">
