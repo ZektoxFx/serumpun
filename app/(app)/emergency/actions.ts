@@ -24,7 +24,8 @@ function failed(rpc: string, error: { message: string }): EmergencyResult {
  * neighbour within 2 km (bell and phone). Tapping again while it is live gives the same one back and alerts nobody twice.
  */
 export async function raiseEmergency(place: LatLng): Promise<EmergencyResult> {
-  const profile = await requireVerified();
+  // Not requireVerified: its redirect would leave a pending resident's sheet on "Sending"; raise_emergency says not_verified.
+  const profile = await requireMember();
   const supabase = await createClient();
   const { data, error } = await supabase.rpc('raise_emergency', { p_lat: place.lat, p_lng: place.lng });
   if (error) return failed('raise_emergency', error);
