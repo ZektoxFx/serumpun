@@ -1073,6 +1073,27 @@ const ms: Record<keyof typeof en, string> = {
   'more.edit.save': 'Simpan',
   'more.edit.saving': 'Menyimpan…',
   'more.edit.reset': 'Tetapkan semula',
+
+  // Kawasan parkir (maklum balas pusingan 2)
+  'parking.subtitle': 'Mal Sime Darby Property',
+  'parking.rate': 'RM{first} {hours} jam pertama, kemudian RM{next} sejam',
+  'parking.tax': 'tambah cukai perkhidmatan {n}%',
+  'parking.sample': 'Contoh',
+  'parking.away': '{distance} dari sini',
+  'parking.hours': 'Dibuka setiap hari 10 pagi – 10 malam',
+  'parking.mapCredit': 'Peta tempat letak kereta © Sime Darby Property',
+  'parking.mapAlt': 'Peta mal dan tempat letak keretanya',
+  'parking.option.pay.hint': 'Masukkan nombor plat dan bayar',
+  'parking.option.rates': 'Kadar',
+  'parking.option.free': 'Parkir percuma',
+  'parking.option.valet': 'Valet',
+  'parking.option.ev': 'Pengecasan EV',
+  'parking.option.directions': 'Arah',
+  'parking.option.directory.hint': 'Cari kedai pada pelan susun atur',
+  'mall.elmina.valet': 'Di pintu masuk utama; bayaran dikenakan',
+  'mall.elmina.free': 'Zon Luar A & B, betul-betul di luar mal',
+  'mall.elmina.ev': 'ChargEV · 16 pengecas pantas (DC)',
+  'mall.klEast.valet': 'RM18 4 jam pertama (Isn–Kha) atau RM23 (Jum–Ahd, cuti umum), kemudian RM2 sejam',
 };
 
 export default ms;

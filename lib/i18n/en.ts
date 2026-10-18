@@ -1072,6 +1072,27 @@ const en = {
   'more.edit.save': 'Save',
   'more.edit.saving': 'Saving…',
   'more.edit.reset': 'Reset to default',
+
+  // Parking areas (feedback round 2)
+  'parking.subtitle': 'Sime Darby Property malls',
+  'parking.rate': 'RM{first} first {hours} hours, then RM{next} an hour',
+  'parking.tax': 'plus {n}% service tax',
+  'parking.sample': 'Sample',
+  'parking.away': '{distance} away',
+  'parking.hours': 'Open daily 10 am – 10 pm',
+  'parking.mapCredit': 'Car park map © Sime Darby Property',
+  'parking.mapAlt': 'Map of the mall and its car parks',
+  'parking.option.pay.hint': 'Enter your plate and pay',
+  'parking.option.rates': 'Rates',
+  'parking.option.free': 'Free parking',
+  'parking.option.valet': 'Valet',
+  'parking.option.ev': 'EV charging',
+  'parking.option.directions': 'Directions',
+  'parking.option.directory.hint': 'Find a shop on the layout plan',
+  'mall.elmina.valet': 'At the main entrance; charges apply',
+  'mall.elmina.free': 'Outdoor Zones A & B, just outside the mall',
+  'mall.elmina.ev': 'ChargEV · 16 fast (DC) chargers',
+  'mall.klEast.valet': 'RM18 first 4 hours (Mon–Thu) or RM23 (Fri–Sun, public holidays), then RM2 an hour',
 } satisfies Record<string, string>;
 
 export default en;
