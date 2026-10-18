@@ -178,6 +178,7 @@ export async function seedPeople(admin: SupabaseClient, now: Date): Promise<Peop
       role: person.role ?? 'resident',
       status: person.status,
       lang: 'en',
+      favourites: null, // Home's default favourites again
       created_at: new Date(now.getTime() - person.joinedDaysAgo * DAY).toISOString(),
     })),
   );

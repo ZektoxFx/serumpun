@@ -28,18 +28,59 @@ export const CREATE_ACTIONS = [
   { href: '/community/events/new', label: 'create.event', icon: '📅' },
 ] as const satisfies readonly IconEntry[];
 
-/** The eight Home tiles (brainstorm mockup "A · Tiles first"). */
-export const HOME_TILES = [
-  // The map has its own tab in the bottom bar; this tile tells the office about renovation, moving day and the like.
-  { href: '/notices/new', label: 'home.tile.notify', icon: '📝' },
-  { href: '/book', label: 'home.tile.book', icon: '🏟️' },
-  { href: '/community?tab=events', label: 'community.tab.events', icon: '📅' },
-  { href: '/community?tab=groups', label: 'community.tab.groups', icon: '👥' },
-  { href: '/community?tab=services', label: 'community.tab.services', icon: '🧑‍🏫' },
-  { href: '/community?tab=share', label: 'community.tab.share', icon: '🔁' },
-  { href: '/rewards', label: 'home.tile.rewards', icon: '🎁' },
-  { href: '/reports', label: 'home.tile.issues', icon: '📋' },
-] as const satisfies readonly IconEntry[];
+// Home's favourites and More (feedback round 2, like Touch 'n Go): every service a resident can pin to Home, in More's
+// groups and order. A saved favourite is just its key, so renaming a page never breaks anyone's Home.
+export type ServiceKey =
+  | 'report' | 'issues' | 'notify' | 'facilities' | 'map'
+  | 'groups' | 'events' | 'services' | 'share' | 'messages'
+  | 'pay-parking' | 'parking' | 'mall' | 'rewards';
+export type ServiceGroup = 'township' | 'community' | 'mall';
+export type Service = IconEntry & { key: ServiceKey; group: ServiceGroup };
+
+export const SERVICES: readonly Service[] = [
+  { key: 'report', href: '/reports/new', label: 'create.report', icon: '❗', group: 'township' },
+  { key: 'issues', href: '/reports', label: 'home.tile.issues', icon: '📋', group: 'township' },
+  { key: 'notify', href: '/notices/new', label: 'home.tile.notify', icon: '📝', group: 'township' },
+  { key: 'facilities', href: '/book', label: 'home.tile.book', icon: '🏟️', group: 'township' },
+  { key: 'map', href: '/map', label: 'nav.map', icon: '🗺️', group: 'township' },
+  { key: 'groups', href: '/community?tab=groups', label: 'community.tab.groups', icon: '👥', group: 'community' },
+  { key: 'events', href: '/community?tab=events', label: 'community.tab.events', icon: '📅', group: 'community' },
+  { key: 'services', href: '/community?tab=services', label: 'community.tab.services', icon: '🧑‍🏫', group: 'community' },
+  { key: 'share', href: '/community?tab=share', label: 'community.tab.share', icon: '🔁', group: 'community' },
+  { key: 'messages', href: '/messages', label: 'service.messages', icon: '💬', group: 'community' },
+  { key: 'pay-parking', href: '/parking/pay', label: 'service.payParking', icon: '🅿️', group: 'mall' },
+  { key: 'parking', href: '/parking', label: 'service.parking', icon: '🚗', group: 'mall' },
+  { key: 'mall', href: '/malls/elmina-lakeside-mall', label: 'service.mall', icon: '🏬', group: 'mall' },
+  { key: 'rewards', href: '/rewards', label: 'home.tile.rewards', icon: '🎁', group: 'mall' },
+];
+export const SERVICE_GROUPS: readonly ServiceGroup[] = ['township', 'community', 'mall'];
+
+/** Home before a resident edits it. Issue Board and Share & Lend wait in More; Report an issue has its own button. */
+export const DEFAULT_FAVOURITES: readonly ServiceKey[] = ['pay-parking', 'notify', 'facilities', 'events', 'groups', 'services', 'rewards'];
+/** Seven, and More as the eighth: Home stays two rows. */
+export const MAX_FAVOURITES = 7;
+/** Marked NEW on Home and More (this round's additions). */
+export const NEW_SERVICES: readonly ServiceKey[] = ['pay-parking', 'parking', 'mall'];
+
+/** The resident's favourites in their order: the defaults when never saved; unknown and repeated keys skipped; at most 7. */
+export function resolveFavourites(saved: readonly string[] | null): Service[] {
+  const favourites: Service[] = [];
+  for (const key of saved ?? DEFAULT_FAVOURITES) {
+    const service = SERVICES.find((s) => s.key === key);
+    if (service && !favourites.includes(service)) favourites.push(service);
+    if (favourites.length === MAX_FAVOURITES) break;
+  }
+  return favourites;
+}
+
+/** A copy of `list` with the item at `from` moved to `to`; unchanged when either is out of range. */
+export function moveItem<T>(list: readonly T[], from: number, to: number): T[] {
+  const moved = [...list];
+  if (from < 0 || from >= list.length || to < 0 || to >= list.length) return moved;
+  const [item] = moved.splice(from, 1);
+  moved.splice(to, 0, item);
+  return moved;
+}
 
 /** The "my stuff" rows on Me. Each owning task answers to `view=mine`. */
 export const ME_LINKS = [

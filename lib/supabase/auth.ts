@@ -15,6 +15,8 @@ export type SessionProfile = {
   status: 'pending' | 'verified' | 'rejected';
   lang: Lang;
   township: { name: string; centre_lat: number; centre_lng: number };
+  /** Home's favourites as service keys (lib/domain/nav.ts); null until the resident edits them. */
+  favourites: string[] | null;
 };
 
 /** Where a signed-in user belongs: the dashboard, the rejection notice for a rejected applicant, or Home. */
@@ -36,7 +38,7 @@ export const getSessionProfile = cache(async (): Promise<SessionProfile | null> 
   if (!userId) return null;
   const { data: profile, error } = await supabase
     .from('profiles')
-    .select('id, township_id, full_name, neighbourhood, role, status, lang, township:townships(name, centre_lat, centre_lng)')
+    .select('id, township_id, full_name, neighbourhood, role, status, lang, favourites, township:townships(name, centre_lat, centre_lng)')
     .eq('id', userId)
     .maybeSingle()
     // PostgREST sends a to-one embed as an object; without generated schema types the client guesses an array.

@@ -1046,6 +1046,33 @@ const ms: Record<keyof typeof en, string> = {
   'help.terms.hint': 'Terma penggunaan dan privasi',
   'help.terms.updated': 'Kemas kini terakhir {date}',
   'signup.agree': 'Dengan mendaftar, anda bersetuju dengan',
+
+  // Kegemaran Utama, Lagi dan Sunting (maklum balas pusingan 2)
+  'service.messages': 'Mesej',
+  'service.payParking': 'Bayar parkir',
+  'service.parking': 'Kawasan parkir',
+  'service.mall': 'Direktori mal',
+  'service.new': 'BARU',
+  'home.favourites': 'Kegemaran saya',
+  'home.favourites.edit': 'Sunting',
+  'home.more': 'Lagi',
+  'more.title': 'Semua perkhidmatan',
+  'more.group.township': 'Kejiranan',
+  'more.group.community': 'Komuniti',
+  'more.group.mall': 'Mal & parkir',
+  'more.edit.title': 'Sunting kegemaran',
+  'more.edit.count': 'Kegemaran saya · {n} daripada 7',
+  'more.edit.hint': 'Tekan dan seret butang untuk mengalihkannya, atau ketik untuk mengalihkannya dengan butang.',
+  'more.edit.empty': 'Belum ada kegemaran. Tambah di bawah.',
+  'more.edit.add': 'Tambah ke kegemaran',
+  'more.edit.full': 'Penuh? Buang satu dahulu.',
+  'more.edit.remove': 'Buang {name}',
+  'more.edit.addOne': 'Tambah {name}',
+  'more.edit.moveEarlier': 'Alih ke depan',
+  'more.edit.moveLater': 'Alih ke belakang',
+  'more.edit.save': 'Simpan',
+  'more.edit.saving': 'Menyimpan…',
+  'more.edit.reset': 'Tetapkan semula',
 };
 
 export default ms;

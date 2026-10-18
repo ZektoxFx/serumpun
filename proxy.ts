@@ -5,7 +5,7 @@ import { env } from '@/lib/env';
 // Signed-in only. Matched on whole path segments, so '/me' never swallows '/media'.
 const SIGNED_IN_ONLY = [
   '/home', '/map', '/community', '/reports', '/book', '/rewards', '/me', '/messages', '/notifications', '/dashboard',
-  '/checkin', '/notices',
+  '/checkin', '/notices', '/more', '/parking', '/malls',
 ];
 
 export async function proxy(request: NextRequest) {

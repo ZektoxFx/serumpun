@@ -1,4 +1,5 @@
-import { CREATE_ACTIONS, HELP_LINKS, HOME_TILES, ME_LINKS, TABS, isActiveTab } from '@/lib/domain/nav';
+import { CREATE_ACTIONS, HELP_LINKS, ME_LINKS, SERVICES, TABS, isActiveTab, moveItem, resolveFavourites } from '@/lib/domain/nav';
+import { t } from '@/lib/i18n/core';
 
 describe('isActiveTab', () => {
   it('is active on its own page and on anything below it', () => {
@@ -37,17 +38,23 @@ describe('route contracts', () => {
     ]);
   });
 
-  it('the eight Home tiles', () => {
-    expect(HOME_TILES.map((tile) => tile.href)).toEqual([
-      '/notices/new', // the map has its own tab (feedback, 17 Oct)
-      '/book',
-      '/community?tab=events',
-      '/community?tab=groups',
-      '/community?tab=services',
-      '/community?tab=share',
-      '/rewards',
-      '/reports',
-    ]);
+  it('every service and where it goes (Home favourites and More)', () => {
+    expect(Object.fromEntries(SERVICES.map((s) => [s.key, s.href]))).toEqual({
+      report: '/reports/new',
+      issues: '/reports',
+      notify: '/notices/new',
+      facilities: '/book',
+      map: '/map',
+      groups: '/community?tab=groups',
+      events: '/community?tab=events',
+      services: '/community?tab=services',
+      share: '/community?tab=share',
+      messages: '/messages',
+      'pay-parking': '/parking/pay',
+      parking: '/parking',
+      mall: '/malls/elmina-lakeside-mall',
+      rewards: '/rewards',
+    });
   });
 
   it('the "my stuff" rows on Me', () => {
@@ -63,5 +70,29 @@ describe('route contracts', () => {
 
   it('the help pages', () => {
     expect(HELP_LINKS.map((l) => l.href)).toEqual(['/help/guidelines', '/help/rules', '/help/faq', '/help/terms']);
+  });
+});
+
+describe('Home favourites', () => {
+  it('starts with the default seven', () => {
+    expect(resolveFavourites(null).map((s) => s.key)).toEqual(['pay-parking', 'notify', 'facilities', 'events', 'groups', 'services', 'rewards']);
+  });
+
+  it('skips unknown and repeated keys and keeps at most 7', () => {
+    expect(resolveFavourites(['map', 'gone', 'map', 'rewards']).map((s) => s.key)).toEqual(['map', 'rewards']);
+    expect(resolveFavourites(SERVICES.map((s) => s.key))).toHaveLength(7);
+    expect(resolveFavourites([])).toEqual([]);
+  });
+
+  it('moves an item, and leaves the list alone for a move out of range', () => {
+    expect(moveItem(['a', 'b', 'c', 'd'], 0, 2)).toEqual(['b', 'c', 'a', 'd']);
+    expect(moveItem(['a', 'b', 'c'], 2, 0)).toEqual(['c', 'a', 'b']);
+    expect(moveItem(['a', 'b'], 1, 5)).toEqual(['a', 'b']);
+  });
+
+  it('keeps every word of a service label short enough for a tile in both languages', () => {
+    for (const s of SERVICES)
+      for (const lang of ['en', 'ms'] as const)
+        for (const word of t(lang, s.label).split(/\s+/)) expect(word.length, `${s.key} (${lang}): ${word}`).toBeLessThanOrEqual(12);
   });
 });

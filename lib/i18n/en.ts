@@ -1045,6 +1045,33 @@ const en = {
   'help.terms.hint': 'Terms of use and privacy',
   'help.terms.updated': 'Last updated {date}',
   'signup.agree': 'By signing up you agree to the',
+
+  // Home favourites, More and Edit (feedback round 2)
+  'service.messages': 'Messages',
+  'service.payParking': 'Pay parking',
+  'service.parking': 'Parking areas',
+  'service.mall': 'Mall directory',
+  'service.new': 'NEW',
+  'home.favourites': 'My favourites',
+  'home.favourites.edit': 'Edit',
+  'home.more': 'More',
+  'more.title': 'All services',
+  'more.group.township': 'Township',
+  'more.group.community': 'Community',
+  'more.group.mall': 'Mall & parking',
+  'more.edit.title': 'Edit favourites',
+  'more.edit.count': 'My favourites · {n} of 7',
+  'more.edit.hint': 'Hold and drag a button to move it, or tap it to move it with buttons.',
+  'more.edit.empty': 'No favourites yet. Add some below.',
+  'more.edit.add': 'Add to favourites',
+  'more.edit.full': 'Full? Take one off first.',
+  'more.edit.remove': 'Remove {name}',
+  'more.edit.addOne': 'Add {name}',
+  'more.edit.moveEarlier': 'Move earlier',
+  'more.edit.moveLater': 'Move later',
+  'more.edit.save': 'Save',
+  'more.edit.saving': 'Saving…',
+  'more.edit.reset': 'Reset to default',
 } satisfies Record<string, string>;
 
 export default en;

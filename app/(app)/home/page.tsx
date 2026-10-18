@@ -5,7 +5,7 @@ import { HappeningNow } from '@/components/app/HappeningNow';
 import { HeroChip } from '@/components/app/HeroChip';
 import { Tile } from '@/components/app/Tile';
 import { OpenGames } from '@/components/book/OpenGames';
-import { HOME_TILES } from '@/lib/domain/nav';
+import { NEW_SERVICES, resolveFavourites } from '@/lib/domain/nav';
 import { formatPoints } from '@/lib/domain/points';
 import { firstName, statusKey } from '@/lib/domain/profile';
 import { greetingKey } from '@/lib/domain/time';
@@ -60,13 +60,31 @@ export default async function HomePage() {
           </span>
         </Link>
 
-        <ul className="grid grid-cols-4 gap-2">
-          {HOME_TILES.map((tile) => (
-            <li key={tile.href} className="flex">
-              <Tile href={tile.href} icon={tile.icon} label={t(lang, tile.label)} />
+        <section aria-labelledby="favourites-heading" className="grid gap-1">
+          <div className="flex items-center justify-between px-1">
+            <h2 id="favourites-heading" className="text-base font-extrabold">
+              {t(lang, 'home.favourites')}
+            </h2>
+            <Link href="/more/edit" aria-label={t(lang, 'more.edit.title')} className="min-h-11 content-center px-2 text-sm font-bold text-red-text">
+              {t(lang, 'home.favourites.edit')}
+            </Link>
+          </div>
+          <ul className="grid grid-cols-4 gap-2">
+            {resolveFavourites(profile.favourites).map((service) => (
+              <li key={service.key} className="flex">
+                <Tile
+                  href={service.href}
+                  icon={service.icon}
+                  label={t(lang, service.label)}
+                  badge={NEW_SERVICES.includes(service.key) ? t(lang, 'service.new') : undefined}
+                />
+              </li>
+            ))}
+            <li className="flex">
+              <Tile href="/more" icon="" label={t(lang, 'home.more')} more />
             </li>
-          ))}
-        </ul>
+          </ul>
+        </section>
 
         <HappeningNow profile={profile} lang={lang} />
         <OpenGames profile={profile} lang={lang} limit={3} />
