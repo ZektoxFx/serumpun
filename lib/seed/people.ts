@@ -187,6 +187,9 @@ export async function seedPeople(admin: SupabaseClient, now: Date): Promise<Peop
     .from('profile_private')
     .upsert(people.filter(([, person]) => person.unit).map(([key, person]) => ({ id: ids[key], unit_no: person.unit })));
   if (privateError) throw new Error(`profile_private: ${privateError.message}`);
+  // Pay parking: Aisyah's car is saved, so the demo is one tap.
+  const { error: carError } = await admin.from('vehicles').insert({ user_id: ids.aisyah, plate: 'WXY 1234' });
+  if (carError) throw new Error(`vehicles: ${carError.message}`);
 
   console.log(`people: ${created} created, ${people.length - created} already there, ${removed} visitor accounts deleted`);
   return { townshipId, ids };

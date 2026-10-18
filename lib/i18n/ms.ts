@@ -1094,6 +1094,30 @@ const ms: Record<keyof typeof en, string> = {
   'mall.elmina.free': 'Zon Luar A & B, betul-betul di luar mal',
   'mall.elmina.ev': 'ChargEV · 16 pengecas pantas (DC)',
   'mall.klEast.valet': 'RM18 4 jam pertama (Isn–Kha) atau RM23 (Jum–Ahd, cuti umum), kemudian RM2 sejam',
+
+  // Bayar parkir (maklum balas pusingan 2; demo)
+  'parking.pay.pickMall': 'Anda meletak kereta di mal mana?',
+  'parking.pay.plate': 'Nombor plat kereta',
+  'parking.pay.saved': 'Kereta anda:',
+  'parking.pay.check': 'Semak jumlah',
+  'parking.pay.demo': 'Demo: tiada wang sebenar dicaj',
+  'parking.pay.entered': 'Masuk {time} · diletak {h} j {m} min',
+  'parking.pay.tax': 'termasuk cukai perkhidmatan {n}%',
+  'parking.pay.with': 'Bayar dengan',
+  'parking.pay.method.duitnow_qr': 'DuitNow QR',
+  'parking.pay.method.fpx': 'Perbankan dalam talian (FPX)',
+  'parking.pay.method.apple_pay': 'Apple Pay',
+  'parking.pay.method.google_pay': 'Google Pay',
+  'parking.pay.pay': 'Bayar {amount}',
+  'parking.pay.processing': 'Sedang diproses…',
+  'parking.pay.thanks': 'Terima kasih!',
+  'parking.pay.exitIn': 'Anda mempunyai {n} minit untuk keluar dari tempat letak kereta.',
+  'parking.pay.exitBy': 'Keluar sebelum {time} · Dibayar {amount} dengan {method}',
+  'parking.pay.ref': 'Rujukan {ref}',
+  'parking.pay.done': 'Selesai',
+  'parking.pay.alreadyPaid': 'Sudah dibayar · keluar sebelum {time}',
+  'parking.error.plate': 'Masukkan nombor plat seperti WXY 1234.',
+  'parking.error.alreadyPaid': 'Parkir ini sudah dibayar.',
 };
 
 export default ms;

@@ -1093,6 +1093,30 @@ const en = {
   'mall.elmina.free': 'Outdoor Zones A & B, just outside the mall',
   'mall.elmina.ev': 'ChargEV · 16 fast (DC) chargers',
   'mall.klEast.valet': 'RM18 first 4 hours (Mon–Thu) or RM23 (Fri–Sun, public holidays), then RM2 an hour',
+
+  // Pay parking (feedback round 2; a demo)
+  'parking.pay.pickMall': 'Which mall are you parked at?',
+  'parking.pay.plate': 'Car plate number',
+  'parking.pay.saved': 'Your cars:',
+  'parking.pay.check': 'Check amount',
+  'parking.pay.demo': 'Demo: no real money is charged',
+  'parking.pay.entered': 'Entered {time} · parked {h} h {m} min',
+  'parking.pay.tax': 'incl. {n}% service tax',
+  'parking.pay.with': 'Pay with',
+  'parking.pay.method.duitnow_qr': 'DuitNow QR',
+  'parking.pay.method.fpx': 'Online banking (FPX)',
+  'parking.pay.method.apple_pay': 'Apple Pay',
+  'parking.pay.method.google_pay': 'Google Pay',
+  'parking.pay.pay': 'Pay {amount}',
+  'parking.pay.processing': 'Processing…',
+  'parking.pay.thanks': 'Thank you!',
+  'parking.pay.exitIn': 'You have {n} minutes to exit the parking lot.',
+  'parking.pay.exitBy': 'Exit by {time} · Paid {amount} with {method}',
+  'parking.pay.ref': 'Ref {ref}',
+  'parking.pay.done': 'Done',
+  'parking.pay.alreadyPaid': 'Already paid · exit by {time}',
+  'parking.error.plate': 'Enter a car plate like WXY 1234.',
+  'parking.error.alreadyPaid': 'This parking is already paid.',
 } satisfies Record<string, string>;
 
 export default en;
