@@ -12,9 +12,9 @@ const BOUNDS = L.latLngBounds([-PLAN.height, 0], [0, PLAN.width]);
 
 /**
  * SDP's layout plan of Elmina Lakeside Mall as a pinch-zoom, pan map (as SDP's own site does), with red pins for `pins`,
- * moving to `focus` when it changes. Client only: the directory loads it with next/dynamic.
+ * framed whenever they change. Client only: the directory loads it with next/dynamic.
  */
-export default function MallPlan({ pins, focus }: { pins: { point: Point; label: string }[]; focus: Point | null }) {
+export default function MallPlan({ pins }: { pins: { point: Point; label: string }[] }) {
   const t = useT();
   const box = useRef<HTMLDivElement>(null);
   const map = useRef<L.Map | null>(null);
@@ -45,14 +45,12 @@ export default function MallPlan({ pins, focus }: { pins: { point: Point; label:
         .bindTooltip(label, { permanent: true, direction: 'top', offset: [0, -9] })
         .addTo(group);
     }
-  }, [pins]);
-
-  useEffect(() => {
     const m = map.current;
-    if (!focus || !m) return;
+    if (!m || pins.length === 0) return;
+    // Frame every pin (a shop's one, or all four toilets), zoomed in at least to -1 unless the resident zoomed further.
     const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    m.setView(at(focus), Math.max(m.getZoom(), -1), { animate: !still });
-  }, [focus]);
+    m.fitBounds(L.latLngBounds(pins.map((pin) => at(pin.point))).pad(0.3), { maxZoom: Math.max(m.getZoom(), -1), animate: !still });
+  }, [pins]);
 
   return <div ref={box} role="region" aria-label={t('mall.planLabel')} className="isolate aspect-[3/2] w-full overflow-hidden rounded-2xl border border-line bg-white" />;
 }

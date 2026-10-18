@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useId, useRef, useState } from 'react';
+import { useId, useMemo, useRef, useState } from 'react';
 import { ELMINA_SHOPS, FACILITIES, SHOP_CATEGORIES, searchShops, shopPin, type FacilityKind, type Point, type ShopCategory } from '@/lib/domain/mallDirectory';
 import { useT } from '@/lib/i18n';
 
@@ -22,15 +22,14 @@ export function MallDirectory() {
   const [chosen, setChosen] = useState<string | null>(null);
   const [facility, setFacility] = useState<FacilityKind | null>(null);
   const shops = searchShops(ELMINA_SHOPS, query, category);
-  const shop = ELMINA_SHOPS.find((s) => s.name === chosen) ?? null;
-  const spot = shop && shopPin(shop);
-  const place = FACILITIES.find((f) => f.kind === facility);
-  const pins: { point: Point; label: string }[] = spot
-    ? [{ point: spot, label: shop.name }]
-    : place
-      ? place.points.map((point) => ({ point, label: place.icon })) // the chip names it; full labels on 4 toilets overlap
-      : [];
-  const focus = spot ?? place?.points[0] ?? null;
+  // Kept between renders: the plan moves to its pins only when they change, not on every keystroke.
+  const pins = useMemo((): { point: Point; label: string }[] => {
+    const shop = ELMINA_SHOPS.find((s) => s.name === chosen);
+    const spot = shop && shopPin(shop);
+    if (spot) return [{ point: spot, label: shop.name }];
+    const place = FACILITIES.find((f) => f.kind === facility);
+    return place ? place.points.map((point) => ({ point, label: place.icon })) : []; // the chip names it; full labels on 4 toilets overlap
+  }, [chosen, facility]);
   const show = () => plan.current?.scrollIntoView({ block: 'start', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
 
   return (
@@ -55,7 +54,7 @@ export function MallDirectory() {
       </div>
 
       <div ref={plan} className="grid scroll-mt-20 gap-1">
-        <MallPlan pins={pins} focus={focus} />
+        <MallPlan pins={pins} />
         <p className="px-1 text-xs text-muted-2">{t('mall.planCredit')}</p>
       </div>
 
@@ -68,13 +67,13 @@ export function MallDirectory() {
             <button
               key={f.kind}
               type="button"
-              aria-pressed={facility === f.kind && !shop}
+              aria-pressed={facility === f.kind}
               onClick={() => {
                 setChosen(null);
                 setFacility(f.kind);
                 show();
               }}
-              className={`${chip} ${facility === f.kind && !shop ? 'border-ink bg-ink text-on-ink' : 'border-line-strong bg-surface'}`}
+              className={`${chip} ${facility === f.kind ?'border-ink bg-ink text-on-ink' : 'border-line-strong bg-surface'}`}
             >
               <span aria-hidden="true">{f.icon} </span>
               {t(`mall.facility.${f.kind}`)}
