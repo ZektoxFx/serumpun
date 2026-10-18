@@ -4,9 +4,10 @@
 Facebook group. Its heart is an official reporting channel to the Management Office with public status tracking:
 report a broken streetlight, see who else did (Me too), and follow it from *submitted* to *fixed*. Around it sit an
 emergency button that alerts the office and neighbours within 2 km, notices to the office ahead of renovation or moving
-day, a live map of short-lived neighbourhood alerts, groups with a General chat for everyone, events with points,
-services, share and lend, messages, free facility booking (courts, hall, gym, BBQ pit) and vouchers at SDP malls, in
-English and Bahasa Malaysia, with adjustable text size. Homes stay private: neighbours see names and neighbourhoods,
+day, a live map of short-lived neighbourhood alerts, groups with a General chat for everyone (in topics, like a
+Telegram community), events with points, services, share and lend, messages, free facility booking (courts, hall, gym,
+BBQ pit), vouchers, parking and a shop directory at SDP malls, and Home favourites each resident arranges, in English
+and Bahasa Malaysia, with adjustable text size. Homes stay private: neighbours see names and neighbourhoods,
 never a unit number.
 
 **Live:** https://serumpun-six.vercel.app — tap **Try as Aisyah** on a phone, and **Try as Management Office** on a
@@ -14,7 +15,8 @@ laptop for the dashboard.
 
 ## Screens to see
 
-1. Home: Happening now (nearest alert, the office's announcement, your next event)
+1. Home: My favourites (Edit to rearrange, More for every service) and Happening now (nearest alert, the office's
+   announcement, your next event)
 2. Live Map: an alert with Still there / Gone, and Safe Walk going around it
 3. Report an issue → "Already reported nearby?" → Me too → the report's timeline
 4. Management Office dashboard: the reports board, moving a report on (the resident's phone updates live), resident
@@ -22,11 +24,13 @@ laptop for the dashboard.
 5. Emergency: hold ＋ for 3 seconds on one phone, tap the red **!**, and a neighbour's phone pops up with the red 2 km
    circle on the map; the office's dashboard shows who and where
 6. Notify the office: renovation or moving day, noted by the office with a reply
-7. Community: General chat, Groups, Events (official or resident, QR check-in for points), Services with ⭐ ratings,
-   Share & Lend
+7. Community: General chat's topics (Announcements, Help & support, Borak-borak…), Groups, Events (official or
+   resident, QR check-in for points), Services with ⭐ ratings, Share & Lend
 8. Facilities: courts, hall, gym and BBQ pit; Find players, Open games and the booking pass
-9. Rewards: a voucher with Slide to use
-10. Me: text size, dark mode and Bahasa Malaysia
+9. Mall: Pay parking (plate, amount, DuitNow QR, "You have 20 minutes to exit"), Parking areas, and Elmina Lakeside
+   Mall's directory with pins on its layout plan
+10. Rewards: a voucher with Slide to use
+11. Me: Help & policies (guidelines, rules, FAQ, terms), text size, dark mode and Bahasa Malaysia
 
 ## Quick start
 

@@ -74,6 +74,15 @@ async function checks() {
     refused(joiners) && !theirs.error && theirs.data?.length === 0,
     `${said(joiners)} / ${theirs.error?.message ?? `${theirs.data?.length} rows`}`,
   );
+  // Only the server's service role reads parking: residents have no grant on either table.
+  const sessions = await daniel.client.from('parking_sessions').select('plate').limit(1);
+  const plates = await daniel.client.from('vehicles').select('plate').limit(1);
+  check("Daniel cannot read anyone's parking sessions or saved plates", refused(sessions) && refused(plates), `${said(sessions)} / ${said(plates)}`);
+  const { data: announcements } = await daniel.client.from('public_topics').select('id').eq('system_key', 'announcements').single();
+  check(
+    'Daniel cannot post in an office-only topic',
+    refused(await daniel.client.rpc('send_topic_message', { p_topic: announcements?.id, p_body: 'Smoke test' }), 'office_only'),
+  );
 
   console.log('— pending users');
   check('Nur (pending) cannot drop an alert', refused(await nur.client.rpc('create_alert', { p_type: 'snake', p_severity: 'high', ...CENTRE }), 'not_verified'));
