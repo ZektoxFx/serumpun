@@ -6,6 +6,7 @@ import { buttonClasses } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { GROUP_ICON, PUBLIC_GROUP_COLUMNS, newSince, type PublicGroup } from '@/lib/domain/community';
 import { mytDate, timeAgo } from '@/lib/domain/time';
+import { totalUnread, type PublicTopic } from '@/lib/domain/topics';
 import { t, type Lang } from '@/lib/i18n';
 import type { SessionProfile } from '@/lib/supabase/auth';
 import { createClient } from '@/lib/supabase/server';
@@ -22,20 +23,25 @@ export async function GroupsTab({ profile, lang }: { profile: SessionProfile; la
     .order('name')
     .overrideTypes<PublicGroup[], { merge: false }>();
   if (error) throw new Error(`groups lookup failed: ${error.message}`);
-  // General chat is pinned on its own above the resident's other groups; everyone is in it.
-  const generalChat = groups.find((g) => g.is_general && g.is_member);
+  // General chat is pinned on its own above the resident's other groups; everyone in the township reads its topics.
+  const generalChat = groups.find((g) => g.is_general);
   const mine = groups.filter((g) => g.is_member && !g.is_general);
   const others = groups.filter((g) => !g.is_member && !g.is_general);
-  const read = generalChat ? [generalChat, ...mine] : mine;
   // shortcut: every post of the resident's groups, to count the new ones; fetch only those since the last visits once groups have hundreds.
-  const { data: posts, error: postsError } = read.length
-    ? await supabase
-        .from('public_posts')
-        .select('group_id, created_at, is_mine')
-        .in('group_id', read.map((g) => g.id))
-        .order('created_at', { ascending: false })
-    : { data: [], error: null };
+  const [{ data: posts, error: postsError }, { data: topics, error: topicsError }] = await Promise.all([
+    mine.length
+      ? supabase
+          .from('public_posts')
+          .select('group_id, created_at, is_mine')
+          .in('group_id', mine.map((g) => g.id))
+          .order('created_at', { ascending: false })
+      : { data: [], error: null },
+    generalChat
+      ? supabase.from('public_topics').select('unread_count, last_at').overrideTypes<Pick<PublicTopic, 'unread_count' | 'last_at'>[], { merge: false }>()
+      : { data: [], error: null },
+  ]);
   if (postsError) throw new Error(`group posts lookup failed: ${postsError.message}`);
+  if (topicsError) throw new Error(`General chat topics lookup failed: ${topicsError.message}`);
   const now = new Date();
   const canAct = profile.status === 'verified';
   // Each group with its posts (newest first) and how many are new to the resident.
@@ -47,30 +53,32 @@ export async function GroupsTab({ profile, lang }: { profile: SessionProfile; la
   const yours = mine
     .map(news)
     .sort((a, b) => Number(b.fresh > 0) - Number(a.fresh > 0) || Date.parse(b.latest ?? '0') - Date.parse(a.latest ?? '0'));
-  const general = generalChat && news(generalChat);
+  // General chat's "N new" is every unread message across its topics; its time is the latest message in any of them.
+  const unread = totalUnread(topics);
+  const latest = topics.reduce<string | null>((max, x) => (x.last_at && (!max || Date.parse(x.last_at) > Date.parse(max)) ? x.last_at : max), null);
 
   return (
     <main className="grid gap-3 px-4 py-4">
-      {general && (
+      {generalChat && (
         <Link
-          href={`/community/groups/${general.g.id}`}
+          href="/community/general"
           className="mb-2 flex items-center gap-3 rounded-2xl border-2 border-red/70 bg-surface p-3.5 shadow-card hover:bg-soft"
         >
           <span aria-hidden="true" className="grid size-14 shrink-0 place-items-center rounded-[16px] bg-brand-gradient text-2xl">
             💬
           </span>
           <span className="grid min-w-0 flex-1 gap-0.5">
-            <span className="break-words text-lg font-bold leading-snug">{general.g.name}</span>
+            <span className="break-words text-lg font-bold leading-snug">{t(lang, 'general.title')}</span>
             <span className="truncate text-sm text-muted-2">
-              {t(lang, 'group.general.everyone', { township: profile.township.name })} · {general.g.description}
+              {t(lang, 'group.general.everyone', { township: profile.township.name })} · {generalChat.description}
             </span>
           </span>
           <span className="flex shrink-0 flex-col items-end gap-1">
-            {general.latest && <span className="text-xs font-semibold text-muted-2">{timeAgo(new Date(general.latest), now, lang)}</span>}
-            {general.fresh > 0 && (
+            {latest && <span className="text-xs font-semibold text-muted-2">{timeAgo(new Date(latest), now, lang)}</span>}
+            {unread > 0 && (
               <span className="grid min-w-6 place-items-center rounded-full bg-red px-1.5 py-0.5 text-xs font-extrabold text-white">
-                {general.fresh}
-                <span className="sr-only"> {t(lang, 'group.new', { n: general.fresh })}</span>
+                {unread}
+                <span className="sr-only"> {t(lang, 'group.new', { n: unread })}</span>
               </span>
             )}
           </span>

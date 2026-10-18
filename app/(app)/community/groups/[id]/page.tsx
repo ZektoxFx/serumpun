@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { cache } from 'react';
 import { AppHeader } from '@/components/app/AppHeader';
 import { JoinButton } from '@/components/groups/JoinButton';
@@ -59,6 +59,7 @@ export default async function GroupPage({ params, searchParams }: PageProps<'/co
   const lang = await getLang();
   const group = await getGroup((await params).id);
   if (!group) notFound();
+  if (group.is_general) redirect('/community/general'); // General chat is its topics now
   const query = await searchParams;
   const tab = TABS.find((x) => x === query.tab) ?? 'posts';
   const segment = (on: boolean) =>

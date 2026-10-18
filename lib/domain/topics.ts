@@ -55,6 +55,6 @@ export function topicErrorKey(code: string | undefined): MessageKey {
 }
 
 /** Unread messages across the topics: the "N new" on the General chat card. */
-export function totalUnread(topics: readonly PublicTopic[]): number {
+export function totalUnread(topics: readonly Pick<PublicTopic, 'unread_count'>[]): number {
   return topics.reduce((sum, topic) => sum + topic.unread_count, 0);
 }

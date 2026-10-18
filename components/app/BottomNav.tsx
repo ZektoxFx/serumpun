@@ -95,9 +95,9 @@ export function BottomNav({ fallback }: { fallback: LatLng }) {
       setAlert({ phase: 'failed', error: 'common.error' });
     }
   }
-  // A conversation puts its composer where the bar would be, and Book a Court its Book bar (canvas); My bookings
+  // A conversation and a General chat topic put their composer where the bar would be, and Book a Court its Book bar (canvas); My bookings
   // (/book?view=mine) keeps it. Full-screen flows may hide it: Task 4 ruling.
-  if (/^\/messages\/[^/]+$/.test(pathname) || (pathname === '/book' && view !== 'mine')) return null;
+  if (/^\/(messages|community\/general)\/[^/]+$/.test(pathname) || (pathname === '/book' && view !== 'mine')) return null;
   return (
     <>
       <nav

@@ -90,6 +90,7 @@ export default async function DashboardLayout({ children }: LayoutProps<'/dashbo
                 badge: { n: told.count ?? 0, label: t(lang, 'dashboard.nav.waiting', { n: told.count ?? 0 }) },
               },
               { href: '/dashboard/announcements', icon: '📢', label: t(lang, 'dashboard.nav.announcements') },
+              { href: '/dashboard/general', icon: '💬', label: t(lang, 'general.title') },
               { href: '/dashboard/pins', icon: '📍', label: t(lang, 'dashboard.nav.pins') },
               { href: '/dashboard/rewards', icon: '🎁', label: t(lang, 'dashboard.nav.rewards') },
               { href: '/dashboard/reset', icon: '🔄', label: t(lang, 'dashboard.nav.reset') },

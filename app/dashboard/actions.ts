@@ -5,6 +5,7 @@ import { alertErrorKey } from '@/lib/domain/alerts';
 import { eventErrorKey } from '@/lib/domain/events';
 import { noticeErrorKey } from '@/lib/domain/notices';
 import { reportErrorKey } from '@/lib/domain/reports';
+import { topicErrorKey } from '@/lib/domain/topics';
 import type { MessageKey } from '@/lib/i18n';
 import { seedAll } from '@/lib/seed';
 import { createAdminClient } from '@/lib/supabase/admin';
@@ -127,6 +128,42 @@ export async function addPin(formData: FormData): Promise<DashboardResult> {
     p_note: field(formData, 'note'),
   });
   if (error) return failed('create_official_pin', error, alertErrorKey(error.message));
+  refresh();
+  return { ok: true };
+}
+
+const topicFields = (formData: FormData) => ({
+  p_emoji: field(formData, 'emoji'),
+  p_title: field(formData, 'title'),
+  p_office_only: field(formData, 'office_only') === 'on',
+});
+
+/** Adds a topic to General chat, last in the list. */
+export async function createTopic(formData: FormData): Promise<DashboardResult> {
+  await requireManagement();
+  const supabase = await createClient();
+  const { error } = await supabase.rpc('create_topic', topicFields(formData));
+  if (error) return failed('create_topic', error, topicErrorKey(error.message));
+  refresh();
+  return { ok: true };
+}
+
+/** A topic's emoji and name, and whether only the office posts in it (Announcements always). */
+export async function updateTopic(formData: FormData): Promise<DashboardResult> {
+  await requireManagement();
+  const supabase = await createClient();
+  const { error } = await supabase.rpc('update_topic', { p_topic: field(formData, 'id'), ...topicFields(formData) });
+  if (error) return failed('update_topic', error, topicErrorKey(error.message));
+  refresh();
+  return { ok: true };
+}
+
+/** Hides a topic from General chat; its messages are kept. Never Announcements. */
+export async function removeTopic(formData: FormData): Promise<DashboardResult> {
+  await requireManagement();
+  const supabase = await createClient();
+  const { error } = await supabase.rpc('remove_topic', { p_topic: field(formData, 'id') });
+  if (error) return failed('remove_topic', error, topicErrorKey(error.message));
   refresh();
   return { ok: true };
 }

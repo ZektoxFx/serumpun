@@ -84,15 +84,14 @@ describe('the seeded groups', () => {
     expect(hers.sort()).toEqual(['Central Park Briskwalkers', 'Elmina Mommies', 'Elmina Morning Runners']);
   });
 
-  it('put every verified person in General chat, the office as its admin, with 3 posts new to Aisyah', () => {
+  it('put every verified person in General chat, the office as its admin, with no posts (its talk is in topics)', () => {
     expect(groups.filter((g) => g.is_general)).toHaveLength(1);
     const general = groups.find((g) => g.is_general)!;
     const inIt = members.filter((m) => m.group_id === general.id);
     expect(inIt).toHaveLength(15); // the 16 seeded people but Nur, who waits for approval
     expect(inIt.map((m) => m.user_id)).not.toContain('nur');
     expect(inIt.filter((m) => m.role === 'admin').map((m) => m.user_id)).toEqual(['office']);
-    const hers = inIt.find((m) => m.user_id === 'aisyah')!;
-    expect(newSince(posts.filter((p) => p.group_id === general.id && p.author_id !== 'aisyah'), hers.last_visit_at)).toBe(3);
+    expect(posts.filter((p) => p.group_id === general.id)).toEqual([]);
   });
 
   it('show Aisyah 5 new posts in Elmina Mommies, which she joined today', () => {

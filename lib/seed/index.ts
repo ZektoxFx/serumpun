@@ -8,13 +8,15 @@ import { seedNotices } from './notices';
 import { seedPeople, type People } from './people';
 import { seedReports } from './reports';
 import { seedRewards } from './rewards';
+import { seedTopics } from './topics';
 
 /** A feature seeder. Later tasks add theirs to `seeders`; each runs after the people exist, in list order. */
 export type Seeder = (admin: SupabaseClient, now: Date, people: People) => Promise<void>;
 
 // seedCommunity after seedEvents: it pins some of the events in their groups. seedMessages after seedCommunity: a
-// conversation is about Priya's stroller post.
-const seeders: Seeder[] = [seedAlerts, seedReports, seedEvents, seedRewards, seedCommunity, seedMessages, seedBooking, seedNotices];
+// conversation is about Priya's stroller post. seedTopics after seedCommunity (General chat) and seedAlerts (the
+// announcement it copies into Announcements).
+const seeders: Seeder[] = [seedAlerts, seedReports, seedEvents, seedRewards, seedCommunity, seedTopics, seedMessages, seedBooking, seedNotices];
 
 /**
  * Every uploaded photo goes with the reports and alerts that held them (the seed has none). Public photos sit at the root
