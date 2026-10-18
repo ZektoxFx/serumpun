@@ -21,7 +21,15 @@ export default async function PayParkingPage({ searchParams }: PageProps<'/parki
   const plates = mall ? await savedPlates(profile.id) : [];
   return (
     <>
-      <AppHeader title={t(lang, 'service.payParking')} back={mall ? `/parking/${mall.slug}` : '/home'} />
+      <AppHeader
+        title={
+          <>
+            {t(lang, 'service.payParking')}
+            {mall && <span className="block text-xs font-semibold tracking-normal text-muted-2">{mall.name}</span>}
+          </>
+        }
+        back={mall ? `/parking/${mall.slug}` : '/home'}
+      />
       <main className="grid gap-3 px-4 py-4">
         {mall ? (
           <PayParking mall={mall} plates={plates} />

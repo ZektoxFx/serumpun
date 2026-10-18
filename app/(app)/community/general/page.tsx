@@ -59,9 +59,10 @@ export default async function GeneralChatPage() {
                 <span aria-hidden="true" className="grid size-12 shrink-0 place-items-center rounded-full bg-tint-amber text-2xl">
                   {topic.emoji}
                 </span>
-                <span className="grid min-w-0 flex-1 gap-0.5">
-                  {/* The tag wraps under a long name rather than cut it short. */}
-                  <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5">
+                {/* The name has the row's full width (the time sits on the preview line), so large text never splits a word. */}
+                {/* grid-cols-1 (minmax(0, 1fr)): the preview line truncates instead of stretching the row. */}
+                <span className="grid min-w-0 flex-1 grid-cols-1 gap-0.5">
+                  <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
                     <span className="min-w-0 break-words font-bold">{topic.title}</span>
                     {topic.office_only && (
                       <Tag variant="amber" className="shrink-0">
@@ -69,19 +70,19 @@ export default async function GeneralChatPage() {
                       </Tag>
                     )}
                   </span>
-                  <span className="truncate text-sm text-muted-2">
-                    {topic.last_body ? `${topic.last_sender ?? t(lang, 'general.someone')}: ${topic.last_body}` : t(lang, 'general.noMessages')}
+                  <span className="flex items-baseline gap-2 text-sm text-muted-2">
+                    <span className="min-w-0 flex-1 truncate">
+                      {topic.last_body ? `${topic.last_sender ?? t(lang, 'general.someone')}: ${topic.last_body}` : t(lang, 'general.noMessages')}
+                    </span>
+                    {topic.last_at && <span className="shrink-0 text-xs font-semibold">{timeAgo(new Date(topic.last_at), now, lang)}</span>}
                   </span>
                 </span>
-                <span className="flex shrink-0 flex-col items-end gap-1">
-                  {topic.last_at && <span className="text-xs font-semibold text-muted-2">{timeAgo(new Date(topic.last_at), now, lang)}</span>}
-                  {topic.unread_count > 0 && (
-                    <span className="grid min-w-6 place-items-center rounded-full bg-red px-1.5 py-0.5 text-xs font-extrabold text-white">
-                      {topic.unread_count}
-                      <span className="sr-only"> {t(lang, 'group.new', { n: topic.unread_count })}</span>
-                    </span>
-                  )}
-                </span>
+                {topic.unread_count > 0 && (
+                  <span className="grid min-w-6 shrink-0 place-items-center rounded-full bg-red px-1.5 py-0.5 text-xs font-extrabold text-white">
+                    {topic.unread_count}
+                    <span className="sr-only"> {t(lang, 'group.new', { n: topic.unread_count })}</span>
+                  </span>
+                )}
               </Link>
             </li>
           ))}
