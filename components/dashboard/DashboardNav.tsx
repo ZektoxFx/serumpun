@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { Glyph } from '@/components/ui/Glyph';
 
 export type DashboardNavItem = {
   href: string;
@@ -29,7 +30,7 @@ export function DashboardNav({ label, items }: { label: string; items: Dashboard
                 }`}
               >
                 <span aria-hidden="true" className="w-5 text-center">
-                  {item.icon}
+                  <Glyph emoji={item.icon} />
                 </span>
                 <span className="flex-1">{item.label}</span>
                 {item.badge && item.badge.n > 0 && (

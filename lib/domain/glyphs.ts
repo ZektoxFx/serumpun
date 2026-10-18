@@ -1,0 +1,103 @@
+// The team's line icons (public/icons/line, made from brand/serumpun_icon) for the emoji the screens show. Each emoji
+// stays the source of truth: text places (a select's options, notifications, screen reader labels) keep it, and
+// `components/ui/Glyph` draws the icon instead where one exists. Emoji the team drew nothing for stay emoji.
+export const GLYPH: Readonly<Record<string, string>> = {
+  // Township
+  '❗': 'report_issue',
+  '🛠️': 'repairs',
+  '📋': 'issue_board',
+  '📝': 'notify_office',
+  '🏟️': 'facilities',
+  '🗺️': 'map',
+  '🧭': 'map',
+  '📍': 'location',
+  '🏢': 'management_office',
+  '📢': 'notice',
+  '🪪': 'verified',
+  '⚠': 'alert',
+  '⚠️': 'alert',
+  // Community
+  '👥': 'groups',
+  '💬': 'general_chat',
+  '📅': 'events',
+  '🤝': 'services',
+  '🧑‍🏫': 'services',
+  '🔁': 'share_lend',
+  '🎉': 'party',
+  // Mall and parking
+  '🅿️': 'pay_parking',
+  '🚗': 'parking_areas',
+  '🏬': 'mall_directory',
+  '🛍️': 'mall',
+  '🎁': 'rewards',
+  '🎟️': 'voucher',
+  // Notices to the office
+  '🔨': 'renovation',
+  '📦': 'moving',
+  '🧰': 'contractor',
+  // Facilities, groups and events
+  '🏸': 'badminton',
+  '⚽': 'ball',
+  '🎾': 'tennis',
+  '🏛️': 'hall',
+  '🚶': 'walk',
+  '🏃': 'walk',
+  '👨‍👩‍👧': 'family',
+  '👶': 'family',
+  '🌿': 'green',
+  '🌱': 'green',
+  // Services and rewards
+  '📚': 'tutoring',
+  '🔧': 'repairs',
+  '🧹': 'cleaning',
+  '🍲': 'food',
+  '☕': 'coffee',
+  '🛒': 'groceries',
+  '🛝': 'playland',
+  '👟': 'ball',
+  // Map alerts (the drawing inside the team's pins) and the report categories that cover the same thing
+  '💥': 'pin_accident',
+  '🐍': 'pin_snake',
+  '👤': 'pin_suspicious_person',
+  '🐕': 'pin_stray_dog',
+  '🌊': 'pin_flood',
+  '🌳': 'pin_fallen_tree',
+  '🚧': 'pin_walkway_blocked',
+  '💡': 'pin_streetlight',
+  '🚓': 'pin_police',
+  '🏗️': 'pin_road_works',
+  '🚱': 'pin_water_cut',
+  // The closest drawing where the team drew none, so each row of categories stays one style
+  '🏋️': 'facilities',
+  '🍖': 'food',
+  '🧓': 'me',
+  '🐾': 'like',
+  '🕳️': 'pin_road_works',
+  '🗑️': 'cleaning',
+  '💧': 'pin_flood',
+  '🧸': 'family',
+  '🎨': 'star',
+  '🙋': 'me',
+  // Me, help and settings
+  '★': 'star',
+  '⭐': 'star',
+  '📘': 'tutoring',
+  '📜': 'rules',
+  '❓': 'faq',
+  '📄': 'terms',
+  '🌙': 'dark_mode',
+  '🔠': 'text_size',
+  '🌐': 'language',
+  '🏘️': 'township',
+  '🚪': 'sign_out',
+  '🔒': 'lock',
+  '🔎': 'search',
+  '🔔': 'bell',
+  '📷': 'camera',
+  '🔄': 'history',
+};
+
+/** The team's icon for an emoji, if they drew one. */
+export function glyphFor(emoji: string): string | undefined {
+  return Object.hasOwn(GLYPH, emoji) ? GLYPH[emoji] : undefined;
+}

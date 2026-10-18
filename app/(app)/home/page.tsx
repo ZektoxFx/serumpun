@@ -5,6 +5,7 @@ import { HappeningNow } from '@/components/app/HappeningNow';
 import { HeroChip } from '@/components/app/HeroChip';
 import { Tile } from '@/components/app/Tile';
 import { OpenGames } from '@/components/book/OpenGames';
+import { Glyph } from '@/components/ui/Glyph';
 import { NEW_SERVICES, resolveFavourites } from '@/lib/domain/nav';
 import { formatPoints } from '@/lib/domain/points';
 import { firstName, statusKey } from '@/lib/domain/profile';
@@ -38,7 +39,7 @@ export default async function HomePage() {
           </HeroChip>
           <HeroChip>{t(lang, statusKey(profile))}</HeroChip>
           <HeroChip>
-            <span aria-hidden="true">★</span> {t(lang, 'points.count', { n: formatPoints(Number(points ?? 0), lang) })}
+            <Glyph emoji="★" /> {t(lang, 'points.count', { n: formatPoints(Number(points ?? 0), lang) })}
           </HeroChip>
         </div>
       </AppHeader>

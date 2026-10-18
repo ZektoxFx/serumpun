@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { Glyph } from '@/components/ui/Glyph';
 import { IconButton } from '@/components/ui/IconButton';
 import {
   ALERT_ICON,
@@ -309,7 +310,7 @@ export function MapScreen({
             onClick={openSafeWalk}
             className="inline-flex min-h-11 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-red px-4 text-sm font-bold text-white shadow-md"
           >
-            <span aria-hidden="true">🚶</span> {t('walk.chip')}
+            <Glyph emoji="🚶" /> {t('walk.chip')}
           </button>
           <button type="button" aria-haspopup="dialog" onClick={() => setFiltersOpen(true)} className={chip(filters.maxDistanceM !== null)}>
             {filters.maxDistanceM === null
@@ -395,7 +396,7 @@ export function MapScreen({
           onClick={() => setDropOpen(true)}
           className="absolute bottom-7 left-3 inline-flex min-h-12 items-center gap-2 rounded-full bg-red px-5 text-base font-extrabold text-white shadow-lg transition-transform duration-150 active:scale-95 motion-reduce:transition-none motion-reduce:active:scale-100"
         >
-          <span aria-hidden="true">⚠️</span>
+          <Glyph emoji="⚠️" />
           {t('map.drop.open')}
         </button>
       )}

@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useRef, useState, useTransition } from 'react';
 import { saveFavourites } from '@/app/(app)/more/actions';
 import { Button } from '@/components/ui/Button';
+import { Glyph } from '@/components/ui/Glyph';
 import { DEFAULT_FAVOURITES, MAX_FAVOURITES, SERVICES, moveItem, type Service, type ServiceKey } from '@/lib/domain/nav';
 import { useT, type MessageKey } from '@/lib/i18n';
 
@@ -111,9 +112,7 @@ export function FavouritesEditor({ initial }: { initial: ServiceKey[] }) {
                     }}
                     className={`${face} select-none ${on ? 'border-red ring-2 ring-red' : 'border-line'}`}
                   >
-                    <span aria-hidden="true" className="text-2xl leading-none">
-                      {service.icon}
-                    </span>
+                    <Glyph emoji={service.icon} className="text-2xl leading-none text-red-text" />
                     {t(service.label)}
                   </button>
                 </li>
@@ -153,9 +152,7 @@ export function FavouritesEditor({ initial }: { initial: ServiceKey[] }) {
                 <span aria-hidden="true" className={`${badge} bg-tint-green text-green-text ring-1 ring-green-text`}>
                   +
                 </span>
-                <span aria-hidden="true" className="text-2xl leading-none">
-                  {service.icon}
-                </span>
+                <Glyph emoji={service.icon} className="text-2xl leading-none text-red-text" />
                 {t(service.label)}
               </button>
             </li>

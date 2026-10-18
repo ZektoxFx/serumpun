@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { MessageButton } from '@/components/app/MessageButton';
 import { JoinGameButton } from '@/components/book/JoinGameButton';
 import { buttonClasses } from '@/components/ui/Button';
+import { Glyph } from '@/components/ui/Glyph';
 import { Tag } from '@/components/ui/Tag';
 import { SPORT_ICON, slotRange, slotStartUtc, spotsLabel, spotsLeft, type OpenGame } from '@/lib/domain/booking';
 import { eventDay } from '@/lib/domain/events';
@@ -55,7 +56,7 @@ function GameCard({ game, lang, canAct }: { game: OpenGame; lang: Lang; canAct: 
     <li className="flex flex-col gap-2.5 rounded-2xl border border-line bg-surface p-3.5 shadow-card">
       <div className="flex items-start gap-3">
         <span aria-hidden="true" className="grid size-12 shrink-0 place-items-center rounded-xl bg-tint-orange text-2xl">
-          {SPORT_ICON[game.sport]}
+          <Glyph emoji={SPORT_ICON[game.sport]} />
         </span>
         <p className="flex min-w-0 flex-1 flex-col items-start gap-0.5">
           <Tag variant={left > 0 ? 'amber' : 'green'}>{spotsLabel(left, lang)}</Tag>

@@ -5,6 +5,7 @@ import { startTransition, useActionState, useState } from 'react';
 import { createEvent, type EventActionResult } from '@/app/(app)/community/events/actions';
 import { Button } from '@/components/ui/Button';
 import { Field } from '@/components/ui/Field';
+import { Glyph } from '@/components/ui/Glyph';
 import { EVENT_ICON, RESIDENT_CATEGORIES } from '@/lib/domain/events';
 import { mytDate } from '@/lib/domain/time';
 import { useT } from '@/lib/i18n';
@@ -111,7 +112,7 @@ function EventFields({
           <input type="checkbox" name="askPoints" disabled={!canPost} className="mt-0.5 size-5 shrink-0 accent-red" />
           <span className="min-w-0">
             <span className="block text-sm font-bold">
-              <span aria-hidden="true">★</span> {t('event.new.askPoints')}
+              <Glyph emoji="★" /> {t('event.new.askPoints')}
             </span>
             <span className="block text-xs text-muted-2">{t('event.new.askPointsHint')}</span>
           </span>

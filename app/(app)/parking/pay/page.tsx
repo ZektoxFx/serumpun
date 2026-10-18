@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { AppHeader } from '@/components/app/AppHeader';
 import { PayParking } from '@/components/parking/PayParking';
+import { Glyph } from '@/components/ui/Glyph';
 import { MALLS, findMall } from '@/lib/domain/malls';
 import { t } from '@/lib/i18n';
 import { getLang } from '@/lib/i18n/server';
@@ -41,7 +42,7 @@ export default async function PayParkingPage({ searchParams }: PageProps<'/parki
                 <li key={m.slug}>
                   <Link href={`/parking/pay?mall=${m.slug}`} className="flex min-h-16 items-center gap-3 rounded-2xl border border-line bg-surface px-4 py-3 shadow-card hover:bg-soft">
                     <span aria-hidden="true" className="text-2xl">
-                      {m.directory ? '🛍️' : '🏬'}
+                      <Glyph emoji={m.directory ? '🛍️' : '🏬'} />
                     </span>
                     <span className="grid min-w-0 flex-1">
                       <span className="font-extrabold">{m.name}</span>

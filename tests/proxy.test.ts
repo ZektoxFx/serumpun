@@ -45,7 +45,7 @@ it('guards whole path segments only, so the landing page and look-alike paths st
 
 it('runs on app pages but not on static assets or /data', () => {
   for (const url of ['/', '/home', '/reports/new', '/dashboard']) expect(runsOn({ config, url }), url).toBe(true);
-  for (const url of ['/data/elmina-walk.json', '/_next/static/chunks/app.js', '/_next/image', '/icon.svg', '/favicon.ico']) {
+  for (const url of ['/data/elmina-walk.json', '/_next/static/chunks/app.js', '/_next/image', '/icon.png', '/favicon.ico', '/icons/line/home.png']) {
     expect(runsOn({ config, url }), url).toBe(false);
   }
 });

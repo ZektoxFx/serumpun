@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { GoingButton } from '@/components/events/GoingButton';
 import { eventTags } from '@/components/events/eventTags';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { Glyph } from '@/components/ui/Glyph';
 import { Tag } from '@/components/ui/Tag';
 import {
   EVENT_ICON,
@@ -73,7 +74,7 @@ export async function EventsTab({
         </Link>
         {CHIPS.map((c) => (
           <Link key={c} href={href({ view: mine ? 'mine' : undefined, cat: c })} aria-current={cat === c ? 'page' : undefined} className={chip(cat === c)}>
-            <span aria-hidden="true">{EVENT_ICON[c]}</span> {t(lang, `event.category.${c}`)}
+            <Glyph emoji={EVENT_ICON[c]} /> {t(lang, `event.category.${c}`)}
           </Link>
         ))}
       </nav>

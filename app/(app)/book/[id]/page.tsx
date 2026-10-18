@@ -5,6 +5,7 @@ import { AppHeader } from '@/components/app/AppHeader';
 import { CancelBooking } from '@/components/book/CancelBooking';
 import { Avatar } from '@/components/ui/Avatar';
 import { buttonClasses } from '@/components/ui/Button';
+import { Glyph } from '@/components/ui/Glyph';
 import { QR } from '@/components/ui/QR';
 import { Tag } from '@/components/ui/Tag';
 import { TimeAgo } from '@/components/ui/TimeAgo';
@@ -76,7 +77,7 @@ export default async function BookingPassPage({ params }: PageProps<'/book/[id]'
           </p>
           <div className="flex flex-col items-center gap-1 px-4 pb-5 pt-4 text-center">
             <h2 className="break-words text-[1.375rem] font-extrabold leading-tight">
-              <span aria-hidden="true">{SPORT_ICON[b.facility.sport]} </span>
+              <span aria-hidden="true"><Glyph emoji={SPORT_ICON[b.facility.sport]} /> </span>
               {b.facility.court_label}
             </h2>
             <p className="text-[0.9375rem] font-bold">
@@ -92,7 +93,7 @@ export default async function BookingPassPage({ params }: PageProps<'/book/[id]'
           <section aria-labelledby="players-title" className="flex flex-col gap-2.5 rounded-2xl border border-line bg-surface p-3.5 shadow-card">
             <div className="flex items-center justify-between gap-2">
               <h2 id="players-title" className="text-[0.9375rem] font-bold">
-                <span aria-hidden="true">🙋 </span>
+                <span aria-hidden="true"><Glyph emoji="🙋" /> </span>
                 {t(lang, left > 0 ? 'book.game.finding' : 'book.game.found')}
               </h2>
               <Tag variant={left > 0 ? 'amber' : 'green'}>{spotsLabel(left, lang)}</Tag>
@@ -122,7 +123,7 @@ export default async function BookingPassPage({ params }: PageProps<'/book/[id]'
           <>
             <div className="grid grid-cols-2 items-start gap-2">
               <a href={`/book/${b.id}/ics`} download className={buttonClasses('outline')}>
-                <span aria-hidden="true">📅</span> {t(lang, 'book.pass.calendar')}
+                <Glyph emoji="📅" /> {t(lang, 'book.pass.calendar')}
               </a>
               {free ? (
                 <CancelBooking id={b.id} />

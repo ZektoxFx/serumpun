@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { MessageButton } from '@/components/app/MessageButton';
 import { buttonClasses } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { Glyph } from '@/components/ui/Glyph';
 import { Tag } from '@/components/ui/Tag';
 import {
   PUBLIC_SERVICE_COLUMNS,
@@ -79,7 +80,7 @@ export async function ServicesTab({
         </Link>
         {SERVICE_CATEGORIES.map((c) => (
           <Link key={c} href={href({ requested, cat: c })} aria-current={cat === c ? 'page' : undefined} className={chip(cat === c)}>
-            <span aria-hidden="true">{SERVICE_ICON[c]}</span> {t(lang, `service.category.${c}`)}
+            <Glyph emoji={SERVICE_ICON[c]} /> {t(lang, `service.category.${c}`)}
           </Link>
         ))}
       </nav>
@@ -127,7 +128,7 @@ function ServiceCard({
   return (
     <article className="flex flex-col gap-1 rounded-2xl border border-line bg-surface p-3.5 shadow-card">
       <Tag variant={offer ? 'info' : 'orange'} className="self-start">
-        <span aria-hidden="true">{offer ? SERVICE_ICON[s.category] : '🙋'}</span>{' '}
+        <Glyph emoji={offer ? SERVICE_ICON[s.category] : '🙋'} />{' '}
         {offer ? t(lang, `service.category.${s.category}`) : t(lang, 'service.request')}
       </Tag>
       <h2 className="break-words text-base font-bold leading-snug">{s.title}</h2>

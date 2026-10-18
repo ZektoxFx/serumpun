@@ -1,3 +1,4 @@
+import { Glyph } from '@/components/ui/Glyph';
 import type { TimelineStep } from '@/lib/domain/reports';
 import { clockTime } from '@/lib/domain/time';
 import { t, type Lang } from '@/lib/i18n';
@@ -47,7 +48,7 @@ export function ReportTimeline({
                 <div key={j} className="mt-1.5 grid gap-2 rounded-xl bg-soft px-3 py-2 text-sm">
                   {note.message && (
                     <p className="break-words">
-                      <span aria-hidden="true">📢</span> “{note.message}”
+                      <Glyph emoji="📢" /> “{note.message}”
                       {note.by_management && <span className="text-muted-2"> — {t(lang, 'role.management')}</span>}
                     </p>
                   )}

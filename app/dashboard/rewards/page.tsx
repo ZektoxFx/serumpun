@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { Glyph } from '@/components/ui/Glyph';
 import { Tag } from '@/components/ui/Tag';
 import { eventDay, eventTime } from '@/lib/domain/events';
 import { rewardTitle, voucherState, type Reward } from '@/lib/domain/points';
@@ -63,7 +64,7 @@ export default async function DashboardRewardsPage() {
                   <tr key={v.id}>
                     <th scope="row" className="px-3 py-3 font-bold tracking-wider">{v.code}</th>
                     <td className="px-3 py-3">
-                      <span aria-hidden="true">{v.reward.emoji}</span> {rewardTitle(v.reward, lang)}
+                      <Glyph emoji={v.reward.emoji} /> {rewardTitle(v.reward, lang)}
                     </td>
                     <td className="px-3 py-3">{v.resident?.full_name ?? '–'}</td>
                     <td className="px-3 py-3">

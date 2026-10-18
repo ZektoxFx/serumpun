@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { AppHeader } from '@/components/app/AppHeader';
 import { LiveTopics } from '@/components/topics/LiveTopic';
+import { Glyph } from '@/components/ui/Glyph';
 import { Tag } from '@/components/ui/Tag';
 import { timeAgo } from '@/lib/domain/time';
 import { PUBLIC_TOPIC_COLUMNS, type PublicTopic } from '@/lib/domain/topics';
@@ -41,7 +42,7 @@ export default async function GeneralChatPage() {
       <AppHeader
         title={
           <>
-            <span aria-hidden="true">💬 </span>
+            <span aria-hidden="true"><Glyph emoji="💬" /> </span>
             {t(lang, 'general.title')}
             <span className="block text-xs font-semibold tracking-normal text-muted-2">
               {profile.township.name} · {t(lang, 'group.members', { n: group.data.member_count })}
@@ -66,7 +67,7 @@ export default async function GeneralChatPage() {
                     <span className="min-w-0 break-words font-bold">{topic.title}</span>
                     {topic.office_only && (
                       <Tag variant="amber" className="shrink-0">
-                        🔒 {t(lang, 'general.officeOnly')}
+                        <Glyph emoji="🔒" /> {t(lang, 'general.officeOnly')}
                       </Tag>
                     )}
                   </span>

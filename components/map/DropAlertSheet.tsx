@@ -6,6 +6,7 @@ import { dropAlert, type MapActionResult } from '@/app/(app)/map/actions';
 import { PhotoInput, uploadPhoto } from '@/components/app/PhotoInput';
 import { Button } from '@/components/ui/Button';
 import { Field } from '@/components/ui/Field';
+import { Glyph } from '@/components/ui/Glyph';
 import { Segmented } from '@/components/ui/Segmented';
 import { Sheet } from '@/components/ui/Sheet';
 import { ALERT_ICON, ALERT_TYPES, DEFAULT_SEVERITY, SEVERITIES, SEVERITY_DOT, type AlertType, type Severity } from '@/lib/domain/alerts';
@@ -106,7 +107,7 @@ function DropForm({
       <div className="grid gap-2">
         <div className="flex items-center gap-3">
           <span aria-hidden="true" className="text-xl">
-            📍
+            <Glyph emoji="📍" />
           </span>
           <p className="min-w-0 flex-1 text-sm">
             <span className="block font-bold">{where}</span>
@@ -161,7 +162,7 @@ function DropForm({
                 ✓
               </span>
               <span aria-hidden="true" className="text-2xl leading-none">
-                {ALERT_ICON[option]}
+                <Glyph emoji={ALERT_ICON[option]} />
               </span>
               <span className="text-xs font-bold leading-tight">{t(`alert.type.${option}`)}</span>
             </label>

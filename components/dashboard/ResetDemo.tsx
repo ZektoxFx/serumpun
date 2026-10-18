@@ -3,6 +3,7 @@
 import { useActionState, useState } from 'react';
 import { resetDemoData, type DashboardResult } from '@/app/dashboard/actions';
 import { Button } from '@/components/ui/Button';
+import { Glyph } from '@/components/ui/Glyph';
 import { useT } from '@/lib/i18n';
 
 /** "Reset demo data", with one confirm step in the page (it cannot be undone). */
@@ -42,7 +43,7 @@ export function ResetDemo() {
             setConfirming(true);
           }}
         >
-          <span aria-hidden="true">🔄</span> {t('dashboard.reset.button')}
+          <Glyph emoji="🔄" /> {t('dashboard.reset.button')}
         </Button>
       )}
       <div role="status">

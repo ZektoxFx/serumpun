@@ -4,6 +4,7 @@ import { GROUP_ICON_TINT, GROUP_TILE } from '@/components/groups/groupStyle';
 import { initials } from '@/components/ui/Avatar';
 import { buttonClasses } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { Glyph } from '@/components/ui/Glyph';
 import { GROUP_ICON, PUBLIC_GROUP_COLUMNS, newSince, type PublicGroup } from '@/lib/domain/community';
 import { mytDate, timeAgo } from '@/lib/domain/time';
 import { totalUnread, type PublicTopic } from '@/lib/domain/topics';
@@ -64,8 +65,8 @@ export async function GroupsTab({ profile, lang }: { profile: SessionProfile; la
           href="/community/general"
           className="mb-2 flex items-center gap-3 rounded-2xl border-2 border-red/70 bg-surface p-3.5 shadow-card hover:bg-soft"
         >
-          <span aria-hidden="true" className="grid size-14 shrink-0 place-items-center rounded-[16px] bg-brand-gradient text-2xl">
-            💬
+          <span aria-hidden="true" className="grid size-14 shrink-0 place-items-center rounded-[16px] bg-brand-gradient text-2xl text-white">
+            <Glyph emoji="💬" />
           </span>
           <span className="grid min-w-0 flex-1 gap-0.5">
             <span className="break-words text-lg font-bold leading-snug">{t(lang, 'general.title')}</span>
@@ -131,7 +132,7 @@ export async function GroupsTab({ profile, lang }: { profile: SessionProfile; la
           {others.map((g) => (
             <li key={g.id} className="flex flex-col gap-1 rounded-2xl border border-line bg-surface p-3.5 shadow-card">
               <span aria-hidden="true" className={`grid size-10 place-items-center rounded-xl text-xl ${GROUP_ICON_TINT[g.category]}`}>
-                {GROUP_ICON[g.category]}
+                <Glyph emoji={GROUP_ICON[g.category]} />
               </span>
               <Link href={`/community/groups/${g.id}`} className="mt-1.5 break-words font-bold leading-snug underline-offset-2 hover:underline">
                 {g.name}

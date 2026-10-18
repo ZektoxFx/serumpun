@@ -5,6 +5,7 @@ import { AppHeader } from '@/components/app/AppHeader';
 import { LiveThread } from '@/components/messages/LiveThread';
 import { MessageComposer } from '@/components/messages/MessageComposer';
 import { RateService } from '@/components/services/RateService';
+import { Glyph } from '@/components/ui/Glyph';
 import { CONTEXT_ICON, CONVERSATION_COLUMNS, type Conversation } from '@/lib/domain/messages';
 import { isUuid } from '@/lib/domain/reports';
 import { clockTime } from '@/lib/domain/time';
@@ -82,11 +83,11 @@ export default async function ConversationPage({ params }: PageProps<'/messages/
             {t(lang, 'messages.about')} · {t(lang, `messages.context.${chat.context_type}`)}
           </p>
           <p className="mt-1 break-words font-bold">
-            <span aria-hidden="true">{CONTEXT_ICON[chat.context_type]} </span>
+            <span aria-hidden="true"><Glyph emoji={CONTEXT_ICON[chat.context_type]} /> </span>
             {chat.context_title}
           </p>
           <p className="mt-2 text-xs text-muted-2">
-            <span aria-hidden="true">🔒 </span>
+            <span aria-hidden="true"><Glyph emoji="🔒" /> </span>
             {t(lang, 'messages.privacy')}
           </p>
           {rate && <RateService serviceId={rate.serviceId} name={chat.other_name} rating={rate.rating} canAct={profile.status === 'verified'} />}

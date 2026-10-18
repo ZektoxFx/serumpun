@@ -5,6 +5,7 @@ import { LiveMessages } from '@/components/app/LiveMessages';
 import { Avatar } from '@/components/ui/Avatar';
 import { buttonClasses } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { Glyph } from '@/components/ui/Glyph';
 import { TimeAgo } from '@/components/ui/TimeAgo';
 import { CONTEXT_ICON, CONVERSATION_COLUMNS, type Conversation } from '@/lib/domain/messages';
 import { t } from '@/lib/i18n';
@@ -66,7 +67,7 @@ export default async function MessagesPage() {
                       </span>
                       <span className="block text-xs text-muted-2">{c.other_neighbourhood}</span>
                       <span className="mt-1 block break-words text-xs font-bold text-muted-2">
-                        <span aria-hidden="true">{CONTEXT_ICON[c.context_type]} </span>
+                        <span aria-hidden="true"><Glyph emoji={CONTEXT_ICON[c.context_type]} /> </span>
                         {c.context_title}
                       </span>
                       <span className={`mt-0.5 line-clamp-2 break-words text-sm ${unread ? 'font-bold text-text' : 'text-muted-2'}`}>

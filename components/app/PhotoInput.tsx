@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { buttonClasses } from '@/components/ui/Button';
+import { Glyph } from '@/components/ui/Glyph';
 import { useT } from '@/lib/i18n';
 import { createBrowserClient } from '@/lib/supabase/client';
 
@@ -81,7 +82,7 @@ export function PhotoInput({ onChange, disabled = false }: { onChange: (photo: B
         <label
           className={`${buttonClasses('outline')} flex-1 cursor-pointer has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-red-text has-disabled:pointer-events-none has-disabled:opacity-50`}
         >
-          <span aria-hidden="true">📷</span>
+          <Glyph emoji="📷" />
           {t(preview ? 'photo.change' : 'photo.add')}
           <input
             type="file"

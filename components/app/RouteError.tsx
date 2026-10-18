@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect } from 'react';
 import { Button, buttonClasses } from '@/components/ui/Button';
+import { Glyph } from '@/components/ui/Glyph';
 import { useT } from '@/lib/i18n';
 
 /**
@@ -17,7 +18,7 @@ export function RouteError({ error, retry }: { error: Error & { digest?: string 
   return (
     <main className="mx-auto flex max-w-md flex-col items-center gap-3 px-6 py-16 text-center">
       <p aria-hidden="true" className="text-4xl">
-        ⚠️
+        <Glyph emoji="⚠️" />
       </p>
       <h1 className="text-lg font-extrabold">{t('error.title')}</h1>
       <p className="text-sm text-muted-2">{t('error.body')}</p>

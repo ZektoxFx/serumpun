@@ -7,6 +7,7 @@ import { HeroChip } from '@/components/app/HeroChip';
 import { CheckinQrSheet } from '@/components/events/CheckinQrSheet';
 import { GoingButton } from '@/components/events/GoingButton';
 import { eventTags } from '@/components/events/eventTags';
+import { Glyph } from '@/components/ui/Glyph';
 import { QR } from '@/components/ui/QR';
 import { EVENT_ICON, PUBLIC_EVENT_COLUMNS, eventDay, eventTime, type PublicEvent } from '@/lib/domain/events';
 import { isUuid } from '@/lib/domain/reports';
@@ -99,7 +100,7 @@ export default async function EventPage({ params }: PageProps<'/community/events
           <Fact label={t(lang, 'event.where')}>{event.location_text}</Fact>
           <Fact label={t(lang, 'event.whoGoing')}>{t(lang, 'event.neighbours', { n: event.going_count })}</Fact>
           <Fact label={t(lang, 'event.categoryLabel')}>
-            <span aria-hidden="true">{EVENT_ICON[event.category]}</span> {t(lang, `event.category.${event.category}`)}
+            <Glyph emoji={EVENT_ICON[event.category]} /> {t(lang, `event.category.${event.category}`)}
           </Fact>
         </dl>
 
@@ -134,7 +135,7 @@ export default async function EventPage({ params }: PageProps<'/community/events
           !event.checked_in_at && (
             <div className="grid gap-1 rounded-xl border-2 border-dashed border-orange bg-tint-orange px-3 py-3 text-center">
               <p className="text-base font-extrabold">
-                <span aria-hidden="true">📷</span> {t(lang, 'event.scan.title')}
+                <Glyph emoji="📷" /> {t(lang, 'event.scan.title')}
               </p>
               <p className="text-sm text-muted-2">{t(lang, 'event.scan.body', { n: event.points })}</p>
             </div>

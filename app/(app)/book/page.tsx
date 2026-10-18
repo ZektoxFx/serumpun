@@ -22,6 +22,7 @@ import {
   type MyBooking,
   type Sport,
 } from '@/lib/domain/booking';
+import { Glyph } from '@/components/ui/Glyph';
 import { eventDay, intlLocale } from '@/lib/domain/events';
 import { distanceMeters, formatDistance, walkMinutes } from '@/lib/domain/geo';
 import { neighbourhoodCentre } from '@/lib/domain/places';
@@ -94,7 +95,7 @@ async function Picker({ profile, lang, params }: { profile: SessionProfile; lang
     <nav aria-label={t(lang, 'book.sports')} className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-0.5 [scrollbar-width:none]">
       {SPORTS.map((s) => (
         <Link key={s} href={link({ sport: s, court: null })} aria-current={s === sport ? 'page' : undefined} className={chip(s === sport)}>
-          <span aria-hidden="true">{SPORT_ICON[s]}</span> {t(lang, `book.sport.${s}`)}
+          <Glyph emoji={SPORT_ICON[s]} /> {t(lang, `book.sport.${s}`)}
         </Link>
       ))}
     </nav>
@@ -167,7 +168,7 @@ async function Picker({ profile, lang, params }: { profile: SessionProfile; lang
           <div className="flex items-center justify-between gap-2 py-1.5 pl-3 pr-2">
             <p className="flex min-w-0 flex-col">
               <span className="break-words text-sm font-bold">
-                <span aria-hidden="true">📍 </span>
+                <span aria-hidden="true"><Glyph emoji="📍" /> </span>
                 {court.place_name}
               </span>
               {metres !== null && (
@@ -177,7 +178,7 @@ async function Picker({ profile, lang, params }: { profile: SessionProfile; lang
               )}
             </p>
             <Link href={`/map?walkTo=${court.id}`} className={`${buttonClasses('outline')} shrink-0`}>
-              <span aria-hidden="true">🚶</span> {t(lang, 'book.directions')}
+              <Glyph emoji="🚶" /> {t(lang, 'book.directions')}
             </Link>
           </div>
         </section>
@@ -264,7 +265,7 @@ async function MyBookings({ profile, lang }: { profile: SessionProfile; lang: La
                 <li key={b.id}>
                   <Link href={`/book/${b.id}`} className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-3 shadow-card hover:bg-soft">
                     <span aria-hidden="true" className="grid size-12 shrink-0 place-items-center rounded-xl bg-tint-orange text-2xl">
-                      {SPORT_ICON[b.facility.sport]}
+                      <Glyph emoji={SPORT_ICON[b.facility.sport]} />
                     </span>
                     <span className="flex min-w-0 flex-col">
                       <span className="break-words font-bold">{b.facility.court_label}</span>

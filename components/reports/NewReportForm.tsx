@@ -8,6 +8,7 @@ import { createReport, type ReportActionResult } from '@/app/(app)/reports/actio
 import { PhotoInput, uploadPhoto } from '@/components/app/PhotoInput';
 import { Button } from '@/components/ui/Button';
 import { Field } from '@/components/ui/Field';
+import { Glyph } from '@/components/ui/Glyph';
 import { distanceMeters, formatDistance, resolveStartLocation, type LatLng } from '@/lib/domain/geo';
 import { nearestPlace } from '@/lib/domain/places';
 import {
@@ -143,7 +144,7 @@ export function NewReportForm({
                 ✓
               </span>
               <span aria-hidden="true" className="text-2xl leading-none">
-                {CATEGORY_ICON[option]}
+                <Glyph emoji={CATEGORY_ICON[option]} />
               </span>
               <span className="text-xs font-bold leading-tight break-words">{t(`report.category.${option}`)}</span>
             </label>
@@ -155,7 +156,7 @@ export function NewReportForm({
         <p className={label}>{t('report.new.where')}</p>
         <div className="flex items-center gap-3">
           <span aria-hidden="true" className="text-xl">
-            📍
+            <Glyph emoji="📍" />
           </span>
           <p className="min-w-0 flex-1 text-sm">
             <span className="block font-bold">{t(atDevice ? 'map.drop.atYou' : 'map.drop.atPin')}</span>
@@ -188,14 +189,14 @@ export function NewReportForm({
       {matches.length > 0 && (
         <section aria-labelledby={dupHeading} className="grid gap-2 rounded-2xl border border-amber bg-tint-amber p-3">
           <h2 id={dupHeading} className="text-sm font-extrabold text-amber-text">
-            <span aria-hidden="true">⚠</span> {t('report.new.dupTitle')}
+            <Glyph emoji="⚠" /> {t('report.new.dupTitle')}
           </h2>
           <ul className="grid gap-2">
             {matches.map((r) => (
               <li key={r.id} className="flex items-center gap-3 rounded-xl bg-surface p-3">
                 <div className="min-w-0 flex-1">
                   <Link href={`/reports/${r.id}`} className="block break-words text-sm font-extrabold underline-offset-2 hover:underline">
-                    <span aria-hidden="true">{CATEGORY_ICON[r.category]}</span> {r.title}
+                    <Glyph emoji={CATEGORY_ICON[r.category]} /> {r.title}
                   </Link>
                   <p className="text-xs text-muted-2">
                     {t('report.new.dupMeta', {
@@ -245,7 +246,7 @@ export function NewReportForm({
           <input type="checkbox" name="private" disabled={!canPost} className="mt-0.5 size-5 shrink-0 accent-red" />
           <span className="min-w-0">
             <span className="block text-sm font-bold">
-              <span aria-hidden="true">🔒</span> {t('report.new.private')}
+              <Glyph emoji="🔒" /> {t('report.new.private')}
             </span>
             <span className="block text-xs text-muted-2">{t('report.new.privateHint')}</span>
           </span>

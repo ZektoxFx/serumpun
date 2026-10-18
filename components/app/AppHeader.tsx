@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+import { Icon } from '@/components/ui/Glyph';
 import { iconButtonClasses } from '@/components/ui/IconButton';
 import { unreadBadge } from '@/lib/domain/notifications';
 import { t } from '@/lib/i18n';
@@ -34,14 +35,6 @@ async function unreadMessages() {
     return 0; // a missing badge beats a broken page
   }
   return Number(data ?? 0);
-}
-
-function Glyph({ children }: { children: ReactNode }) {
-  return (
-    <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      {children}
-    </svg>
-  );
 }
 
 /** The red count on the bell or the inbox. Hidden from screen readers: the button's own label says the number. */
@@ -104,10 +97,7 @@ export async function AppHeader({
               aria-label={badge ? t(lang, 'notifications.bellUnread', { n: unread }) : t(lang, 'notifications.title')}
               className={buttonClass}
             >
-              <Glyph>
-                <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
-                <path d="M13.7 21a2 2 0 0 1-3.4 0" />
-              </Glyph>
+              <Icon name="bell" className="size-5" />
               {badge && <CountBadge text={badge} gradient={gradient} />}
             </Link>
           )}
@@ -118,9 +108,7 @@ export async function AppHeader({
               aria-label={inboxBadge ? t(lang, 'messages.inboxUnread', { n: unreadChats }) : t(lang, 'messages.title')}
               className={buttonClass}
             >
-              <Glyph>
-                <path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z" />
-              </Glyph>
+              <Icon name="message" className="size-5" />
               {inboxBadge && <CountBadge text={inboxBadge} gradient={gradient} />}
             </Link>
           )}

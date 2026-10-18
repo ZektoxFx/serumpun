@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { PinForm, RemovePinButton } from '@/components/dashboard/PinForm';
 import { SEVERITY_TAG } from '@/components/map/severityTag';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { Glyph } from '@/components/ui/Glyph';
 import { Tag } from '@/components/ui/Tag';
 import { TimeAgo } from '@/components/ui/TimeAgo';
 import { ALERT_ICON, PUBLIC_ALERT_COLUMNS, type PublicAlert } from '@/lib/domain/alerts';
@@ -49,7 +50,7 @@ export default async function PinsPage() {
               return (
                 <li key={pin.id} className="flex items-start gap-3 rounded-2xl border border-line bg-surface p-4 shadow-card">
                   <span aria-hidden="true" className="text-2xl">
-                    {ALERT_ICON[pin.type]}
+                    <Glyph emoji={ALERT_ICON[pin.type]} />
                   </span>
                   <div className="grid min-w-0 flex-1 gap-1">
                     <p className="flex flex-wrap items-center gap-2 font-extrabold">

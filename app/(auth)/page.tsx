@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { LanguageSwitch } from '@/components/app/LanguageSwitch';
@@ -18,7 +19,9 @@ export default async function LandingPage({ searchParams }: PageProps<'/'>) {
     <main className="mx-auto flex min-h-dvh max-w-md flex-col">
       {/* Only large, bold text on the gradient: white is ~3.6:1 over its orange stop. */}
       <header className="bg-brand-gradient px-6 pb-10 pt-16 text-white">
-        <h1 className="text-4xl font-extrabold tracking-tight">Serumpun</h1>
+        <h1>
+          <Image src="/brand/logo-horizontal-white.png" alt="Serumpun" width={1200} height={305} priority className="h-auto w-full max-w-80" />
+        </h1>
         <p className="mt-2 text-xl font-bold">{t(lang, 'landing.tagline')}</p>
       </header>
       <div className="grid gap-8 px-6 py-8">

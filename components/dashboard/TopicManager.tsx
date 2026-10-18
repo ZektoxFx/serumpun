@@ -5,6 +5,7 @@ import { startTransition, useActionState, useId, useState } from 'react';
 import { createTopic, removeTopic, updateTopic, type DashboardResult } from '@/app/dashboard/actions';
 import { Button, buttonClasses } from '@/components/ui/Button';
 import { Field } from '@/components/ui/Field';
+import { Glyph } from '@/components/ui/Glyph';
 import { Switch } from '@/components/ui/Switch';
 import { Tag } from '@/components/ui/Tag';
 import type { PublicTopic } from '@/lib/domain/topics';
@@ -165,7 +166,7 @@ function TopicRow({ topic }: { topic: Topic }) {
       <div className="grid min-w-0 flex-1 gap-1">
         <p className="flex flex-wrap items-center gap-2 break-words font-extrabold">
           {topic.title}
-          {topic.office_only && <Tag variant="amber">🔒 {t('general.officeOnly')}</Tag>}
+          {topic.office_only && <Tag variant="amber"><Glyph emoji="🔒" /> {t('general.officeOnly')}</Tag>}
         </p>
         {system && <p className="text-sm text-muted-2">{t('dashboard.general.mirrors')}</p>}
       </div>

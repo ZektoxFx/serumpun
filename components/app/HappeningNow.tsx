@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { buttonClasses } from '@/components/ui/Button';
 import { eventPoints } from '@/components/events/eventTags';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { Glyph } from '@/components/ui/Glyph';
 import { TimeAgo } from '@/components/ui/TimeAgo';
 import { ALERT_ICON, PUBLIC_ALERT_COLUMNS, nearestAlert, type PublicAlert } from '@/lib/domain/alerts';
 import { PUBLIC_EVENT_COLUMNS, eventDay, eventTime, type PublicEvent } from '@/lib/domain/events';
@@ -60,7 +61,9 @@ export async function HappeningNow({ profile, lang }: { profile: SessionProfile;
       {notice && (
         <details className="group rounded-2xl border border-line bg-surface shadow-card">
           <summary className="flex cursor-pointer list-none flex-col items-start gap-1 rounded-2xl p-3.5 [&::-webkit-details-marker]:hidden">
-            <span className={`${tag} bg-tint-blue text-text`}>📢 {t(lang, 'home.office.tag')}</span>
+            <span className={`${tag} bg-tint-blue text-text`}>
+              <Glyph emoji="📢" /> {t(lang, 'home.office.tag')}
+            </span>
             <span className="break-words font-bold">{notice.title}</span>
             <span className="line-clamp-3 whitespace-pre-line break-words text-sm group-open:line-clamp-none">{notice.body}</span>
             <TimeAgo date={notice.created_at} className="text-xs text-muted-2" />
@@ -92,10 +95,10 @@ function AlertCard({ alert, from, lang }: { alert: PublicAlert; from: { lat: num
   return (
     <Link href={`/map?alert=${alert.id}`} className={`${card} hover:bg-soft`}>
       <span className={`${tag} bg-tint-orange text-orange-text`}>
-        ⚠ {t(lang, 'home.alert.tag', { distance: formatDistance(distanceMeters(from, alert)) })}
+        <Glyph emoji="⚠" /> {t(lang, 'home.alert.tag', { distance: formatDistance(distanceMeters(from, alert)) })}
       </span>
       <span className="break-words font-bold">
-        <span aria-hidden="true">{ALERT_ICON[alert.type]} </span>
+        <Glyph emoji={ALERT_ICON[alert.type]} />{' '}
         {place ? t(lang, 'home.alert.title', { type, place: t(lang, place.label) }) : type}
       </span>
       <span className="text-sm text-muted-2">
@@ -113,11 +116,11 @@ function EventCard({ event, lang }: { event: PublicEvent; lang: Lang }) {
   return (
     <Link href={`/community/events/${event.id}`} className={`${card} hover:bg-soft`}>
       <span className={`${tag} bg-tint-amber text-amber-text`}>
-        📅 {points > 0 ? t(lang, 'home.event.points', { n: points }) : t(lang, 'home.event.tag')}
+        <Glyph emoji="📅" /> {points > 0 ? t(lang, 'home.event.points', { n: points }) : t(lang, 'home.event.tag')}
       </span>
       <span className="break-words font-bold">{event.title}</span>
       <span className="text-sm font-semibold">
-        {event.is_official ? `🏢 ${t(lang, 'event.tag.official')}` : `👥 ${t(lang, 'event.tag.resident')}`}
+        <Glyph emoji={event.is_official ? '🏢' : '👥'} /> {event.is_official ? t(lang, 'event.tag.official') : t(lang, 'event.tag.resident')}
       </span>
       <span className="break-words text-sm text-muted-2">
         {eventDay(start, lang)} · {eventTime(start, lang)} · {event.location_text}

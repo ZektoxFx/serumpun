@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { AppHeader } from '@/components/app/AppHeader';
+import { Glyph } from '@/components/ui/Glyph';
 import { Tag } from '@/components/ui/Tag';
 import { distanceMeters, formatDistance } from '@/lib/domain/geo';
 import { MALLS, rateText } from '@/lib/domain/malls';
@@ -31,7 +32,7 @@ export default async function ParkingPage() {
               <li key={mall.slug}>
                 <Link href={`/parking/${mall.slug}`} className="block overflow-hidden rounded-2xl border border-line bg-surface shadow-card hover:bg-soft">
                   <span aria-hidden="true" className={`grid h-20 place-items-center text-4xl ${mall.directory ? 'bg-brand-gradient' : 'bg-sidebar'}`}>
-                    {mall.directory ? '🛍️' : '🏬'}
+                    <Glyph emoji={mall.directory ? '🛍️' : '🏬'} />
                   </span>
                   <span className="flex items-center gap-3 p-3.5">
                     <span className="grid min-w-0 flex-1 gap-0.5">

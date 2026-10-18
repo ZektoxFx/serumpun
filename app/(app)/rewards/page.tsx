@@ -4,6 +4,7 @@ import { AppHeader } from '@/components/app/AppHeader';
 import { RedeemButton } from '@/components/rewards/RedeemButton';
 import { buttonClasses } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { Glyph } from '@/components/ui/Glyph';
 import { Tag } from '@/components/ui/Tag';
 import { eventDay, eventTime } from '@/lib/domain/events';
 import {
@@ -70,7 +71,7 @@ export default async function RewardsPage({ searchParams }: PageProps<'/rewards'
     <>
       <AppHeader title={t(lang, 'reward.title')} back="/me">
         <p className="mt-2 inline-flex rounded-full bg-tint-amber px-3 py-1 text-sm font-extrabold text-amber-text">
-          <span aria-hidden="true">★&nbsp;</span>
+          <span aria-hidden="true"><Glyph emoji="★" />&nbsp;</span>
           {t(lang, 'reward.balance', { n: formatPoints(balance, lang) })}
         </p>
       </AppHeader>
@@ -104,7 +105,7 @@ export default async function RewardsPage({ searchParams }: PageProps<'/rewards'
                   <li key={v.id}>
                     <Link href={`/rewards/${v.id}`} className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-3.5 shadow-card hover:bg-soft">
                       <span aria-hidden="true" className="grid size-12 shrink-0 place-items-center rounded-xl bg-tint-orange text-2xl">
-                        {v.reward.emoji}
+                        <Glyph emoji={v.reward.emoji} />
                       </span>
                       <span className="grid min-w-0 flex-1 gap-0.5">
                         <span className="break-words font-bold">{rewardTitle(v.reward, lang)}</span>
@@ -125,7 +126,7 @@ export default async function RewardsPage({ searchParams }: PageProps<'/rewards'
         ) : (
           <>
             <p className="rounded-xl bg-tint-blue px-3 py-2.5 text-sm">
-              <span aria-hidden="true">📅</span> {t(lang, 'reward.earn')}
+              <Glyph emoji="📅" /> {t(lang, 'reward.earn')}
             </p>
             <nav aria-label={t(lang, 'reward.categories')} className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none]">
               <Link href="/rewards" aria-current={cat === null ? 'page' : undefined} className={chip(cat === null)}>
@@ -133,7 +134,7 @@ export default async function RewardsPage({ searchParams }: PageProps<'/rewards'
               </Link>
               {REWARD_CATEGORIES.map((c) => (
                 <Link key={c} href={`/rewards?cat=${c}`} aria-current={cat === c ? 'page' : undefined} className={chip(cat === c)}>
-                  <span aria-hidden="true">{REWARD_CATEGORY_ICON[c]}</span> {t(lang, `reward.category.${c}`)}
+                  <Glyph emoji={REWARD_CATEGORY_ICON[c]} /> {t(lang, `reward.category.${c}`)}
                 </Link>
               ))}
             </nav>
@@ -145,12 +146,12 @@ export default async function RewardsPage({ searchParams }: PageProps<'/rewards'
                 return (
                   <li key={r.id} className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-3.5 shadow-card">
                     <span aria-hidden="true" className="grid size-12 shrink-0 place-items-center rounded-xl bg-tint-orange text-2xl">
-                      {r.emoji}
+                      <Glyph emoji={r.emoji} />
                     </span>
                     <div className="grid min-w-0 flex-1 gap-0.5">
                       <p className="break-words font-bold">{title}</p>
                       <p className="text-sm text-muted-2">{[r.partner_name, terms].filter(Boolean).join(' · ')}</p>
-                      <p className="text-sm font-extrabold">★ {formatPoints(r.points_cost, lang)}</p>
+                      <p className="text-sm font-extrabold"><Glyph emoji="★" /> {formatPoints(r.points_cost, lang)}</p>
                     </div>
                     {balance >= r.points_cost ? (
                       <RedeemButton rewardId={r.id} title={title} canAct={profile.status === 'verified'} />

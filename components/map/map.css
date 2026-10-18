@@ -80,10 +80,17 @@
   transform: rotate(45deg);
 }
 
+/* The team's line drawing for the alert type, in the pins' navy (white on an official pin's navy head). */
 .map-pin-glyph {
+  width: 18px;
+  height: 18px;
+  background: #001c3c;
+  -webkit-mask: var(--glyph) center / contain no-repeat;
+  mask: var(--glyph) center / contain no-repeat;
   transform: rotate(45deg);
-  font-size: 16px;
-  line-height: 1;
+}
+.map-pin--official .map-pin-glyph {
+  background: #fff;
 }
 
 /* The selected pin grows from its tip and pulses. */

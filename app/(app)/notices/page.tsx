@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { AppHeader } from '@/components/app/AppHeader';
 import { buttonClasses } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { Glyph } from '@/components/ui/Glyph';
 import { Tag } from '@/components/ui/Tag';
 import { TimeAgo } from '@/components/ui/TimeAgo';
 import { NOTICE_COLUMNS, NOTICE_ICON, noticeDates, type ResidentNotice } from '@/lib/domain/notices';
@@ -47,7 +48,7 @@ export default async function NoticesPage() {
                 <li key={n.id} className="flex flex-col gap-1.5 rounded-2xl border border-line bg-surface p-3.5 shadow-card">
                   <div className="flex items-start justify-between gap-2">
                     <p className="font-bold">
-                      <span aria-hidden="true">{NOTICE_ICON[n.kind]} </span>
+                      <span aria-hidden="true"><Glyph emoji={NOTICE_ICON[n.kind]} /> </span>
                       {t(lang, `notice.kind.${n.kind}`)}
                     </p>
                     <Tag variant={n.status === 'noted' ? 'green' : 'info'} className="shrink-0">

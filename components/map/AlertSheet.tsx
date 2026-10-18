@@ -6,6 +6,7 @@ import { voteAlert, type MapActionResult } from '@/app/(app)/map/actions';
 import { publicPhotoUrl } from '@/components/app/PhotoInput';
 import { SEVERITY_TAG } from '@/components/map/severityTag';
 import { Button } from '@/components/ui/Button';
+import { Glyph } from '@/components/ui/Glyph';
 import { Sheet } from '@/components/ui/Sheet';
 import { Tag } from '@/components/ui/Tag';
 import { TimeAgo } from '@/components/ui/TimeAgo';
@@ -44,7 +45,7 @@ export function AlertSheet({
       title={
         alert && (
           <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <span aria-hidden="true">{ALERT_ICON[alert.type]}</span>
+            <Glyph emoji={ALERT_ICON[alert.type]} />
             {t(`alert.type.${alert.type}`)}
             <Tag variant={SEVERITY_TAG[alert.severity]}>{t(`severity.${alert.severity}`)}</Tag>
           </span>
@@ -112,7 +113,7 @@ function AlertDetails({
         <div className="flex flex-wrap items-center gap-2">
           {alert.is_official && (
             <Tag variant="info">
-              <span aria-hidden="true">📢</span> {t('map.alert.official')}
+              <Glyph emoji="📢" /> {t('map.alert.official')}
             </Tag>
           )}
           {where && <p className="text-sm text-muted-2">{where}</p>}

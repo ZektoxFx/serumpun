@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { AppHeader } from '@/components/app/AppHeader';
+import { Glyph } from '@/components/ui/Glyph';
 import { findMall, rateText } from '@/lib/domain/malls';
 import { t } from '@/lib/i18n';
 import { getLang } from '@/lib/i18n/server';
@@ -57,7 +58,7 @@ export default async function MallParkingPage({ params }: PageProps<'/parking/[m
         )}
         <Link href={`/parking/pay?mall=${mall.slug}`} className={`${card} border-2 border-red bg-tint-red hover:brightness-95`}>
           <span aria-hidden="true" className={icon}>
-            🅿️
+            <Glyph emoji="🅿️" />
           </span>
           <span className="grid min-w-0 flex-1">
             <span className="font-extrabold">{t(lang, 'service.payParking')}</span>
@@ -70,7 +71,7 @@ export default async function MallParkingPage({ params }: PageProps<'/parking/[m
         {facts.map((fact) => (
           <div key={fact.title} className={`${card} border-line`}>
             <span aria-hidden="true" className={icon}>
-              {fact.emoji}
+              <Glyph emoji={fact.emoji} />
             </span>
             <span className="grid min-w-0 flex-1">
               <span className="font-bold">{fact.title}</span>
@@ -80,7 +81,7 @@ export default async function MallParkingPage({ params }: PageProps<'/parking/[m
         ))}
         <div className={`${card} border-line`}>
           <span aria-hidden="true" className={icon}>
-            🧭
+            <Glyph emoji="🧭" />
           </span>
           <span className="grid min-w-0 flex-1 gap-1">
             <span className="font-bold">{t(lang, 'parking.option.directions')}</span>
@@ -98,7 +99,7 @@ export default async function MallParkingPage({ params }: PageProps<'/parking/[m
         {mall.directory && (
           <Link href={`/malls/${mall.slug}`} className={`${card} border-line hover:bg-soft`}>
             <span aria-hidden="true" className={icon}>
-              🏬
+              <Glyph emoji="🏬" />
             </span>
             <span className="grid min-w-0 flex-1">
               <span className="font-bold">{t(lang, 'service.mall')}</span>

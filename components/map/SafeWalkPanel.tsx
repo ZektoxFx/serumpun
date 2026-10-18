@@ -1,5 +1,6 @@
 'use client';
 
+import { Glyph } from '@/components/ui/Glyph';
 import { Sheet } from '@/components/ui/Sheet';
 import { formatDistance, type LatLng } from '@/lib/domain/geo';
 import { useT } from '@/lib/i18n';
@@ -69,7 +70,7 @@ export function SafeWalkPanel({
               <li key={p.label}>
                 <button type="button" onClick={() => onChoose(p)} className={row}>
                   <span aria-hidden="true" className="text-xl">
-                    {p.icon}
+                    <Glyph emoji={p.icon} />
                   </span>
                   {p.label}
                 </button>
@@ -78,7 +79,7 @@ export function SafeWalkPanel({
             <li>
               <button type="button" onClick={onTapMap} className={`${row} text-muted-2`}>
                 <span aria-hidden="true" className="text-xl">
-                  📍
+                  <Glyph emoji="📍" />
                 </span>
                 {t('walk.tapMap')}
               </button>
@@ -95,7 +96,7 @@ export function SafeWalkPanel({
         >
           <div className="flex items-start justify-between gap-2">
             <h2 className="min-w-0 break-words text-base font-extrabold leading-snug">
-              <span aria-hidden="true">🚶 </span>
+              <span aria-hidden="true"><Glyph emoji="🚶" /> </span>
               {t('walk.to', { place: walking.label })}
             </h2>
             <button type="button" onClick={onEnd} className="min-h-11 shrink-0 rounded-lg px-2 text-sm font-bold text-red-text">

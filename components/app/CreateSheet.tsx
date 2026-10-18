@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { Glyph } from '@/components/ui/Glyph';
 import { Sheet } from '@/components/ui/Sheet';
 import { CREATE_ACTIONS } from '@/lib/domain/nav';
 import { useT } from '@/lib/i18n';
@@ -36,7 +37,7 @@ export function CreateSheet({ open, onClose, onEmergency }: { open: boolean; onC
               className="flex min-h-14 items-center gap-3 rounded-2xl border border-line bg-surface px-3 text-base font-bold hover:bg-soft"
             >
               <span aria-hidden="true" className="grid size-10 shrink-0 place-items-center rounded-xl bg-chip text-xl">
-                {action.icon}
+                <Glyph emoji={action.icon} />
               </span>
               {t(action.label)}
             </Link>

@@ -6,6 +6,7 @@ import { fixedInLabel } from '@/components/reports/labels';
 import { STATUS_TAG } from '@/components/reports/statusTag';
 import { buttonClasses } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { Glyph } from '@/components/ui/Glyph';
 import { Tag } from '@/components/ui/Tag';
 import { TimeAgo } from '@/components/ui/TimeAgo';
 import { CATEGORY_ICON, PUBLIC_REPORT_COLUMNS, boardOrder, scorecard, type PublicReport } from '@/lib/domain/reports';
@@ -122,12 +123,12 @@ export default async function ReportsPage({ searchParams }: PageProps<'/reports'
                         <Tag variant={STATUS_TAG[r.status]}>{t(lang, `report.status.${r.status}`)}</Tag>
                         {r.is_private && (
                           <Tag variant="info">
-                            <span aria-hidden="true">🔒</span> {t(lang, 'report.private')}
+                            <Glyph emoji="🔒" /> {t(lang, 'report.private')}
                           </Tag>
                         )}
                       </span>
                       <span className="mt-1 block break-words text-base font-extrabold leading-snug">
-                        <span aria-hidden="true">{CATEGORY_ICON[r.category]}</span> {r.title}
+                        <Glyph emoji={CATEGORY_ICON[r.category]} /> {r.title}
                       </span>
                       <span className="mt-0.5 block text-sm text-muted-2">
                         {fixedAt ? (

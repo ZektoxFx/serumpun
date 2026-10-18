@@ -4,6 +4,7 @@ import { cache } from 'react';
 import { AppHeader } from '@/components/app/AppHeader';
 import { LiveTopic } from '@/components/topics/LiveTopic';
 import { TopicComposer } from '@/components/topics/TopicComposer';
+import { Glyph } from '@/components/ui/Glyph';
 import { isUuid } from '@/lib/domain/reports';
 import { clockTime } from '@/lib/domain/time';
 import { PUBLIC_TOPIC_COLUMNS, TOPIC_MESSAGE_COLUMNS, type PublicTopic, type TopicMessage } from '@/lib/domain/topics';
@@ -69,7 +70,7 @@ export default async function TopicPage({ params }: PageProps<'/community/genera
             {topic.title}
             <span className="block text-xs font-semibold tracking-normal text-muted-2">
               {t(lang, 'general.title')}
-              {topic.office_only && ` · 🔒 ${t(lang, 'general.officeOnly')}`}
+              {topic.office_only && <> · <Glyph emoji="🔒" /> {t(lang, 'general.officeOnly')}</>}
             </span>
           </>
         }

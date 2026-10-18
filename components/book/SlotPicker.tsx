@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useActionState, useId, useState } from 'react';
 import { bookSlot, type BookActionResult } from '@/app/(app)/book/actions';
 import { Button } from '@/components/ui/Button';
+import { Glyph } from '@/components/ui/Glyph';
 import { Sheet } from '@/components/ui/Sheet';
 import { Switch } from '@/components/ui/Switch';
 import { MAX_PLAYERS, type SlotState } from '@/lib/domain/booking';
@@ -184,7 +185,7 @@ function ConfirmBooking({
         {rows.map((r, i) => (
           <li key={r.icon} className="flex items-center gap-3">
             <span aria-hidden="true" className={`grid size-10 shrink-0 place-items-center rounded-xl text-xl ${r.tint}`}>
-              {r.icon}
+              <Glyph emoji={r.icon} />
             </span>
             <span className="flex min-w-0 flex-col">
               <span className={`break-words text-[0.9375rem] font-bold ${i === 2 ? 'text-green-text' : ''}`}>{r.title}</span>
@@ -199,7 +200,7 @@ function ConfirmBooking({
           <div className="flex min-h-11 items-center justify-between gap-2.5">
             <span className="flex min-w-0 flex-col">
               <span id={`${id}-find`} className="text-[0.9375rem] font-bold">
-                <span aria-hidden="true">🙋 </span>
+                <span aria-hidden="true"><Glyph emoji="🙋" /> </span>
                 {t('book.players.find')}
               </span>
               <span id={`${id}-hint`} className="text-xs text-muted-2">

@@ -5,6 +5,7 @@ import { startTransition, useActionState, useState } from 'react';
 import { submitNotice, type NoticeActionResult } from '@/app/(app)/notices/actions';
 import { Button } from '@/components/ui/Button';
 import { Field } from '@/components/ui/Field';
+import { Glyph } from '@/components/ui/Glyph';
 import { NOTICE_ICON, NOTICE_KINDS, type NoticeKind } from '@/lib/domain/notices';
 import { mytDate } from '@/lib/domain/time';
 import { useT } from '@/lib/i18n';
@@ -46,7 +47,7 @@ export function NoticeForm({ canPost }: { canPost: boolean }) {
             >
               <input type="radio" name="kind" value={k} checked={kind === k} onChange={() => setKind(k)} disabled={!canPost} className="sr-only" />
               <span aria-hidden="true" className="text-lg">
-                {NOTICE_ICON[k]}
+                <Glyph emoji={NOTICE_ICON[k]} />
               </span>
               {t(`notice.kind.${k}`)}
             </label>
@@ -67,7 +68,7 @@ export function NoticeForm({ canPost }: { canPost: boolean }) {
         {(control) => <textarea {...control} name="details" required rows={4} maxLength={1000} disabled={!canPost} />}
       </Field>
       <p className="text-sm text-muted-2">
-        <span aria-hidden="true">🔒 </span>
+        <span aria-hidden="true"><Glyph emoji="🔒" /> </span>
         {t('notice.private')}
       </p>
       {result && !result.ok && (

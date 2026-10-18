@@ -8,6 +8,7 @@ import { MeTooButton } from '@/components/reports/MeTooButton';
 import { ReportTimeline } from '@/components/reports/ReportTimeline';
 import { fixedInLabel, openLabel } from '@/components/reports/labels';
 import { STATUS_TAG } from '@/components/reports/statusTag';
+import { Glyph } from '@/components/ui/Glyph';
 import { Tag } from '@/components/ui/Tag';
 import {
   CATEGORY_ICON,
@@ -96,7 +97,7 @@ export default async function ReportPage({ params }: PageProps<'/reports/[id]'>)
           />
         ) : (
           <div aria-hidden="true" className="grid h-32 place-items-center bg-sidebar text-6xl">
-            {CATEGORY_ICON[report.category]}
+            <Glyph emoji={CATEGORY_ICON[report.category]} />
           </div>
         )}
 
@@ -108,12 +109,12 @@ export default async function ReportPage({ params }: PageProps<'/reports/[id]'>)
               </Tag>
               {report.is_private && (
                 <Tag variant="info">
-                  <span aria-hidden="true">🔒</span> {t(lang, 'report.private')}
+                  <Glyph emoji="🔒" /> {t(lang, 'report.private')}
                 </Tag>
               )}
             </p>
             <h2 className="break-words text-xl font-extrabold leading-snug">
-              <span aria-hidden="true">{CATEGORY_ICON[report.category]}</span> {report.title}
+              <Glyph emoji={CATEGORY_ICON[report.category]} /> {report.title}
             </h2>
             <p className="text-sm text-muted-2">
               {[report.location_text, report.team && t(lang, `report.team.${report.team}`)].filter(Boolean).join(' · ')}
@@ -137,7 +138,7 @@ export default async function ReportPage({ params }: PageProps<'/reports/[id]'>)
                   ))}
                 {following && (
                   <p className={`${pill} border border-line-strong bg-surface`}>
-                    <span aria-hidden="true">🔔</span> {t(lang, 'report.following')}
+                    <Glyph emoji="🔔" /> {t(lang, 'report.following')}
                   </p>
                 )}
               </div>

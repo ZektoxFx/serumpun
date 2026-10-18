@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { signOut } from '@/app/(auth)/actions';
 import { EmergencyPopup } from '@/components/app/EmergencyPopup';
@@ -57,7 +58,7 @@ export default async function DashboardLayout({ children }: LayoutProps<'/dashbo
         <div className="grid gap-4 p-4">
           {/* Only large, bold text on the gradient; the small line sits on a white chip. */}
           <div className="rounded-xl bg-brand-gradient px-4 py-3">
-            <p className="text-xl font-extrabold leading-tight">Serumpun</p>
+            <Image src="/brand/logo-horizontal-white.png" alt="Serumpun" width={1200} height={305} priority className="h-auto w-48" />
             <HeroChip className="mt-2">
               {t(lang, 'dashboard.title')} · {profile.township.name}
             </HeroChip>

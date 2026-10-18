@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { buttonClasses } from '@/components/ui/Button';
@@ -21,7 +22,7 @@ export default async function SignupPage() {
   return (
     <main className="mx-auto min-h-dvh max-w-md">
       <header className="bg-brand-gradient px-6 pb-8 pt-12 text-white">
-        <p className="text-xl font-extrabold tracking-tight">Serumpun</p>
+        <Image src="/brand/logo-horizontal-white.png" alt="Serumpun" width={1200} height={305} priority className="h-auto w-44" />
         <h1 className="mt-1 text-3xl font-extrabold">{t(lang, 'signup.title')}</h1>
       </header>
       <div className="grid gap-6 px-6 py-8">

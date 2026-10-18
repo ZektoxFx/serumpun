@@ -5,6 +5,7 @@ import { EventForm } from '@/components/events/EventForm';
 import { eventTags } from '@/components/events/eventTags';
 import { buttonClasses } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { Glyph } from '@/components/ui/Glyph';
 import { Tag } from '@/components/ui/Tag';
 import { EVENT_ICON, PUBLIC_EVENT_COLUMNS, eventDay, eventTime, type PublicEvent } from '@/lib/domain/events';
 import { t } from '@/lib/i18n';
@@ -49,7 +50,7 @@ export default async function DashboardEventsPage() {
             {waiting.map((e) => (
               <li key={e.id} className="grid gap-2 rounded-2xl border border-line bg-surface p-4 shadow-card">
                 <p className="break-words font-extrabold">
-                  <span aria-hidden="true">{EVENT_ICON[e.category]}</span> {e.title}
+                  <Glyph emoji={EVENT_ICON[e.category]} /> {e.title}
                 </p>
                 <p className="text-sm text-muted-2">
                   {e.organizer_name && `${t(lang, 'event.organisedBy', { name: e.organizer_name })} · `}

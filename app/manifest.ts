@@ -11,10 +11,11 @@ export default function manifest(): MetadataRoute.Manifest {
     display: 'standalone',
     background_color: '#F6F7F9',
     theme_color: '#D51A21',
+    // The team's knot on the brand gradient, kept inside the middle 80% so phones may mask it to their own shape.
     icons: [
-      { src: '/icon.svg', sizes: 'any', type: 'image/svg+xml' },
       { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
       { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+      { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
     ],
   };
 }

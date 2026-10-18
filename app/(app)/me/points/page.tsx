@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { AppHeader } from '@/components/app/AppHeader';
 import { buttonClasses } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { Glyph } from '@/components/ui/Glyph';
 import { eventDay } from '@/lib/domain/events';
 import { balance, formatPoints, rewardTitle, type Reward } from '@/lib/domain/points';
 import { t } from '@/lib/i18n';
@@ -46,7 +47,7 @@ export default async function PointsHistoryPage() {
       <AppHeader title={t(lang, 'points.history')} back="/me" />
       <main className="grid gap-3 px-4 py-4">
         <p className="text-3xl font-extrabold">
-          <span aria-hidden="true">★</span> {t(lang, 'points.count', { n: formatPoints(balance(entries), lang) })}
+          <Glyph emoji="★" /> {t(lang, 'points.count', { n: formatPoints(balance(entries), lang) })}
         </p>
         {entries.length === 0 ? (
           <EmptyState
@@ -64,7 +65,7 @@ export default async function PointsHistoryPage() {
             {entries.map((e) => (
               <li key={e.id} className="flex items-center gap-3 px-4 py-3">
                 <span aria-hidden="true" className="w-6 shrink-0 text-center text-lg">
-                  {e.reason === 'event' ? '📅' : '🎁'}
+                  <Glyph emoji={e.reason === 'event' ? '📅' : '🎁'} />
                 </span>
                 <span className="grid min-w-0 flex-1">
                   <span className="break-words text-sm font-bold">

@@ -295,7 +295,8 @@ Apply new migrations before deploying code that needs them. The smoke test ends 
 
 ## 14. Credits
 
-Map data and Safe Walk's walking paths © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors,
+Logo, app icon and line icons by the Serumpun team (originals in `brand/`; the app's copies in `public/brand`,
+`public/icons/line` and `app/icon.png`). Map data and Safe Walk's walking paths © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors,
 available under the Open Database License (ODbL). Elmina Lakeside Mall's car park map and layout plan © Sime Darby
 Property. Maps by Leaflet. Built with Next.js, React, Tailwind CSS, Supabase and Vercel. Font: Plus Jakarta Sans
 (SIL Open Font License). Made for the SDP Hackathon 2026.

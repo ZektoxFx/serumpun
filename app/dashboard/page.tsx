@@ -7,6 +7,7 @@ import { ReportUpdateForm } from '@/components/dashboard/ReportUpdateForm';
 import { ReportTimeline } from '@/components/reports/ReportTimeline';
 import { fixedInLabel, openLabel } from '@/components/reports/labels';
 import { STATUS_TAG } from '@/components/reports/statusTag';
+import { Glyph } from '@/components/ui/Glyph';
 import { Tag } from '@/components/ui/Tag';
 import { TimeAgo } from '@/components/ui/TimeAgo';
 import {
@@ -138,13 +139,13 @@ function ReportCard({ report: r, lang, hot, selected }: { report: PublicReport; 
           )}
           {r.is_private && (
             <Tag variant="info">
-              <span aria-hidden="true">🔒</span> {t(lang, 'report.private')}
+              <Glyph emoji="🔒" /> {t(lang, 'report.private')}
             </Tag>
           )}
         </span>
       )}
       <span className="break-words font-extrabold leading-snug">
-        <span aria-hidden="true">{CATEGORY_ICON[r.category]}</span> #{r.ref_no} {r.title}
+        <Glyph emoji={CATEGORY_ICON[r.category]} /> #{r.ref_no} {r.title}
       </span>
       <span className="text-muted-2">{r.team ? t(lang, `report.team.${r.team}`) : r.location_text}</span>
       <span className="flex items-center justify-between gap-2 text-xs text-muted-2">
@@ -209,12 +210,12 @@ async function ReportPanel({ report, lang, now, officeId }: { report: PublicRepo
             </Tag>
             {report.is_private && (
               <Tag variant="info">
-                <span aria-hidden="true">🔒</span> {t(lang, 'report.private')}
+                <Glyph emoji="🔒" /> {t(lang, 'report.private')}
               </Tag>
             )}
           </p>
           <h3 className="break-words text-lg font-extrabold leading-snug">
-            <span aria-hidden="true">{CATEGORY_ICON[report.category]}</span> {report.title}
+            <Glyph emoji={CATEGORY_ICON[report.category]} /> {report.title}
           </h3>
           <p className="text-sm text-muted-2">
             {[report.location_text, report.team && t(lang, `report.team.${report.team}`)].filter(Boolean).join(' · ')}

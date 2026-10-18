@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { AppHeader } from '@/components/app/AppHeader';
 import { HeroChip } from '@/components/app/HeroChip';
 import { LiveClock, SlideToUse } from '@/components/rewards/SlideToUse';
+import { Glyph } from '@/components/ui/Glyph';
 import { QR } from '@/components/ui/QR';
 import { eventDay, eventTime } from '@/lib/domain/events';
 import { formatPoints, rewardTitle, voucherState, type Reward } from '@/lib/domain/points';
@@ -59,7 +60,7 @@ export default async function VoucherPage({ params }: PageProps<'/rewards/[id]'>
           {/* Only large, bold text on the gradient; the shop sits on a white chip. */}
           <div className="flex items-center gap-3 bg-brand-gradient px-4 py-4 text-white">
             <span aria-hidden="true" className="text-3xl">
-              {v.reward.emoji}
+              <Glyph emoji={v.reward.emoji} />
             </span>
             <div className="grid min-w-0 justify-items-start gap-1">
               <h2 className="break-words text-xl font-extrabold leading-tight">{rewardTitle(v.reward, lang)}</h2>

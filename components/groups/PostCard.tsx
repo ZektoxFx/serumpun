@@ -5,6 +5,7 @@ import { HelpfulButton } from '@/components/groups/HelpfulButton';
 import { POST_TYPE_TAG } from '@/components/groups/groupStyle';
 import { KIND_TAG, tintFor } from '@/components/share/shareStyle';
 import { Avatar } from '@/components/ui/Avatar';
+import { Glyph } from '@/components/ui/Glyph';
 import { Tag } from '@/components/ui/Tag';
 import { TimeAgo } from '@/components/ui/TimeAgo';
 import { topAnswer, type PublicComment, type PublicListing, type PublicPost } from '@/lib/domain/community';
@@ -77,7 +78,7 @@ export function PostCard({
           contextId={post.id}
           label={
             <>
-              <span aria-hidden="true">💬</span> {t(lang, 'messages.messageOwner', { name: author })}
+              <Glyph emoji="💬" /> {t(lang, 'messages.messageOwner', { name: author })}
             </>
           }
           canAct={canMessage}
@@ -97,7 +98,7 @@ export function PostCard({
       )}
       <details className="group">
         <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1.5 rounded-lg text-sm font-bold text-muted-2 [&::-webkit-details-marker]:hidden">
-          <span aria-hidden="true">💬</span> {t(lang, 'group.comments', { n: post.comment_count })}
+          <Glyph emoji="💬" /> {t(lang, 'group.comments', { n: post.comment_count })}
           <span aria-hidden="true" className="ml-auto transition-transform group-open:rotate-180 motion-reduce:transition-none">
             ▾
           </span>

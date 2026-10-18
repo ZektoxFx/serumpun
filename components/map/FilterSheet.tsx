@@ -2,6 +2,7 @@
 
 import { useMemo, useSyncExternalStore } from 'react';
 import { Button } from '@/components/ui/Button';
+import { Glyph } from '@/components/ui/Glyph';
 import { Segmented } from '@/components/ui/Segmented';
 import { Sheet } from '@/components/ui/Sheet';
 import {
@@ -144,7 +145,7 @@ export function FilterSheet({
                   ✓
                 </span>
                 <span aria-hidden="true" className="text-xl leading-none">
-                  {ALERT_ICON[type]}
+                  <Glyph emoji={ALERT_ICON[type]} />
                 </span>
                 <span className="text-xs font-bold leading-tight">{t(`alert.type.${type}`)}</span>
               </label>

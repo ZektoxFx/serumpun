@@ -9,6 +9,7 @@ import { TextSizeSwitch } from '@/components/app/TextSizeSwitch';
 import { ThemeSwitch } from '@/components/app/ThemeSwitch';
 import { Avatar } from '@/components/ui/Avatar';
 import { buttonClasses } from '@/components/ui/Button';
+import { Glyph } from '@/components/ui/Glyph';
 import { HELP_LINKS, ME_LINKS } from '@/lib/domain/nav';
 import { formatPoints, nextReward, rewardTitle } from '@/lib/domain/points';
 import { statusKey } from '@/lib/domain/profile';
@@ -85,7 +86,7 @@ export default async function MePage() {
                 {t(lang, 'me.points')}
               </h2>
               <p className="whitespace-nowrap text-3xl font-extrabold leading-tight">
-                <span aria-hidden="true">★</span> {formatPoints(points, lang)}
+                <Glyph emoji="★" /> {formatPoints(points, lang)}
               </p>
             </div>
             <Link href="/rewards" className={buttonClasses('primary')}>
@@ -115,7 +116,7 @@ export default async function MePage() {
             <li key={link.href} className="first:rounded-t-[inherit] last:rounded-b-[inherit]">
               <Link href={link.href} className={pressable}>
                 <span aria-hidden="true" className={rowIcon}>
-                  {link.icon}
+                  <Glyph emoji={link.icon} />
                 </span>
                 <span className="flex-1 text-base font-bold">{t(lang, link.label)}</span>
                 {link.href === '/rewards?view=mine' && (
@@ -138,7 +139,7 @@ export default async function MePage() {
               <li key={link.href} className="first:rounded-t-[inherit] last:rounded-b-[inherit]">
                 <Link href={link.href} className={`${pressable} py-2`}>
                   <span aria-hidden="true" className={rowIcon}>
-                    {link.icon}
+                    <Glyph emoji={link.icon} />
                   </span>
                   <span className="grid flex-1">
                     <span className="text-base font-bold">{t(lang, link.label)}</span>
@@ -156,7 +157,7 @@ export default async function MePage() {
         <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface shadow-card">
           <li className={row}>
             <span aria-hidden="true" className={rowIcon}>
-              🌙
+              <Glyph emoji="🌙" />
             </span>
             <label htmlFor="dark-mode" className="flex-1 text-base font-bold">
               {t(lang, 'me.darkMode')}
@@ -177,7 +178,7 @@ export default async function MePage() {
           <li className="grid gap-2 px-4 py-3">
             <span className="flex items-center gap-3 text-base font-bold">
               <span aria-hidden="true" className={rowIcon}>
-                🔠
+                <Glyph emoji="🔠" />
               </span>
               {t(lang, 'me.textSize')}
             </span>
@@ -187,7 +188,7 @@ export default async function MePage() {
           <li className="grid gap-2 px-4 py-3">
             <span className="flex items-center gap-3 text-base font-bold">
               <span aria-hidden="true" className={rowIcon}>
-                🌐
+                <Glyph emoji="🌐" />
               </span>
               {t(lang, 'lang.label')}
             </span>
@@ -196,7 +197,7 @@ export default async function MePage() {
 
           <li className={row}>
             <span aria-hidden="true" className={rowIcon}>
-              🏘️
+              <Glyph emoji="🏘️" />
             </span>
             <span className="flex-1 text-base font-bold">{t(lang, 'me.township')}</span>
             <span className="text-sm text-muted-2">{profile.township.name}</span>
@@ -206,7 +207,7 @@ export default async function MePage() {
             <form action={signOut} className="rounded-[inherit]">
               <button className={`${pressable} w-full text-left text-base font-bold text-red-text`}>
                 <span aria-hidden="true" className={rowIcon}>
-                  🚪
+                  <Glyph emoji="🚪" />
                 </span>
                 {t(lang, 'auth.signOut')}
               </button>

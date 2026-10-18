@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { Fragment, useRef, useState, type ReactNode } from 'react';
+import { Fragment, useRef, useState } from 'react';
 import { raiseEmergency } from '@/app/(app)/emergency/actions';
+import { Icon } from '@/components/ui/Glyph';
 import { ARMED_MS, HOLD_MS } from '@/lib/domain/emergency';
 import { resolveStartLocation, type LatLng } from '@/lib/domain/geo';
 import { TABS, isActiveTab } from '@/lib/domain/nav';
@@ -24,35 +25,6 @@ function here(fallback: LatLng): Promise<LatLng> {
     );
   });
 }
-
-// Stroke icons, so the active tab turns its icon red along with its label (an emoji cannot be recoloured).
-const icons: Record<(typeof TABS)[number]['key'], ReactNode> = {
-  home: (
-    <>
-      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-      <path d="M9 22V12h6v10" />
-    </>
-  ),
-  map: (
-    <>
-      <path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4z" />
-      <path d="M8 2v16M16 6v16" />
-    </>
-  ),
-  community: (
-    <>
-      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-      <circle cx="9" cy="7" r="4" />
-      <path d="M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8" />
-    </>
-  ),
-  me: (
-    <>
-      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-      <circle cx="12" cy="7" r="4" />
-    </>
-  ),
-};
 
 /**
  * Home · Map · ＋ · Community · Me, fixed to the bottom of every resident page. A tap on + opens the Create sheet. Held
@@ -149,9 +121,7 @@ export function BottomNav({ fallback }: { fallback: LatLng }) {
                           !
                         </span>
                       ) : (
-                        <svg viewBox="0 0 24 24" className="size-7" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" aria-hidden="true">
-                          <path d="M12 5v14M5 12h14" />
-                        </svg>
+                        <Icon name="add" className="size-7" />
                       )}
                     </button>
                   </div>
@@ -162,9 +132,8 @@ export function BottomNav({ fallback }: { fallback: LatLng }) {
                   // Inset focus ring: the outer tabs touch the screen edge on a phone, which would clip the global one.
                   className={`flex min-h-12 flex-col items-center justify-center gap-0.5 text-xs focus-visible:outline-offset-[-2px] ${active ? 'font-bold text-red-text' : 'font-semibold text-muted'}`}
                 >
-                  <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    {icons[tab.key]}
-                  </svg>
+                  {/* The team's icons are drawn in the text colour, so the active tab's turns red with its label. */}
+                  <Icon name={tab.key} className="size-6" />
                   {t(tab.label)}
                 </Link>
               </Fragment>

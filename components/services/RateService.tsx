@@ -3,6 +3,7 @@
 import { useActionState, useState } from 'react';
 import { rateService, type ServiceActionResult } from '@/app/(app)/community/services/actions';
 import { Button } from '@/components/ui/Button';
+import { Glyph } from '@/components/ui/Glyph';
 import { Sheet } from '@/components/ui/Sheet';
 import { useT } from '@/lib/i18n';
 
@@ -23,14 +24,14 @@ export function RateService({ serviceId, name, rating, canAct }: { serviceId: st
       ) : (
         <p className="text-sm">
           <span className="text-muted-2">{t('service.rate.yours')}: </span>
-          <span aria-hidden="true">{'⭐'.repeat(rating)}</span>
+          <span aria-hidden="true">{Array.from({ length: rating }, (_, i) => <Glyph key={i} emoji="⭐" />)}</span>
           <span className="sr-only">{t(rating === 1 ? 'service.rate.starOne' : 'service.rate.starMany', { n: rating })}</span>
         </p>
       )}
       <Button type="button" variant={rating === null ? 'ink' : 'outline'} disabled={!canAct} onClick={() => setOpen(true)}>
         {rating === null ? (
           <>
-            <span aria-hidden="true">⭐</span> {t('service.rate.cta')}
+            <Glyph emoji="⭐" /> {t('service.rate.cta')}
           </>
         ) : (
           t('service.rate.change')

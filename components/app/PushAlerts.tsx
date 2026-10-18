@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { forgetPushSubscription, savePushSubscription } from '@/app/(app)/emergency/actions';
 import { Button } from '@/components/ui/Button';
+import { Glyph } from '@/components/ui/Glyph';
 import { useT } from '@/lib/i18n';
 
 type State = 'checking' | 'unsupported' | 'blocked' | 'off' | 'on';
@@ -72,7 +73,7 @@ export function PushAlerts() {
       </p>
       {state === 'off' && (
         <Button type="button" variant="ink" disabled={busy} onClick={() => void turnOn()} className="justify-self-start">
-          <span aria-hidden="true">🔔</span> {t('alerts.turnOn')}
+          <Glyph emoji="🔔" /> {t('alerts.turnOn')}
         </Button>
       )}
       {state === 'on' && (

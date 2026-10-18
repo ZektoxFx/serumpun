@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { NoticeNote } from '@/components/dashboard/NoticeNote';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { Glyph } from '@/components/ui/Glyph';
 import { Tag } from '@/components/ui/Tag';
 import { TimeAgo } from '@/components/ui/TimeAgo';
 import { NOTICE_COLUMNS, NOTICE_ICON, noticeDates, type ResidentNotice } from '@/lib/domain/notices';
@@ -56,7 +57,7 @@ export default async function NoticesDashboardPage() {
               <li key={n.id} className="flex flex-col gap-2 rounded-2xl border border-line bg-surface p-4 shadow-card">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <p className="font-bold">
-                    <span aria-hidden="true">{NOTICE_ICON[n.kind]} </span>
+                    <span aria-hidden="true"><Glyph emoji={NOTICE_ICON[n.kind]} /> </span>
                     {t(lang, `notice.kind.${n.kind}`)} · {noticeDates(n.starts_on, n.ends_on, lang)}
                   </p>
                   <Tag variant={n.status === 'noted' ? 'green' : 'amber'}>{t(lang, `notice.status.${n.status}`)}</Tag>

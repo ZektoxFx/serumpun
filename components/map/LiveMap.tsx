@@ -5,6 +5,7 @@ import './map.css';
 import * as L from 'leaflet';
 import { useEffect, useEffectEvent, useRef, type ReactNode, type RefObject } from 'react';
 import { ALERT_ICON, type AlertType, type Severity } from '@/lib/domain/alerts';
+import { glyphFor } from '@/lib/domain/glyphs';
 import { ALERT_RADIUS_M } from '@/lib/domain/emergency';
 import type { LatLng } from '@/lib/domain/geo';
 import { useT } from '@/lib/i18n';
@@ -30,11 +31,12 @@ export function addStreetMap(map: L.Map) {
   L.tileLayer(TILES, { maxZoom: 19, attribution: CREDIT }).addTo(map);
 }
 
-// Only fixed emoji and class names go into the HTML; the pin's name is set with setAttribute.
+// Only fixed icon names and class names go into the HTML; the pin's name is set with setAttribute. The head shows the
+// team's drawing for the type (map.css masks it); severity stays in the ring, never colour alone.
 const pinIcon = (pin: MapPin) =>
   L.divIcon({
     className: `map-pin map-pin--${pin.severity}${pin.official ? ' map-pin--official' : ''}`,
-    html: `<span class="map-pin-ring"></span><span class="map-pin-head"><span class="map-pin-glyph" aria-hidden="true">${ALERT_ICON[pin.type]}</span></span>`,
+    html: `<span class="map-pin-ring"></span><span class="map-pin-head"><span class="map-pin-glyph" aria-hidden="true" style="--glyph: url(/icons/line/${glyphFor(ALERT_ICON[pin.type])}.png)"></span></span>`,
     iconSize: [44, 46],
     iconAnchor: [22, 46],
   });

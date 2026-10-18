@@ -10,6 +10,7 @@ import { PostComposer } from '@/components/groups/PostComposer';
 import { GROUP_TILE } from '@/components/groups/groupStyle';
 import { Avatar, initials } from '@/components/ui/Avatar';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { Glyph } from '@/components/ui/Glyph';
 import { Tag } from '@/components/ui/Tag';
 import {
   PUBLIC_COMMENT_COLUMNS,
@@ -144,7 +145,7 @@ async function Posts({ group, profile, lang }: { group: PublicGroup; profile: Se
   const pinned = next && (
     <Link href={`/community/events/${next.id}`} className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-3.5 shadow-card hover:bg-soft">
       <span aria-hidden="true" className="grid size-11 shrink-0 place-items-center rounded-xl bg-tint-orange text-xl">
-        {EVENT_ICON[next.category]}
+        <Glyph emoji={EVENT_ICON[next.category]} />
       </span>
       <span className="grid min-w-0 flex-1">
         <span className="text-xs font-extrabold uppercase tracking-wide text-muted">
