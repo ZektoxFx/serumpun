@@ -1117,6 +1117,29 @@ const en = {
   'parking.pay.alreadyPaid': 'Already paid · exit by {time}',
   'parking.error.plate': 'Enter a car plate like WXY 1234.',
   'parking.error.alreadyPaid': 'This parking is already paid.',
+
+  // Mall directory (feedback round 2)
+  'mall.shops': '{n} shops',
+  'mall.search': 'Search shops or units',
+  'mall.all': 'All',
+  'mall.category.food': 'Food & drink',
+  'mall.category.groceries': 'Groceries',
+  'mall.category.fashion': 'Fashion',
+  'mall.category.beauty': 'Beauty & health',
+  'mall.category.home': 'Home & gadgets',
+  'mall.category.kids': 'Kids & toys',
+  'mall.category.sports': 'Sports & leisure',
+  'mall.category.services': 'Services',
+  'mall.facilities': 'Facilities',
+  'mall.facility.toilet': 'Toilets',
+  'mall.facility.surau': 'Surau',
+  'mall.facility.atm': 'ATM',
+  'mall.facility.nursing': 'Nursing room',
+  'mall.facility.playground': "Children's playground",
+  'mall.facility.info': 'Information counter',
+  'mall.empty': 'No shops match. Try another name.',
+  'mall.planCredit': 'Layout plan © Sime Darby Property',
+  'mall.planLabel': 'Layout plan of Elmina Lakeside Mall',
 } satisfies Record<string, string>;
 
 export default en;

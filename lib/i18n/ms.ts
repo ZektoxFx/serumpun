@@ -1118,6 +1118,29 @@ const ms: Record<keyof typeof en, string> = {
   'parking.pay.alreadyPaid': 'Sudah dibayar · keluar sebelum {time}',
   'parking.error.plate': 'Masukkan nombor plat seperti WXY 1234.',
   'parking.error.alreadyPaid': 'Parkir ini sudah dibayar.',
+
+  // Direktori mal (maklum balas pusingan 2)
+  'mall.shops': '{n} kedai',
+  'mall.search': 'Cari kedai atau unit',
+  'mall.all': 'Semua',
+  'mall.category.food': 'Makanan & minuman',
+  'mall.category.groceries': 'Barangan runcit',
+  'mall.category.fashion': 'Fesyen',
+  'mall.category.beauty': 'Kecantikan & kesihatan',
+  'mall.category.home': 'Rumah & gajet',
+  'mall.category.kids': 'Kanak-kanak & mainan',
+  'mall.category.sports': 'Sukan & riadah',
+  'mall.category.services': 'Perkhidmatan',
+  'mall.facilities': 'Kemudahan',
+  'mall.facility.toilet': 'Tandas',
+  'mall.facility.surau': 'Surau',
+  'mall.facility.atm': 'ATM',
+  'mall.facility.nursing': 'Bilik menyusu',
+  'mall.facility.playground': 'Taman permainan kanak-kanak',
+  'mall.facility.info': 'Kaunter maklumat',
+  'mall.empty': 'Tiada kedai yang sepadan. Cuba nama lain.',
+  'mall.planCredit': 'Pelan susun atur © Sime Darby Property',
+  'mall.planLabel': 'Pelan susun atur Elmina Lakeside Mall',
 };
 
 export default ms;
