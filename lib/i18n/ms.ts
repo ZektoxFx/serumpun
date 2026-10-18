@@ -1141,6 +1141,12 @@ const ms: Record<keyof typeof en, string> = {
   'mall.empty': 'Tiada kedai yang sepadan. Cuba nama lain.',
   'mall.planCredit': 'Pelan susun atur © Sime Darby Property',
   'mall.planLabel': 'Pelan susun atur Elmina Lakeside Mall',
+
+  // Topik Sembang Umum (maklum balas pusingan 2)
+  'general.error.notFound': 'Topik ini tidak tersedia.',
+  'general.error.officeOnly': 'Hanya Pejabat Pengurusan boleh menghantar mesej dalam topik ini.',
+  'general.error.topic': 'Beri topik satu emoji dan nama hingga 40 aksara.',
+  'general.error.systemTopic': 'Announcements sentiasa kekal, dan hanya pejabat boleh menghantar mesej di situ.',
 };
 
 export default ms;

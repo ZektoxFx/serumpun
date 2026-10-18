@@ -1140,6 +1140,12 @@ const en = {
   'mall.empty': 'No shops match. Try another name.',
   'mall.planCredit': 'Layout plan © Sime Darby Property',
   'mall.planLabel': 'Layout plan of Elmina Lakeside Mall',
+
+  // General chat topics (feedback round 2)
+  'general.error.notFound': 'This topic is not available.',
+  'general.error.officeOnly': 'Only the Management Office posts in this topic.',
+  'general.error.topic': 'Give the topic an emoji and a name of up to 40 characters.',
+  'general.error.systemTopic': 'Announcements always stays, and only the office posts there.',
 } satisfies Record<string, string>;
 
 export default en;
