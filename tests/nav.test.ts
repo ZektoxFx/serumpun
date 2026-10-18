@@ -1,4 +1,4 @@
-import { CREATE_ACTIONS, HOME_TILES, ME_LINKS, TABS, isActiveTab } from '@/lib/domain/nav';
+import { CREATE_ACTIONS, HELP_LINKS, HOME_TILES, ME_LINKS, TABS, isActiveTab } from '@/lib/domain/nav';
 
 describe('isActiveTab', () => {
   it('is active on its own page and on anything below it', () => {
@@ -59,5 +59,9 @@ describe('route contracts', () => {
       '/notices',
       '/me/points',
     ]);
+  });
+
+  it('the help pages', () => {
+    expect(HELP_LINKS.map((l) => l.href)).toEqual(['/help/guidelines', '/help/rules', '/help/faq', '/help/terms']);
   });
 });

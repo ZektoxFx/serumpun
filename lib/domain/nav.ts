@@ -50,3 +50,11 @@ export const ME_LINKS = [
   { href: '/notices', label: 'me.notices', icon: '📝' },
   { href: '/me/points', label: 'me.pointsHistory', icon: '★' },
 ] as const satisfies readonly IconEntry[];
+
+/** Me › Help & policies (feedback round 2): the four help pages, readable signed out too. */
+export const HELP_LINKS = [
+  { href: '/help/guidelines', label: 'help.guidelines', hint: 'help.guidelines.hint', icon: '📘' },
+  { href: '/help/rules', label: 'help.rules', hint: 'help.rules.hint', icon: '📜' },
+  { href: '/help/faq', label: 'help.faq', hint: 'help.faq.hint', icon: '❓' },
+  { href: '/help/terms', label: 'help.terms', hint: 'help.terms.hint', icon: '📄' },
+] as const satisfies readonly (IconEntry & { hint: MessageKey })[];

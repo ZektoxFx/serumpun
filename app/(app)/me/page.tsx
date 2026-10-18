@@ -9,7 +9,7 @@ import { TextSizeSwitch } from '@/components/app/TextSizeSwitch';
 import { ThemeSwitch } from '@/components/app/ThemeSwitch';
 import { Avatar } from '@/components/ui/Avatar';
 import { buttonClasses } from '@/components/ui/Button';
-import { ME_LINKS } from '@/lib/domain/nav';
+import { HELP_LINKS, ME_LINKS } from '@/lib/domain/nav';
 import { formatPoints, nextReward, rewardTitle } from '@/lib/domain/points';
 import { statusKey } from '@/lib/domain/profile';
 import { t } from '@/lib/i18n';
@@ -112,7 +112,7 @@ export default async function MePage() {
 
         <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface shadow-card">
           {ME_LINKS.map((link) => (
-            <li key={link.href} className="first:rounded-t-[inherit]">
+            <li key={link.href} className="first:rounded-t-[inherit] last:rounded-b-[inherit]">
               <Link href={link.href} className={pressable}>
                 <span aria-hidden="true" className={rowIcon}>
                   {link.icon}
@@ -127,7 +127,33 @@ export default async function MePage() {
               </Link>
             </li>
           ))}
+        </ul>
 
+        <section aria-labelledby="help-heading" className="grid gap-2">
+          <h2 id="help-heading" className="px-1 pt-1 text-xs font-extrabold uppercase tracking-wide text-muted">
+            {t(lang, 'me.help')}
+          </h2>
+          <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface shadow-card">
+            {HELP_LINKS.map((link) => (
+              <li key={link.href} className="first:rounded-t-[inherit] last:rounded-b-[inherit]">
+                <Link href={link.href} className={`${pressable} py-2`}>
+                  <span aria-hidden="true" className={rowIcon}>
+                    {link.icon}
+                  </span>
+                  <span className="grid flex-1">
+                    <span className="text-base font-bold">{t(lang, link.label)}</span>
+                    <span className="text-sm text-muted-2">{t(lang, link.hint)}</span>
+                  </span>
+                  <span aria-hidden="true" className="text-xl text-muted">
+                    ›
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface shadow-card">
           <li className={row}>
             <span aria-hidden="true" className={rowIcon}>
               🌙

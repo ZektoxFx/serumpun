@@ -1030,6 +1030,22 @@ const ms: Record<keyof typeof en, string> = {
   'walk.legend.safe': 'Laluan selamat',
   'walk.legend.usual': 'Laluan biasa (bahaya)',
   'walk.end': 'Tamat',
+
+  // Saya › Bantuan & polisi (maklum balas pusingan 2)
+  'me.help': 'Bantuan & polisi',
+  'help.guidelines': 'Panduan',
+  'help.guidelines.hint': 'Cara menggunakan Serumpun, langkah demi langkah',
+  'help.rules': 'Peraturan komuniti',
+  'help.rules.hint': 'Apa yang dibenarkan dan tidak',
+  'help.rules.intro': 'Serumpun berjaya apabila jiran saling menjaga. Sila patuhi peraturan ini.',
+  'help.faq': 'Soalan lazim',
+  'help.faq.hint': 'Jawapan pantas',
+  'help.faq.search': 'Cari soalan',
+  'help.faq.empty': 'Tiada soalan yang sepadan. Cuba perkataan lain.',
+  'help.terms': 'Terma & Syarat',
+  'help.terms.hint': 'Terma penggunaan dan privasi',
+  'help.terms.updated': 'Kemas kini terakhir {date}',
+  'signup.agree': 'Dengan mendaftar, anda bersetuju dengan',
 };
 
 export default ms;

@@ -107,6 +107,14 @@ export function SignUpForm({ townships }: { townships: { slug: string; name: str
         {(control) => <input {...control} name="password" type="password" required minLength={8} autoComplete="new-password" />}
       </Field>
       <FormError result={result} />
+      <p className="text-sm text-muted-2">
+        {t('signup.agree')}{' '}
+        {/* A new tab, so reading them does not lose what is typed above. */}
+        <a href="/help/terms" target="_blank" rel="noopener" className="font-bold text-text underline">
+          {t('help.terms')}
+        </a>
+        .
+      </p>
       <Button type="submit" size="lg" disabled={pending}>
         {t('signup.submit')}
       </Button>

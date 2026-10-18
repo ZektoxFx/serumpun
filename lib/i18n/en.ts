@@ -1029,6 +1029,22 @@ const en = {
   'walk.legend.safe': 'Safe route',
   'walk.legend.usual': 'Usual way (hazard)',
   'walk.end': 'End',
+
+  // Me › Help & policies (feedback round 2)
+  'me.help': 'Help & policies',
+  'help.guidelines': 'Guidelines',
+  'help.guidelines.hint': 'How to use Serumpun, step by step',
+  'help.rules': 'Community rules',
+  'help.rules.hint': "What's OK and what's not",
+  'help.rules.intro': 'Serumpun works when neighbours look after each other. Please keep to these rules.',
+  'help.faq': 'FAQ',
+  'help.faq.hint': 'Quick answers',
+  'help.faq.search': 'Search questions',
+  'help.faq.empty': 'No questions match. Try another word.',
+  'help.terms': 'Terms & Conditions',
+  'help.terms.hint': 'Terms of use and privacy',
+  'help.terms.updated': 'Last updated {date}',
+  'signup.agree': 'By signing up you agree to the',
 } satisfies Record<string, string>;
 
 export default en;
