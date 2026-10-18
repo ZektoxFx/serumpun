@@ -11,7 +11,8 @@ import {
 } from '@/lib/domain/community';
 import { mytDate } from '@/lib/domain/time';
 import { t } from '@/lib/i18n';
-import { communityRows } from '@/lib/seed/community';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { communityRows, seedCommunity } from '@/lib/seed/community';
 import type { People } from '@/lib/seed/people';
 
 const comment = (id: string, helpful_count: number, created_at: string) => ({ id, helpful_count, created_at });
@@ -66,6 +67,24 @@ describe('the seeded groups', () => {
   const { groups, members, posts, comments, helpful } = communityRows(now, people);
   const group = (name: string) => groups.find((g) => g.name === name)!;
   const isMember = (groupId: string, user: string) => members.some((m) => m.group_id === groupId && m.user_id === user);
+
+  it('go in after the listings their posts link to (posts.listing_id is a foreign key)', async () => {
+    const order: string[] = [];
+    const admin = {
+      from: (table: string) => ({
+        insert: async () => {
+          order.push(table);
+          return { error: null };
+        },
+        update: () => ({ eq: async () => ({ error: null }) }),
+      }),
+    } as unknown as SupabaseClient;
+    const quiet = vi.spyOn(console, 'log').mockImplementation(() => {});
+    await seedCommunity(admin, now, people);
+    quiet.mockRestore();
+    expect(order.indexOf('listings')).toBeGreaterThanOrEqual(0);
+    expect(order.indexOf('listings')).toBeLessThan(order.indexOf('posts'));
+  });
 
   it('are the five of the spec and General chat, with Aisyah in three of the five', () => {
     expect(groups.map((g) => g.name).sort()).toEqual([

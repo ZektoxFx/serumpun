@@ -360,15 +360,16 @@ export function communityRows(now: Date, people: People) {
  */
 export async function seedCommunity(admin: SupabaseClient, now: Date, people: People): Promise<void> {
   const { groups, members, posts, comments, helpful, eventGroups, services, reviews, listings, borrows } = communityRows(now, people);
+  // Listings before posts: Priya's stroller post links to her listing (posts.listing_id is a foreign key).
   const tables: [string, Record<string, unknown>[]][] = [
     ['groups', groups],
     ['group_members', members],
+    ['listings', listings],
     ['posts', posts],
     ['comments', comments],
     ['comment_helpful', helpful],
     ['services', services],
     ['service_reviews', reviews],
-    ['listings', listings],
     ['borrow_requests', borrows],
   ];
   for (const [table, rows] of tables) {
