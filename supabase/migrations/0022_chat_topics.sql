@@ -2,8 +2,8 @@
 -- live group chat. Everyone in the township reads; verified residents and the office post, and only the office posts in
 -- an office-only topic. Only the office adds, renames and removes topics (removing hides one; its messages stay), and
 -- Announcements, the office's own, mirrors every announcement it publishes. What General chat already had moves into
--- Borak-borak. Residents read the two public_* views; new messages go out live as postgres_changes, which row-level
--- security limits to the township.
+-- Borak-borak in 0023, applied with the topic screens. Residents read the two public_* views; new messages go out live
+-- as postgres_changes, which row-level security limits to the township.
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- Tables
@@ -251,7 +251,7 @@ create trigger announcements_mirror_to_topic
   for each row execute function public.mirror_announcement();
 
 -- ---------------------------------------------------------------------------------------------------------------------
--- Data: the starting topics in every General chat, and what General chat already had
+-- Data: the starting topics in every General chat, and the announcements so far
 -- ---------------------------------------------------------------------------------------------------------------------
 
 -- STARTING_TOPICS of lib/domain/topics.ts.
@@ -274,23 +274,6 @@ select t.id, a.created_by, left(a.title || E'\n' || a.body, 2000), a.created_at
   from public.announcements a
   join public.groups g on g.township_id = a.township_id and g.is_general
   join public.chat_topics t on t.group_id = g.id and t.system_key = 'announcements';
-
--- Every post in General chat, and every comment on one, becomes a message in Borak-borak with its author and time; then
--- the posts go, and their comments with them.
-insert into public.topic_messages (topic_id, sender_id, body, created_at)
-select t.id, x.author_id, x.body, x.created_at
-  from public.groups g
-  join public.chat_topics t on t.group_id = g.id and t.title = 'Borak-borak'
-  join lateral (
-    select po.author_id, po.body, po.created_at from public.posts po where po.group_id = g.id
-    union all
-    select c.author_id, c.body, c.created_at
-      from public.comments c join public.posts po on po.id = c.post_id
-     where po.group_id = g.id
-  ) x on true
- where g.is_general;
-
-delete from public.posts po using public.groups g where g.id = po.group_id and g.is_general;
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- Row-level security and privileges
