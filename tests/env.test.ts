@@ -42,5 +42,6 @@ describe('env', () => {
     expect(() => env.demoPassword).toThrow(/server-only/);
     expect(() => env.serviceRoleKey).toThrow(/server-only/);
     expect(() => env.databaseUrl).toThrow(/server-only/);
+    expect(() => env.cardSigningKey).toThrow(/server-only/);
   });
 });

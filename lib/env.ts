@@ -44,4 +44,7 @@ export const env = {
   get demoPassword() {
     return readServerEnv(['DEMO_PASSWORD']);
   },
+  get cardSigningKey() {
+    return readServerEnv(['CARD_SIGNING_KEY']);
+  },
 };
