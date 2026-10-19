@@ -52,11 +52,16 @@ const PEOPLE = {
   jason: { email: 'jason.lee@example.com', name: 'Jason Lee', neighbourhood: 'Elmina Green', unit: 'No. 19, Jalan Elmina Green 3/2', status: 'verified', joinedDaysAgo: 150 },
   nurul: { email: 'nurul.huda@example.com', name: 'Nurul Huda', neighbourhood: 'Elmina Valley 2', unit: 'No. 11, Jalan Elmina Valley 2/3', status: 'verified', joinedDaysAgo: 90 },
   arif: { email: 'arif.iskandar@example.com', name: 'Arif Iskandar', neighbourhood: 'Elmina Valley 3', unit: 'No. 40, Jalan Elmina Valley 3/5', status: 'verified', joinedDaysAgo: 40 },
+  // The Co-owner and the child on Aisyah's household card, at the same home.
+  imran: { email: 'imran.yusof@example.com', name: 'Imran Yusof', neighbourhood: 'Elmina Valley 3', unit: 'No. 18, Jalan Elmina Valley 3/2', status: 'verified', joinedDaysAgo: 400 },
+  sara: { email: 'sara.imran@example.com', name: 'Sara Imran', neighbourhood: 'Elmina Valley 3', unit: 'No. 18, Jalan Elmina Valley 3/2', status: 'verified', joinedDaysAgo: 380 },
 } satisfies Record<string, Person>;
 
 export type PersonKey = keyof typeof PEOPLE;
 /** What every feature seeder gets: Elmina's id and each seeded person's user id. */
 export type People = { townshipId: string; ids: Record<PersonKey, string> };
+/** Everyone seeded with their details, in the order of PEOPLE: a household's first person comes first. */
+export const ROSTER = Object.entries(PEOPLE) as [PersonKey, Person][];
 
 /** A seeded person's unit (null for the Management Office), for rows that copy it: a court booking's household. */
 export const unitOf = (key: PersonKey) => PEOPLE[key].unit;
@@ -119,58 +124,38 @@ async function restoreDemoLogin(admin: SupabaseClient, key: DemoAccount, user: U
   console.log(`restored ${email}: ${what.join(', ')}`);
 }
 
-/** Creates (or finds) the townships and the people, and puts their profiles back to the seeded state. */
-export async function seedPeople(admin: SupabaseClient, now: Date): Promise<People> {
-  const { data: townships, error: townshipError } = await admin
-    .from('townships')
-    .upsert(TOWNSHIPS, { onConflict: 'slug' })
-    .select('id, slug');
-  if (townshipError) throw new Error(`townships: ${townshipError.message}`);
-  const townshipId: string = townships.find((row) => row.slug === ELMINA)!.id;
+const demoKeyOf = (key: PersonKey) => (Object.hasOwn(DEMO_EMAIL, key) ? (key as DemoAccount) : null);
 
+/** Every auth user, and the account of each seeded person who has one: a demo account by its marker, anyone by email. */
+async function findAccounts(admin: SupabaseClient) {
   const existing = await existingUsers(admin);
-  const people = Object.entries(PEOPLE) as [PersonKey, Person][];
-  const demoKeyOf = (key: PersonKey) => (Object.hasOwn(DEMO_EMAIL, key) ? (key as DemoAccount) : null);
   const found = new Map(
-    people.map(([key, person]) => [key, (demoKeyOf(key) && existing.byDemoKey.get(demoKeyOf(key)!)) || existing.byEmail.get(person.email)]),
+    ROSTER.map(([key, person]) => [key, (demoKeyOf(key) && existing.byDemoKey.get(demoKeyOf(key)!)) || existing.byEmail.get(person.email)]),
   );
+  return { all: existing.all, found };
+}
 
-  // Every other account is a visitor's sign-up. On the public demo anyone can open the Management Office, so a reset
-  // must not leave their names and house numbers readable there (Task 3 ruling). Deleting the auth user removes the
-  // profile with it. Going first also frees a demo email a visitor took, before restoreDemoLogin puts it back.
-  const keep = new Set([...found.values()].map((user) => user?.id));
-  let removed = 0;
-  for (const user of existing.all.filter((u) => !keep.has(u.id))) {
-    const { error } = await admin.auth.admin.deleteUser(user.id);
-    if (error) throw new Error(`delete a visitor account: ${error.message}`);
-    removed++;
-  }
+async function createAccount(admin: SupabaseClient, key: PersonKey, person: Person) {
+  const demoKey = demoKeyOf(key);
+  const { data, error } = await admin.auth.admin.createUser({
+    email: person.email,
+    // Background residents never sign in, so a random password keeps their accounts shut.
+    password: demoKey ? env.demoPassword : crypto.randomUUID(),
+    email_confirm: true,
+    app_metadata: demoKey ? { demo: demoKey } : {},
+  });
+  if (error) throw new Error(`create ${person.email}: ${error.message}`);
+  return data.user.id;
+}
 
-  const ids = {} as Record<PersonKey, string>;
-  let created = 0;
-  for (const [key, person] of people) {
-    const demoKey = demoKeyOf(key);
-    const user = found.get(key);
-    if (user) {
-      ids[key] = user.id;
-      if (demoKey) await restoreDemoLogin(admin, demoKey, user);
-      continue;
-    }
-    const { data, error } = await admin.auth.admin.createUser({
-      email: person.email,
-      // Background residents never sign in, so a random password keeps their accounts shut.
-      password: demoKey ? env.demoPassword : crypto.randomUUID(),
-      email_confirm: true,
-      app_metadata: demoKey ? { demo: demoKey } : {},
-    });
-    if (error) throw new Error(`create ${person.email}: ${error.message}`);
-    ids[key] = data.user.id;
-    created++;
-  }
-
-  // Upserts, so a reset also undoes what a demo changed (Nur approved, a name or language edited).
+/**
+ * Everyone's profile, and the unit of those who have a home. 'rewrite' puts each back to the seeded state, so a reset also
+ * undoes what a demo changed (Nur approved, a name or language edited); 'keep' adds only the missing ones.
+ */
+async function saveProfiles(admin: SupabaseClient, townshipId: string, ids: Record<PersonKey, string>, now: Date, onExisting: 'keep' | 'rewrite') {
+  const options = { ignoreDuplicates: onExisting === 'keep' };
   const { error: profileError } = await admin.from('profiles').upsert(
-    people.map(([key, person]) => ({
+    ROSTER.map(([key, person]) => ({
       id: ids[key],
       township_id: townshipId,
       full_name: person.name,
@@ -181,16 +166,83 @@ export async function seedPeople(admin: SupabaseClient, now: Date): Promise<Peop
       favourites: null, // Home's default favourites again
       created_at: new Date(now.getTime() - person.joinedDaysAgo * DAY).toISOString(),
     })),
+    options,
   );
   if (profileError) throw new Error(`profiles: ${profileError.message}`);
   const { error: privateError } = await admin
     .from('profile_private')
-    .upsert(people.filter(([, person]) => person.unit).map(([key, person]) => ({ id: ids[key], unit_no: person.unit })));
+    .upsert(ROSTER.filter(([, person]) => person.unit).map(([key, person]) => ({ id: ids[key], unit_no: person.unit })), options);
   if (privateError) throw new Error(`profile_private: ${privateError.message}`);
+}
+
+/** Creates (or finds) the townships and the people, and puts their profiles back to the seeded state. */
+export async function seedPeople(admin: SupabaseClient, now: Date): Promise<People> {
+  const { data: townships, error: townshipError } = await admin
+    .from('townships')
+    .upsert(TOWNSHIPS, { onConflict: 'slug' })
+    .select('id, slug');
+  if (townshipError) throw new Error(`townships: ${townshipError.message}`);
+  const townshipId: string = townships.find((row) => row.slug === ELMINA)!.id;
+
+  const { all, found } = await findAccounts(admin);
+
+  // Every other account is a visitor's sign-up. On the public demo anyone can open the Management Office, so a reset
+  // must not leave their names and house numbers readable there (Task 3 ruling). Deleting the auth user removes the
+  // profile with it. Going first also frees a demo email a visitor took, before restoreDemoLogin puts it back.
+  const keep = new Set([...found.values()].map((user) => user?.id));
+  let removed = 0;
+  for (const user of all.filter((u) => !keep.has(u.id))) {
+    const { error } = await admin.auth.admin.deleteUser(user.id);
+    if (error) throw new Error(`delete a visitor account: ${error.message}`);
+    removed++;
+  }
+
+  const ids = {} as Record<PersonKey, string>;
+  let created = 0;
+  for (const [key, person] of ROSTER) {
+    const demoKey = demoKeyOf(key);
+    const user = found.get(key);
+    if (user) {
+      ids[key] = user.id;
+      if (demoKey) await restoreDemoLogin(admin, demoKey, user);
+      continue;
+    }
+    ids[key] = await createAccount(admin, key, person);
+    created++;
+  }
+
+  await saveProfiles(admin, townshipId, ids, now, 'rewrite');
   // Pay parking: Aisyah's car is saved, so the demo is one tap.
   const { error: carError } = await admin.from('vehicles').insert({ user_id: ids.aisyah, plate: 'WXY 1234' });
   if (carError) throw new Error(`vehicles: ${carError.message}`);
 
-  console.log(`people: ${created} created, ${people.length - created} already there, ${removed} visitor accounts deleted`);
+  console.log(`people: ${created} created, ${ROSTER.length - created} already there, ${removed} visitor accounts deleted`);
   return { townshipId, ids };
+}
+
+/**
+ * Finds each person's account and makes the missing ones, with their profile and unit (scripts/seed-cards.ts). Unlike
+ * seedPeople it deletes no account and rewrites no profile, so it is safe on the shared live database between resets.
+ */
+export async function ensurePeople(admin: SupabaseClient, now: Date): Promise<People> {
+  const { data: township, error: townshipError } = await admin.from('townships').select('id').eq('slug', ELMINA).single();
+  if (townshipError) throw new Error(`township ${ELMINA}: ${townshipError.message}`);
+  const { found } = await findAccounts(admin);
+
+  const ids = {} as Record<PersonKey, string>;
+  let created = 0;
+  for (const [key, person] of ROSTER) {
+    const user = found.get(key);
+    if (user) {
+      ids[key] = user.id;
+      continue;
+    }
+    ids[key] = await createAccount(admin, key, person);
+    created++;
+  }
+
+  // Also covers an account that an interrupted run made before its profile.
+  await saveProfiles(admin, township.id, ids, now, 'keep');
+  console.log(`people: ${created} created, ${ROSTER.length - created} already there`);
+  return { townshipId: township.id, ids };
 }

@@ -11,6 +11,7 @@
     "typecheck": "next typegen && tsc --noEmit",
     "db:migrate": "tsx --env-file=.env.local scripts/migrate.ts",
     "db:seed": "tsx --conditions=react-server --env-file=.env.local scripts/seed.ts",
+    "db:seed:cards": "tsx --conditions=react-server --env-file=.env.local scripts/seed-cards.ts",
     "smoke": "tsx --conditions=react-server --env-file=.env.local scripts/smoke.ts",
     "card:key": "tsx scripts/card-key.ts"
   },

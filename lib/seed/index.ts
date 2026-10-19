@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { seedAlerts } from './alerts';
 import { seedBooking } from './booking';
+import { seedCards } from './cards';
 import { seedCommunity } from './community';
 import { seedEvents } from './events';
 import { seedMessages } from './messages';
@@ -16,7 +17,7 @@ export type Seeder = (admin: SupabaseClient, now: Date, people: People) => Promi
 // seedCommunity after seedEvents: it pins some of the events in their groups. seedMessages after seedCommunity: a
 // conversation is about Priya's stroller post. seedTopics after seedCommunity (General chat) and seedAlerts (the
 // announcement it copies into Announcements).
-const seeders: Seeder[] = [seedAlerts, seedReports, seedEvents, seedRewards, seedCommunity, seedTopics, seedMessages, seedBooking, seedNotices];
+const seeders: Seeder[] = [seedAlerts, seedReports, seedEvents, seedRewards, seedCommunity, seedTopics, seedMessages, seedBooking, seedNotices, seedCards];
 
 /**
  * Every uploaded photo goes with the reports and alerts that held them (the seed has none). Public photos sit at the root
