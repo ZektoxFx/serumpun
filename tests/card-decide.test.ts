@@ -41,6 +41,9 @@ it('needs a booking at the gym and the courts, not at the pool', () => {
 it('accepts a note exactly a minute off, either way: "more than a minute" is strict', () => {
   for (const off of [-60_000, 60_000]) expect(tap({ note: note({ at: now.getTime() + off }) })).toEqual({ granted: true });
 });
+it('refuses a note dated more than a minute ahead of the reader, as it does one that old', () => {
+  for (const ahead of [61_000, 86_400_000]) expect(tap({ note: note({ at: now.getTime() + ahead }) })).toEqual(no('pass_expired'));
+});
 it("refuses, rather than grants, when the reader's clock is not a time", () => expect(tap({ now: new Date(NaN) })).toEqual(no('pass_expired')));
 it('refuses a note made for another court at the same place', () => {
   const court = { place: 'facilities' as const, facility: 'court-1', state: state({ hasBooking: true }) };
@@ -85,6 +88,29 @@ describe('offlineState', () => {
   it('takes the places and the lease end from the pass', () => {
     const s = offlineState({ ...pass, places: ['pool'], leaseEnd: '2027-01-31' }, cache(), null, now);
     expect([s.places, s.leaseEnd]).toEqual([['pool'], '2027-01-31']);
+  });
+
+  // Beyond the brief (review round 1): the halves of offlineState the tests above leave unpinned.
+  it('leaves a card and a phone alone when nothing, or only other cards and phones, are on the stop list', () => {
+    for (const stop of [{ cards: [], phones: [] }, { cards: ['c19'], phones: ['p2'] }]) {
+      const s = offlineState(pass, cache({ stop }), null, now);
+      expect([s.suspended, s.phoneFrozen]).toEqual([false, false]);
+    }
+  });
+  it('keeps the two stop lists apart: a listed card is not a frozen phone, nor the reverse', () => {
+    const listed = (stop: ReaderCache['stop']) => { const s = offlineState(pass, cache({ stop }), null, now); return [s.suspended, s.phoneFrozen]; };
+    expect(listed({ cards: ['c18'], phones: [] })).toEqual([true, false]);
+    expect(listed({ cards: [], phones: ['p1'] })).toEqual([false, true]);
+  });
+  it('is suspended when the pass says so, even with nothing on the stop list', () => {
+    expect(offlineState({ ...pass, suspended: true }, cache(), null, now).suspended).toBe(true);
+  });
+  it('wants a booking for this card, this facility and today, as well as this hour', () => {
+    const booking = { card: 'c18', facility: 'f-gym', date: '2026-10-24', hour: 18 };
+    const has = (bookings: ReaderCache['bookings']) => offlineState(pass, cache({ bookings }), 'f-gym', now).hasBooking;
+    expect(has([booking])).toBe(true);
+    for (const other of [{ card: 'c19' }, { facility: 'f-court' }, { date: '2026-10-23' }]) expect(has([{ ...booking, ...other }])).toBe(false);
+    expect(has([{ ...booking, card: 'c19' }, { ...booking, hour: 19 }, booking])).toBe(true); // found among other people's bookings
   });
 });
 
