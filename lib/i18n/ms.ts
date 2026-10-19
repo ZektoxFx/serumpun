@@ -1170,6 +1170,17 @@ const ms: Record<keyof typeof en, string> = {
   'general.error.officeOnly': 'Hanya Pejabat Pengurusan boleh menghantar mesej dalam topik ini.',
   'general.error.topic': 'Beri topik satu emoji dan nama hingga 40 aksara.',
   'general.error.systemTopic': 'Announcements sentiasa kekal, dan hanya pejabat boleh menghantar mesej di situ.',
+
+  // Kad akses: sebab pembaca menolak ketukan, dan tempat yang dikawalnya (lib/card/decide.ts)
+  'reader.reason.pass_expired': 'Pas tamat tempoh',
+  'reader.reason.phone_off': 'Telefon ini telah dimatikan',
+  'reader.reason.card_suspended': 'Kad digantung',
+  'reader.reason.lease_ended': 'Tempoh sewa tamat',
+  'reader.reason.place_off': '{place} dimatikan untuk kad ini',
+  'reader.reason.no_booking': 'Tiada tempahan pada waktu ini',
+  'reader.place.facilities': 'Kemudahan',
+  'reader.place.gym': 'Gim',
+  'reader.place.pool': 'Kolam renang',
 };
 
 export default ms;

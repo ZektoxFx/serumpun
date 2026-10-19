@@ -1169,6 +1169,17 @@ const en = {
   'general.error.officeOnly': 'Only the Management Office posts in this topic.',
   'general.error.topic': 'Give the topic an emoji and a name of up to 40 characters.',
   'general.error.systemTopic': 'Announcements always stays, and only the office posts there.',
+
+  // Access card: why a reader refuses a tap, and the places it guards (lib/card/decide.ts)
+  'reader.reason.pass_expired': 'Pass expired',
+  'reader.reason.phone_off': 'This phone is switched off',
+  'reader.reason.card_suspended': 'Card suspended',
+  'reader.reason.lease_ended': 'Lease ended',
+  'reader.reason.place_off': '{place} is switched off for this card',
+  'reader.reason.no_booking': 'No booking at this time',
+  'reader.place.facilities': 'Facilities',
+  'reader.place.gym': 'Gym',
+  'reader.place.pool': 'Pool',
 } satisfies Record<string, string>;
 
 export default en;
