@@ -8,6 +8,9 @@ Agreed in the brainstorm of 19 Oct 2026 from a groupmate's spec (Phases 1–8, p
 `.superpowers/brainstorm/838-1792345647/content/`. "My call" marks a decision the user did not make; everything else
 they chose, or it comes from the groupmate's spec. Section 12 lists every call in one place.
 
+**Status:** approved by the user on 19 Oct 2026, with the team's changes and answers (items 15–18 in section 2). It
+is built in six stages, with one plan per stage.
+
 ## 1. Why
 
 Serumpun today: anyone signs up with an email, a password and a typed unit number, and the Management Office approves
@@ -84,6 +87,12 @@ organiser's own example idea is "one resident hub", so the card is a clear diffe
     the 6-digit PIN; then the card pops up, ready to hold near a reader.
 16. **A guest pass QR stays the same until the end time the host set** (the team's change after the walkthrough, 19
     Oct). It no longer changes every 30 seconds.
+17. **Building against the shared database** (approved 19 Oct). While building, migrations only add tables and seeders
+    only fill them, without wiping anything, so the live demo keeps working while the team records. Changes to what the
+    live app does wait for that stage's deploy, and the full reset (`npm run db:seed`) runs only with the user's OK.
+18. **Keeping the demo working for judges** (approved 19 Oct). Every "Try as Aisyah" tap puts No. 18's card back the
+    way it was seeded, so each judge starts with a working card. It happens only on that tap, so a suspension made
+    during a video take stays put.
 
 ## 3. Goals, non-goals, anti-goals
 
@@ -142,7 +151,7 @@ organiser's own example idea is "one resident hub", so the card is a clear diffe
   need one library; the builder picks it.
 - **Process.** Production deploys and moving GitHub `main` need the user's OK each time; only `feat/serumpun-mvp` is
   pushed. Shipping a stage means reseeding the shared live demo (`npm run db:seed`, then `npm run smoke`), which also
-  needs the user's OK first.
+  needs the user's OK first. During the build, migrations only add tables and seeders only fill them (decision 17).
 
 ## 5. Roles and rules
 
@@ -407,7 +416,8 @@ As in `office.html`:
   the mockup offers the demo sign-in.
 - **The QR fallback:** "Show QR instead" works on a real phone. Scanning it with the laptop's webcam comes in stage 6.
 - **Demo accounts** (my calls):
-  - **Aisyah** stays: Owner of No. 18, with a Co-owner and a child on her card.
+  - **Aisyah** stays: Owner of No. 18, with a Co-owner and a child on her card. Each "Try as Aisyah" tap first puts
+    No. 18's card back to its seeded state (decision 18).
   - **No. 18's Co-owner becomes a demo account**, so the two-person approvals can be shown with a second phone or
     browser. The mockups call him Hakim, but "Ahmad Hakim" already lives at No. 31, so the seed needs a name that
     doesn't clash.
