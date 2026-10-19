@@ -1181,6 +1181,11 @@ const ms: Record<keyof typeof en, string> = {
   'reader.place.facilities': 'Kemudahan',
   'reader.place.gym': 'Gim',
   'reader.place.pool': 'Kolam renang',
+
+  // Kad akses: pemberitahuan (supabase/migrations/0024_access_cards.sql)
+  'notify.card.suspended': 'Kad isi rumah anda telah digantung',
+  'notify.card.lifted': 'Kad isi rumah anda boleh digunakan semula',
+  'notify.card.pinLocked': 'Terlalu banyak PIN salah pada kad isi rumah anda',
 };
 
 export default ms;

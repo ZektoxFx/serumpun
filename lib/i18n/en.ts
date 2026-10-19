@@ -1180,6 +1180,11 @@ const en = {
   'reader.place.facilities': 'Facilities',
   'reader.place.gym': 'Gym',
   'reader.place.pool': 'Pool',
+
+  // Access card: notifications (supabase/migrations/0024_access_cards.sql)
+  'notify.card.suspended': 'Your household card was suspended',
+  'notify.card.lifted': 'Your household card works again',
+  'notify.card.pinLocked': 'Too many wrong PINs on your household card',
 } satisfies Record<string, string>;
 
 export default en;
