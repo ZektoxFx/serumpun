@@ -22,8 +22,8 @@ What this adds, and why:
 - **Checks and balances.** One card per household, run by an **Owner** and a **Co-owner**. Neither can remove the
   other, and adults are added or removed only when both agree. No single person can silently lock another adult out:
   the divorce and family-conflict problem the groupmate designed for.
-- **A tap, like Apple Pay.** A Wallet-style card with no unlock, a reader that shows a big green tick or a red reason,
-  and readers that keep working with the Wi-Fi off. It never shows a name.
+- **A tap, like Apple Pay.** A Wallet-style card that pops up after the 6-digit PIN, a reader that shows a big green
+  tick or a red reason, and readers that keep working with the Wi-Fi off. It never shows a name.
 - **Guest passes, bookings as entry tickets, an access history by unit, PDPA-minded logs** (visits deleted after 90
   days; the office reads them only for an incident, and the household is told).
 
@@ -35,8 +35,8 @@ organiser's own example idea is "one resident hub", so the card is a clear diffe
 
 1. The office gives a code at the counter. A resident registers with it (the SMS code shows on screen, then a PIN), and
    the Wallet-style card appears in Me.
-2. On the demo laptop the card is dragged onto the reader, or Tap is pressed. The phone buzzes, and the reader shows a
-   green tick and "Access granted · Pool".
+2. On the demo laptop the resident opens the card with the PIN, then drags it onto the reader or presses Tap. The phone
+   buzzes, and the reader shows a green tick and "Access granted · Pool".
 3. The office suspends the card: the next tap is red, "Card suspended". Lifting the suspension turns it green again.
 4. With the Wi-Fi off, the reader still accepts a valid card.
 5. The household page shows the two-person rule (an adult waiting for the Co-owner's answer, going to the office after
@@ -56,7 +56,7 @@ organiser's own example idea is "one resident hub", so the card is a clear diffe
    who.
 7. **The revised demo plan:**
    - The card looks like an Apple Wallet pass, with the township design and the unit number, in Me, with an "Add to
-     Apple Wallet" button. No unlock, like Express Mode.
+     Apple Wallet" button. Its "no unlock, like Express Mode" was later changed by the team (item 15).
    - A Reader page on a laptop looks like a tap reader: a glowing contactless mark and "Hold your iPhone near the
      reader". The tap is simulated by dragging the card onto the reader or pressing Tap on the phone mockup. The phone
      buzzes and shows a tick.
@@ -80,6 +80,10 @@ organiser's own example idea is "one resident hub", so the card is a clear diffe
 13. **A plastic card for children without phones** is in (part of "everything").
 14. **Six stages, built in the order of section 11.** Whatever is done by 23 Oct goes in the video; the rest follows
     before 11 Nov.
+15. **The card opens with the PIN** (the team's change after the walkthrough, 19 Oct). Choosing the card in Me asks for
+    the 6-digit PIN; then the card pops up, ready to hold near a reader.
+16. **A guest pass QR stays the same until the end time the host set** (the team's change after the walkthrough, 19
+    Oct). It no longer changes every 30 seconds.
 
 ## 3. Goals, non-goals, anti-goals
 
@@ -97,8 +101,9 @@ organiser's own example idea is "one resident hub", so the card is a clear diffe
   sheet saying so (my call).
 - Lifts, the main gate, the clubhouse door (my call, shown in the mockups without objection).
 - Real SMS. The SMS code is shown on screen in the demo; there is no SMS provider.
-- Blocking screenshots, or rooted and jailbroken phones: a web app can't. Instead, the QR changes every 30 seconds and
-  every tap is signed by the phone's own key, so a screenshot or a copied pass is useless.
+- Blocking screenshots, or rooted and jailbroken phones: a web app can't. Instead, every tap is signed by the phone's
+  own key and the resident's fallback QR changes every 30 seconds, so a screenshot or a copied card is useless. A guest
+  pass QR is the exception: it stays the same until its end time (section 7.4).
 - Landlord accounts, per-person places, and IC photo uploads in the app: the IC is always checked at the counter (my
   call; the spec allowed "ID check or app-based verification").
 - Any change to the emergency alert.
@@ -182,7 +187,8 @@ Owner alone decides everything "both" would. **Every change in this table needs 
 - **Notifications.** Every change notifies the Owner, the Co-owner and the person affected, through the existing in-app
   bell and push. It also goes into the changes log, which nobody can edit or delete (append-only, enforced in the
   database).
-- **PIN.** 6 digits. 5 wrong tries lock it for 15 minutes and tell the Owner and the Co-owner (my call on the numbers).
+- **PIN.** 6 digits. It opens the card (section 7.2) and confirms every change. 5 wrong tries lock it for 15 minutes
+  and tell the Owner and the Co-owner (my call on the numbers).
 - **Restricted mode** (a dispute is open):
   - Access that already exists keeps working.
   - Nobody can add or remove people or phones, change roles, switch places, or make new guest passes. Passes made
@@ -191,6 +197,12 @@ Owner alone decides everything "both" would. **Every change in this table needs 
   - The office replies within 5 working days.
 
   The guest-pass rule and the 5 days are my calls.
+- **Who sees a dispute or an appeal** (my call, for safety in a separation):
+  - Only the person who opened it and the office see its text, its photos and who sent it.
+  - The others on the card see only that the office is reviewing a dispute.
+  - The notification and the changes-log entry don't name the sender.
+  - The office's decision is told to the Owner and the Co-owner.
+  - Appeals work the same way: only the person appealing and the office see the details.
 
 ## 6. Places, readers and the pass
 
@@ -282,11 +294,17 @@ stored"; the design below is my call.
 
 ### 7.2 Me › the card (stage 1)
 
+- **Opening the card** (the team's change). Choosing the card in Me asks for the 6-digit PIN; then the card pops up,
+  ready to hold near a reader.
+  - It locks again when the person leaves it, or after 60 seconds without a tap. That's my call; the groupmate's
+    Phase 4 also had it "auto-lock after a short idle time".
+  - Face ID can stand in for the PIN from stage 6.
+  - Wrong PINs count toward the lockout in section 5.
 - **The card** sits at the top of Me, Wallet-style:
   - the Serumpun gradient, "HOUSEHOLD CARD", "No. 18" and the street and township;
-  - PLACES and PHONES fields, "Express: no unlock needed" and a contactless mark;
+  - PLACES and PHONES fields and a contactless mark;
   - no names.
-- **Under it:** **Add to Apple Wallet (demo)** (the look-alike sheet), **Show QR instead** (the 30-second QR) and
+- **Under the open card:** **Add to Apple Wallet (demo)** (the look-alike sheet), **Show QR instead** (the 30-second QR) and
   **Household ›**. The **Tap** button lives on the phone mockup on the reader screen (section 9). A real phone has no
   reader to tap, so its Me shows "Hold near a reader" instead (my call).
 - **A frozen phone, a suspended card or an ended card** shows that state on the card itself (my call).
@@ -317,8 +335,9 @@ Adults and children see the same page without the controls they can't use (my ca
 
   Only places switched on for the card can be chosen, and at most 3 passes are active at once.
 - **Sending it:** a link (share to WhatsApp) and a QR. The guest needs no app. The link page shows "Guest pass · <place>
-  · <time> · Guest of No. 18" and a QR that the server re-signs every 30 seconds. So the guest's phone needs internet,
-  while the reader can still check the QR offline (my call).
+  · <time> · Guest of No. 18" and a QR that stays the same until the end time the host set (the team's change). The
+  server signs it, so the reader checks it offline too, and the guest's phone needs no internet once the page has
+  loaded. Because it doesn't change, a screenshot of it also works until the end time.
 - **When it's used**, the host is told ("Mei Ling's pass was used · Pool · 6:12 pm"). The pass ends by itself, and the
   host can cancel it. Switching the place off stops its passes (my call). A pass works for any number of taps within its
   time, and the host is told on the first one. When the host's card is suspended or ended, its passes stop too (my
@@ -384,7 +403,8 @@ As in `office.html`:
   - a **phone mockup** beside it, holding the card of the resident signed in on that browser. That browser is "the
     phone" (my call).
 
-  Drag the card onto the reader, or press Tap. With nobody signed in, the mockup offers the demo sign-in.
+  Enter the PIN on the phone mockup to open the card, then drag it onto the reader or press Tap. With nobody signed in,
+  the mockup offers the demo sign-in.
 - **The QR fallback:** "Show QR instead" works on a real phone. Scanning it with the laptop's webcam comes in stage 6.
 - **Demo accounts** (my calls):
   - **Aisyah** stays: Owner of No. 18, with a Co-owner and a child on her card.
@@ -450,7 +470,7 @@ Each stage works on its own and can be shown. Whatever is done by 23 Oct goes in
 
 1. **The tap.**
    - Units, cards, slots and passes, seeded; signing and renewal.
-   - The card in Me.
+   - The card in Me, opened with the PIN, with the lockout after 5 wrong tries.
    - The reader screen: the place picker, the booking check, green or red, the buzz and tick, the Wi-Fi-off check and
      the offline queue.
    - The visit log and the stop list.
@@ -466,9 +486,9 @@ Each stage works on its own and can be shown. Whatever is done by 23 Oct goes in
    - Two-person approvals, handed to the office after 48 hours.
    - Places on and off; Freeze and unfreeze.
    - The changes log and the access history.
-   - The PIN lockout and notifications.
+   - Notifications.
 4. **Guests and bookings.**
-   - Guest passes: the link page, the 30-second QR, the cap, the host told, passes from a booking.
+   - Guest passes: the link page, the QR that works until the end time, the cap, the host told, passes from a booking.
    - Players who joined a game get in.
 5. **When things go wrong.**
    - Disputes and restricted mode; appeals.
@@ -498,7 +518,6 @@ Each stage works on its own and can be shown. Whatever is done by 23 Oct goes in
    - the Owner, the Co-owner or an Adult can make one;
    - at most 3 active;
    - the Pool by time window, up to the end of the day; bookable places only from a booking;
-   - the link's QR is re-signed every 30 seconds;
    - switching a place off stops its passes;
    - in restricted mode no new ones can be made.
 9. **Disputes:** the office replies within 5 working days.
@@ -518,8 +537,11 @@ Each stage works on its own and can be shown. Whatever is done by 23 Oct goes in
     - demo browsers share their seeded phone slot, and the demo PIN is shown;
     - a background resident is the suspended tenant.
 17. **Find players:** people who joined a game on a court booking get in.
-18. **The card in Me:** a frozen, suspended or ended card shows that state; "Add to Apple Wallet" opens a sheet saying
-    it's a look-alike; the Tap button is only on the reader's phone mockup.
+18. **The card in Me:**
+    - after the PIN it stays open until the person leaves it, or for 60 seconds without a tap;
+    - a frozen, suspended or ended card shows that state;
+    - "Add to Apple Wallet" opens a sheet saying it's a look-alike;
+    - the Tap button is only on the reader's phone mockup.
 19. **Readers:** online readers ask the server, so every change takes effect at once; only offline readers decide from
     the pass.
 20. **One of each:** one phone per person, one card per person, one account per phone number. A plastic-card child is
@@ -527,6 +549,8 @@ Each stage works on its own and can be shown. Whatever is done by 23 Oct goes in
 21. **Keeping records:** the changes log is kept as long as the card exists.
 22. **Guest pass use:** a pass works for any number of taps within its time, and the host is told on the first. A
     suspended or ended card's passes stop too.
+23. **Disputes and appeals:** only the person who opened it and the office see the details. The rest of the card
+    sees only that the office is reviewing a dispute.
 
 ## 13. Corrections to the mockups
 
@@ -537,6 +561,9 @@ Each stage works on its own and can be shown. Whatever is done by 23 Oct goes in
 - `tap-demo.html`'s granted result loses the door icon: just the tick.
 - `tap-demo.html` shows Tap on the Me card. On a real phone, Me shows "Hold near a reader"; Tap is on the reader
   screen's phone mockup.
+- `tap-demo.html` and `activation-guests.html` show "Express: no unlock needed". The card now asks for the PIN first
+  (section 7.2).
+- `activation-guests.html` says the guest's QR changes every 30 seconds. It now stays the same until the pass ends.
 
 ## 14. Left to the builder
 
@@ -551,3 +578,143 @@ Each stage works on its own and can be shown. Whatever is done by 23 Oct goes in
 - The exact English and Malay copy, and the animations.
 - How "Reset demo" rebuilds card states.
 - The libraries for webcam QR and passkeys (stage 6).
+
+## 15. Checked against the groupmate's spec
+
+On 19 Oct every item in the groupmate's Phases 1–8 (Appendix A) and her revised demo plan (Appendix B) was checked
+against this document. Each one is either covered, changed by a decision in section 2, or a non-goal in section 3.
+
+- **Changed by decisions:**
+  - the lift goes;
+  - the tap replaces the QR as the main flow;
+  - the card opens with the PIN, close to Phase 4's unlock;
+  - places are per card;
+  - Owner and Co-owner replace "Head of Household";
+  - the access log is per unit, so it becomes "everyone on the card sees the card's history";
+  - safety alerts stay as they are.
+- **Non-goals:** blocking screenshots and rooted phones.
+
+## Appendix A. The groupmate's spec, as pasted on 19 Oct
+
+Verbatim, with its headings moved down one level. Section 2 overrides it where they differ.
+
+### Phase 1: Card activation (management, one-time)
+1. Management pre-loads the unit list and owner/tenant details into the system.
+2. Resident visits the office with ID and proof of ownership or tenancy.
+3. Management verifies and issues a **one-time activation code** (expires in a few days). For tenants, the lease end date is entered here.
+4. A unit can have several cards, but only the ones needed now are activated. Activating an extra card later requires a new office visit.
+
+### Phase 2: Account creation
+1. Resident downloads the app and taps Register.
+2. Enters the activation code, verifies by OTP, and sets a PIN.
+3. The app generates a private key stored in the phone's secure hardware, so the card is **bound to this device**.
+4. This person becomes the **Head of Household**, the verified owner or tenant, not just whoever registered first.
+5. The digital card appears in the **Me** tab.
+
+### Good call. With a single Head, one person holds all the power, which is exactly how the divorce or family-conflict problem starts. Here is the updated version with **Owner** and **Co-owner** and checks and balances. These replace Phase 3, the security rules, and the dispute handling in v2.
+
+### Roles
+
+| Role | Who | Notes |
+|---|---|---|
+| **Owner** | The verified owner or tenant (confirmed by management at activation) | Created automatically at registration |
+| **Co-owner** | Spouse or another adult the Owner nominates | Must accept, and management verifies them once (ID check or app-based verification) |
+| **Member (adult)** | Other adults in the household | Own phone, own profile |
+| **Member (child)** | Children or dependents | Limited facility permissions, cannot manage anyone |
+
+### Phase 3 (updated): Household members and devices
+1. Owner goes to Me > Household > Invite Member and sets the name, role, and facility permissions.
+2. The invited person joins using an invite code on their own phone (limit: 1 primary plus up to 3 linked devices per card).
+3. **Adding a child member:** Owner or Co-owner can do it alone.
+4. **Adding an adult member or a Co-owner:** needs approval from both Owner and Co-owner (once a Co-owner exists).
+5. The Owner is encouraged to set up a Co-owner during onboarding, with a reminder if skipped.
+
+### Removal and permission rules (the key change)
+- **Neither Owner nor Co-owner can remove or restrict the other.** Only management can change these two roles, after review.
+- **Removing a child member:** Owner or Co-owner can do it alone.
+- **Removing an adult member:** needs approval from both the Owner and the Co-owner. If the Co-owner does not respond in 48 hours, the request goes to management instead of passing automatically.
+- **Removing a member's access to a specific facility** (e.g. gym) follows the same rule as removing that member.
+- **Every removal or permission change creates a notification** to Owner, Co-owner, and the affected member, plus an entry in an audit log that cannot be edited.
+- **Members can see why access changed** and can appeal to management if they believe it was unfair.
+- **Emergency exception:** either Owner or Co-owner can instantly freeze a *lost device* (not a person), since this protects security and doesn't remove anyone's rights.
+
+### Security rules (updated)
+- Sensitive actions (add or remove member, disable card, generate guest pass) need biometric or PIN, and for adult or Co-owner changes, the second approver's confirmation as well.
+- Wrong PIN attempts trigger a temporary lockout and notify both Owner and Co-owner.
+- Every device has its own key, so a lost phone is revoked individually.
+
+### Edge cases (updated)
+- **Dispute (e.g. divorce):** either party submits a report with evidence. The unit goes into **restricted mode** while management reviews: existing access continues, but no one can add or remove members or change roles. This prevents one side from locking the other out during the dispute. After review, management can reassign Owner or Co-owner to the verified owner of the unit.
+- **Owner or Co-owner account lost:** recovery through management ID verification.
+- **No Co-owner set (single resident):** the Owner has full control until a Co-owner is added. Adding one later needs management verification.
+- **Owner dies or moves out:** management transfers the Owner role to the Co-owner or the new verified owner or tenant.
+- **Tenant vs. property owner:** the property owner can suspend a tenant's card for lease violations, with the reason logged, so this power also has accountability.
+
+### Why this is better
+- No single person can silently remove another adult.
+- Management is only involved in real disputes, not routine changes.
+- Every change is visible and auditable, which also helps with PDPA accountability.
+
+One trade-off to mention to your friends: requiring two approvals for adult changes adds a small step. That is intentional, and it keeps the routine case (adding or removing children) fast.
+
+### Phase 4: Daily use
+1. Open the app and go to **Me**.
+2. Unlock the card with Face ID or fingerprint. The card auto-locks after a short idle time.
+3. The app shows a **dynamic QR** (refreshes every 30 to 60 seconds, signed by the device key, single-use) or connects via BLE when near the reader.
+4. **Lift:** the reader verifies the signature, then unlocks the resident's floor and common floors.
+5. **Gym, pool, clubhouse:** the reader checks the profile's permission, opens the door, and logs the visit.
+6. Readers verify signatures offline, so access still works without internet.
+7. Screenshots are disabled on the card screen, and rooted or jailbroken devices are blocked.
+
+### Phase 5: Extra features
+- **Guest pass:** generate a temporary QR with limited facilities and duration. Capped number of active passes, the host is notified when it is used, and it expires automatically.
+- **Booking link:** book a gym or court slot, and the card becomes the entry ticket for that slot.
+- **Access log:** each member sees their own history, and the Head sees household history.
+
+### Phase 6: Security rules
+- Sensitive actions (add/remove member, disable card, create guest pass) always require biometric or PIN, even if the app is already unlocked.
+- Wrong PIN attempts trigger a temporary lockout and notify the Head.
+- Every device has its own key, so a lost phone can be revoked individually.
+
+### Phase 7: Edge cases (self-service first)
+- **Lost or stolen phone:** Head disables that device from another device or the web, instantly. Management is not needed.
+- **New phone:** verify with OTP + PIN + confirmation from the old device if available. The old device is deactivated automatically.
+- **Lease ends or tenant moves out:** access expires automatically, with reminders beforehand. The owner can also suspend or reassign a tenant's card.
+- **Head account lost or unreachable:** recovery through management verification (ID check).
+- **Dispute (e.g. divorce):** the other party submits a report with evidence. The card is **temporarily frozen or restricted** while management reviews it, following a defined timeline. Management can then reassign the Head role to the verified owner.
+- **Children without phones:** a physical card remains available as a fallback.
+
+### Phase 8: Privacy (PDPA)
+- Members see their own logs, the Head sees household logs, and management sees logs only during an incident or investigation.
+- Logs are kept for a fixed period (e.g. 90 days), then deleted.
+- Users are told clearly what data is collected and why.
+- Safety alerts show location only to the people the user has chosen, not to all neighbours.
+
+### Management workload summary
+| Management handles | Handled in the app |
+|---|---|
+| Initial card activation | Adding or removing members |
+| Activating extra cards | Device changes |
+| Disputes and ownership changes | Lost-phone disable |
+| Head account recovery | Guest passes and bookings |
+
+### Suggested prototype scope
+Dynamic QR, Me tab, household invites with separate devices, biometric unlock, and the lift and gym flows. NFC wallet integration is a future enhancement.
+
+## Appendix B. The revised demo plan, as pasted on 19 Oct
+
+> We want to demo it with the Apple Pay concept, not QR scanning. Please change the plan like this:
+>
+> **Card:** The household access card looks like an Apple Wallet pass, with the township design and the unit number. It sits in the Me tab with an "Add to Apple Wallet" button. There is no need to unlock the app first. Treat it like Express Mode.
+>
+> **Reader:** The Reader page is a second screen (a laptop is fine) that looks like a tap reader, with a glowing contactless symbol and "Hold your iPhone near the reader". Since we have no real NFC, simulate the tap: the user drags the card onto the reader, or presses a "Tap" button on the phone mockup. A phone vibration and a checkmark animation play on the phone side.
+>
+> **Result:** The reader shows a big green "Access granted · Gym" (or Badminton Court, Lift) with a door-opening animation, or a red "Not allowed" with the reason (card suspended, lease expired, not permitted here). Do not show a person's name. It is a basic access card, so the reader only checks whether the card is valid and allowed at this facility. The visit log records the unit, not a person.
+>
+> **Readers to include:** facilities, gym, and pool, each with its own permission setting.
+>
+> **Offline:** keep this simple. We only need to show that the reader still works with Wi-Fi off, using the household card's signed credential and expiry. We don't need to store individual phone keys.
+>
+> **Admin side:** a lost phone can be disabled from another device, and suspended or expired cards should show the red result on the reader.
+>
+> Use the second phone or a laptop as the reader, whichever is easier. Dynamic QR can stay as a small fallback option for non-NFC phones, but the main flow is the tap.
