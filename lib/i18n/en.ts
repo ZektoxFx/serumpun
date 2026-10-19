@@ -1193,6 +1193,32 @@ const en = {
   'card.pin.error.format': 'Enter all 6 digits',
   'card.pin.error.wrong': 'Wrong PIN. {n} tries left.',
   'card.pin.error.locked': 'Too many wrong tries. Try again at {time}.',
+
+  // Access card: the card in Me and its PIN pad (components/card/*). The places are named by reader.place.*
+  'card.title': 'Household card',
+  'card.places': 'Places',
+  'card.places.none': 'None',
+  'card.phones': 'Phones',
+  'card.phones.count': '{n} of {max}',
+  'card.open': 'Tap to open',
+  'card.status.suspended': 'Suspended · {reason}',
+  'card.status.ended': 'Lease ended',
+  'card.unsupported': "This browser can't hold the card. Open Serumpun in a normal window.",
+  'card.hold': 'Hold near a reader',
+  'card.tap': 'Tap',
+  'card.result.granted': 'Access granted',
+  'card.result.denied': 'Not allowed',
+  'card.qr.show': 'Show QR instead',
+  'card.qr.hide': 'Hide QR',
+  'card.qr.label': 'Household card QR code',
+  'card.qr.hint': 'A reader can scan this. It changes every 30 seconds.',
+  'card.wallet': 'Add to Apple Wallet (demo)',
+  'card.wallet.body':
+    "This button is a look-alike. A real Wallet pass needs a paid Apple Developer account, and passes that open doors need Apple's approval. Until then your Serumpun card lives here in the app.",
+  'card.pin.title': 'Enter your 6-digit PIN',
+  'card.pin.demo': 'Demo PIN: {pin}',
+  'card.pin.entered': '{n} of 6 digits entered',
+  'card.pin.delete': 'Delete',
 } satisfies Record<string, string>;
 
 export default en;

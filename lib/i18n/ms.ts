@@ -1194,6 +1194,32 @@ const ms: Record<keyof typeof en, string> = {
   'card.pin.error.format': 'Masukkan kesemua 6 digit',
   'card.pin.error.wrong': 'PIN salah. Tinggal {n} percubaan.',
   'card.pin.error.locked': 'Terlalu banyak percubaan salah. Cuba lagi pada {time}.',
+
+  // Kad akses: kad dalam Saya dan pad PIN-nya (components/card/*). Tempat dinamakan oleh reader.place.*
+  'card.title': 'Kad isi rumah',
+  'card.places': 'Tempat',
+  'card.places.none': 'Tiada',
+  'card.phones': 'Telefon',
+  'card.phones.count': '{n} daripada {max}',
+  'card.open': 'Ketik untuk buka',
+  'card.status.suspended': 'Digantung · {reason}',
+  'card.status.ended': 'Tempoh sewa tamat',
+  'card.unsupported': 'Pelayar ini tidak dapat menyimpan kad. Buka Serumpun dalam tetingkap biasa.',
+  'card.hold': 'Dekatkan pada pembaca',
+  'card.tap': 'Ketik',
+  'card.result.granted': 'Akses dibenarkan',
+  'card.result.denied': 'Tidak dibenarkan',
+  'card.qr.show': 'Tunjuk kod QR sebaliknya',
+  'card.qr.hide': 'Sembunyikan kod QR',
+  'card.qr.label': 'Kod QR kad isi rumah',
+  'card.qr.hint': 'Pembaca boleh mengimbas kod ini. Ia berubah setiap 30 saat.',
+  'card.wallet': 'Tambah ke Apple Wallet (demo)',
+  'card.wallet.body':
+    'Butang ini hanyalah contoh. Pas Wallet sebenar memerlukan akaun Apple Developer berbayar, dan pas yang membuka pintu memerlukan kelulusan Apple. Sehingga itu, kad Serumpun anda disimpan di sini dalam aplikasi.',
+  'card.pin.title': 'Masukkan PIN 6 digit anda',
+  'card.pin.demo': 'PIN demo: {pin}',
+  'card.pin.entered': '{n} daripada 6 digit dimasukkan',
+  'card.pin.delete': 'Padam',
 };
 
 export default ms;

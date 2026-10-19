@@ -108,6 +108,9 @@
   --animate-sheet-up: sheet-up 240ms cubic-bezier(0.32, 0.72, 0, 1);
   --animate-sheet-left: sheet-left 240ms cubic-bezier(0.32, 0.72, 0, 1);
   --animate-fade-in: fade-in 200ms ease-out;
+  /* The household card popping up once the PIN is right, and shaking on a red result. */
+  --animate-card-pop: card-pop 200ms cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-shake: shake 300ms ease-in-out;
   /* The emergency ＋: a ring that fills over the 3-second hold, then a red pulse while it waits for the tap. */
   --animate-hold: hold 3s linear forwards;
   --animate-armed: armed 1s ease-in-out infinite;
@@ -116,6 +119,8 @@
   @keyframes sheet-up { from { transform: translateY(100%); } }
   @keyframes sheet-left { from { transform: translateX(100%); } }
   @keyframes fade-in { from { opacity: 0; } }
+  @keyframes card-pop { from { opacity: 0; transform: scale(0.92); } }
+  @keyframes shake { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
 }
 
 /* bg-brand-gradient: red to orange to amber, the same in both themes. */

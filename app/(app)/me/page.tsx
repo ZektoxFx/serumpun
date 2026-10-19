@@ -7,9 +7,12 @@ import { LanguageSwitch } from '@/components/app/LanguageSwitch';
 import { PushAlerts } from '@/components/app/PushAlerts';
 import { TextSizeSwitch } from '@/components/app/TextSizeSwitch';
 import { ThemeSwitch } from '@/components/app/ThemeSwitch';
+import { HouseholdCard } from '@/components/card/HouseholdCard';
 import { Avatar } from '@/components/ui/Avatar';
 import { buttonClasses } from '@/components/ui/Button';
 import { Glyph } from '@/components/ui/Glyph';
+import { DEMO_PIN } from '@/lib/card/pin';
+import { loadMyCard } from '@/lib/card/summary';
 import { HELP_LINKS, ME_LINKS } from '@/lib/domain/nav';
 import { formatPoints, nextReward, rewardTitle } from '@/lib/domain/points';
 import { statusKey } from '@/lib/domain/profile';
@@ -37,8 +40,8 @@ export default async function MePage() {
   const textSize = (await cookies()).get('textSize')?.value;
   const supabase = await createClient();
   const now = new Date();
-  // Row-level security: the caller's own ledger entries and vouchers.
-  const [total, catalog, week, vouchers] = await Promise.all([
+  // Row-level security: the caller's own ledger entries, vouchers and household card.
+  const [total, catalog, week, vouchers, card] = await Promise.all([
     supabase.rpc('my_points'),
     supabase.from('rewards').select('id, title, title_ms, points_cost').eq('active', true),
     supabase
@@ -53,8 +56,11 @@ export default async function MePage() {
       .eq('user_id', profile.id)
       .eq('status', 'active')
       .gt('expires_at', now.toISOString()),
+    loadMyCard(supabase, profile.id),
   ]);
   for (const { error } of [total, catalog, week, vouchers]) if (error) throw new Error(`points lookup failed: ${error.message}`);
+  // A demo account is shared by every visitor, so its PIN is shown on the pad. `app_metadata` is set by the seed only.
+  const demo = card && (await supabase.auth.getClaims()).data?.claims.app_metadata?.demo;
   const points = Number(total.data ?? 0);
   const next = nextReward(points, catalog.data!);
   // "+150 this week · Gotong-royong": the week's check-ins, named after the latest.
@@ -79,6 +85,8 @@ export default async function MePage() {
       </header>
 
       <main className="relative -mt-10 grid gap-3 px-4">
+        {card && <HouseholdCard summary={card} demoPin={demo ? DEMO_PIN : null} />}
+
         <section aria-labelledby="your-points" className="rounded-2xl border border-line bg-surface p-4 shadow-lg">
           <div className="flex items-center justify-between gap-3">
             <div>
