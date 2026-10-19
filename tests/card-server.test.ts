@@ -60,3 +60,12 @@ it('logs a database error it does not recognise, but not a refusal it does', asy
   await issuePass(fakeDb({ data: null, error: { message: 'boom' } }).client, browserKey, now, encoded);
   expect(console.error).toHaveBeenCalledWith(expect.stringContaining('boom'));
 });
+it('refuses anything that is not a key without asking the database', async () => {
+  const db = fakeDb({ data: fields, error: null });
+  const encoded = await generateSigningKey();
+  // It arrives from the browser through a server action, so it can be anything. The last two lack one coordinate each.
+  for (const sent of [null, undefined, 'x', {}, { x: 1, y: 2 }, { x: 'x' }, { y: 'y' }]) {
+    expect(await issuePass(db.client, sent as never, now, encoded), JSON.stringify(sent) ?? 'undefined').toEqual({ error: 'bad_key' });
+  }
+  expect(db.calls).toEqual([]);
+});

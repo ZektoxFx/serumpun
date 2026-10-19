@@ -19,8 +19,8 @@ export type PinAnswer =
   | { ok: false; error: MessageKey; triesLeft?: number; lockedUntil?: string; time?: string };
 
 /**
- * A fresh pass for this browser's key. register_phone_key checks the caller, the key and the card's phone limit itself,
- * so this passes the key on and signs what comes back.
+ * A fresh pass for this browser's key. The key comes from the browser, so issuePass first refuses anything that is not an
+ * x and a y; register_phone_key then checks the caller, the format of x and y, and the card's phone limit.
  */
 export async function renewPass(key: PublicJwk): Promise<{ pass: string } | { error: MessageKey }> {
   await requireMember();

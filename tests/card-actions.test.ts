@@ -34,6 +34,14 @@ describe('checkCardPin', () => {
     expect(await checkCardPin('12345')).toEqual({ ok: false, error: 'card.pin.error.format' });
     expect(h.rpc).not.toHaveBeenCalled();
   });
+  it('turns away a PIN that is not a string, even one that reads as six digits, without spending a try', async () => {
+    // What the database would say if one got through: it counts each of these as a wrong try.
+    h.rpc.mockResolvedValue({ data: { ok: false, tries_left: 3 }, error: null });
+    for (const pin of [123456, ['123456'], { toString: 'x' }]) {
+      expect(await checkCardPin(pin as never), JSON.stringify(pin)).toEqual({ ok: false, error: 'card.pin.error.format' });
+    }
+    expect(h.rpc).not.toHaveBeenCalled();
+  });
   it('lets a right PIN through', async () => {
     answer({ ok: true });
     expect(await checkCardPin('123456')).toEqual({ ok: true });
@@ -74,6 +82,11 @@ describe('renewPass', () => {
     expect(await renewPass(browserKey)).toEqual({ error: 'card.error.card_full' });
     answer(null, { message: 'boom' });
     expect(await renewPass(browserKey)).toEqual({ error: 'common.error' });
+  });
+  it('answers something that is not a key with the bad key message, without asking the database', async () => {
+    vi.stubEnv('CARD_SIGNING_KEY', await generateSigningKey());
+    expect(await renewPass(null as never)).toEqual({ error: 'card.error.bad_key' });
+    expect(h.rpc).not.toHaveBeenCalled();
   });
 });
 

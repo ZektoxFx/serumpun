@@ -5,9 +5,12 @@ export const DEMO_PIN = '123456';
 export const PIN_TRIES = 5;
 export const PIN_LOCK_MS = 900_000; // 15 minutes
 
-/** Exactly six digits, the PIN `set_member_pins` stores. A PIN that fails this is never sent: the database would count it as a wrong try. */
+/**
+ * Exactly six digits, the PIN `set_member_pins` stores. A PIN that fails this is never sent: the database would count it
+ * as a wrong try. It arrives from the browser, so a non-string fails too: `test` would read 123456 or ['123456'] as text.
+ */
 export function isPinFormat(pin: string): boolean {
-  return /^[0-9]{6}$/.test(pin);
+  return typeof pin === 'string' && /^[0-9]{6}$/.test(pin);
 }
 
 /**

@@ -18,6 +18,8 @@ function signingKeyFor(encoded: string): Promise<CryptoKey> {
  * and signs a pass for it that the township's readers accept for the next 24 hours. `supabase` acts as the caller.
  */
 export async function issuePass(supabase: SupabaseClient, key: PublicJwk, now: Date, signingKey: string): Promise<IssueResult> {
+  // It arrives from the browser, so it may not be a key at all. Only once x and y are text can the database check their format.
+  if (typeof key?.x !== 'string' || typeof key?.y !== 'string') return { error: 'bad_key' };
   const { data, error } = await supabase.rpc('register_phone_key', { p_x: key.x, p_y: key.y });
   if (error) {
     const refusal = REFUSALS.find((code) => code === error.message);
