@@ -1186,6 +1186,14 @@ const ms: Record<keyof typeof en, string> = {
   'notify.card.suspended': 'Kad isi rumah anda telah digantung',
   'notify.card.lifted': 'Kad isi rumah anda boleh digunakan semula',
   'notify.card.pinLocked': 'Terlalu banyak PIN salah pada kad isi rumah anda',
+
+  // Kad akses: apabila pas tidak dapat dikeluarkan, dan jawapan pad PIN (lib/card/pin.ts, app/(app)/me/card/actions.ts)
+  'card.error.no_card': 'Anda belum berada pada kad isi rumah',
+  'card.error.card_full': 'Kad ini sudah ada 4 telefon. Minta kad tambahan daripada pejabat.',
+  'card.error.bad_key': 'Kunci pelayar ini tidak berfungsi. Muat semula dan cuba lagi.',
+  'card.pin.error.format': 'Masukkan kesemua 6 digit',
+  'card.pin.error.wrong': 'PIN salah. Tinggal {n} percubaan.',
+  'card.pin.error.locked': 'Terlalu banyak percubaan salah. Cuba lagi pada {time}.',
 };
 
 export default ms;

@@ -1185,6 +1185,14 @@ const en = {
   'notify.card.suspended': 'Your household card was suspended',
   'notify.card.lifted': 'Your household card works again',
   'notify.card.pinLocked': 'Too many wrong PINs on your household card',
+
+  // Access card: when a pass can't be issued, and the PIN pad's answers (lib/card/pin.ts, app/(app)/me/card/actions.ts)
+  'card.error.no_card': "You're not on a household card yet",
+  'card.error.card_full': 'This card already has 4 phones. Ask the office for an extra card.',
+  'card.error.bad_key': "This browser's key didn't work. Reload and try again.",
+  'card.pin.error.format': 'Enter all 6 digits',
+  'card.pin.error.wrong': 'Wrong PIN. {n} tries left.',
+  'card.pin.error.locked': 'Too many wrong tries. Try again at {time}.',
 } satisfies Record<string, string>;
 
 export default en;
