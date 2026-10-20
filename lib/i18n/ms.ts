@@ -1182,6 +1182,22 @@ const ms: Record<keyof typeof en, string> = {
   'reader.place.gym': 'Gim',
   'reader.place.pool': 'Kolam renang',
 
+  // Kad akses: skrin pembaca (app/reader, components/reader/ReaderScreen.tsx). "Tidak dibenarkan" ialah card.result.denied
+  'reader.title': 'Pembaca',
+  'reader.where': 'Lokasi pembaca ini',
+  'reader.facility': 'Kemudahan yang mana',
+  'reader.device': '{place} · Pembaca',
+  'reader.hold': 'Dekatkan iPhone anda pada pembaca',
+  'reader.granted': 'Akses dibenarkan · {place}',
+  'reader.logged': 'Lawatan direkodkan untuk {unit}',
+  'reader.badPass': 'Kad tidak dikenali',
+  'reader.wifi': 'Wi-Fi',
+  'reader.wifi.off': 'Mati: pembaca menyemak kad sendiri',
+  'reader.sync': 'Penyegerakan terakhir {time}',
+  'reader.sync.never': 'Belum disegerakkan',
+  'reader.phone': 'Telefon',
+  'reader.phone.signIn': 'Log masuk untuk meletakkan kad pada telefon ini',
+
   // Kad akses: pemberitahuan (supabase/migrations/0024_access_cards.sql)
   'notify.card.suspended': 'Kad isi rumah anda telah digantung',
   'notify.card.lifted': 'Kad isi rumah anda boleh digunakan semula',

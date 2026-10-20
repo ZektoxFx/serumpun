@@ -9,10 +9,10 @@ import { useT } from '@/lib/i18n';
 // Literal navy on purpose, as in HeroChip: the gradient is the same in both themes, while the navy tokens flip in dark mode.
 const chip = 'inline-flex max-w-full items-center gap-1.5 rounded-xl px-3 py-1.5 text-sm font-bold';
 
-/** The contactless mark. The team drew no icon for it, so it is drawn here: four arcs opening to the right. */
-function ContactlessMark() {
+/** The contactless mark, here and on the reader. The team drew no icon for it, so it is drawn here: four arcs opening to the right. */
+export function ContactlessMark({ className = 'h-7 w-6' }: { className?: string }) {
   return (
-    <svg viewBox="0 0 20 24" className="h-7 w-6 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+    <svg viewBox="0 0 20 24" className={`shrink-0 ${className}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
       <path d="M5.1 9.1a5 5 0 0 1 0 5.8M8.4 6.8a9 9 0 0 1 0 10.4M11.6 4.5a13 13 0 0 1 0 15M14.9 2.2a17 17 0 0 1 0 19.6" />
     </svg>
   );

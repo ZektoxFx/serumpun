@@ -1181,6 +1181,22 @@ const en = {
   'reader.place.gym': 'Gym',
   'reader.place.pool': 'Pool',
 
+  // Access card: the reader screen (app/reader, components/reader/ReaderScreen.tsx). "Not allowed" is card.result.denied
+  'reader.title': 'Reader',
+  'reader.where': 'Where this reader is',
+  'reader.facility': 'Which facility',
+  'reader.device': '{place} · Reader',
+  'reader.hold': 'Hold your iPhone near the reader',
+  'reader.granted': 'Access granted · {place}',
+  'reader.logged': 'Visit logged for {unit}',
+  'reader.badPass': 'Card not recognised',
+  'reader.wifi': 'Wi-Fi',
+  'reader.wifi.off': 'Off: the reader checks cards by itself',
+  'reader.sync': 'Last sync {time}',
+  'reader.sync.never': 'Not synced yet',
+  'reader.phone': 'Phone',
+  'reader.phone.signIn': 'Sign in to put a card on this phone',
+
   // Access card: notifications (supabase/migrations/0024_access_cards.sql)
   'notify.card.suspended': 'Your household card was suspended',
   'notify.card.lifted': 'Your household card works again',
