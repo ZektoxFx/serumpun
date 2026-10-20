@@ -1189,7 +1189,7 @@ const ms: Record<keyof typeof en, string> = {
   'reader.device': '{place} · Pembaca',
   'reader.hold': 'Dekatkan iPhone anda pada pembaca',
   'reader.granted': 'Akses dibenarkan · {place}',
-  'reader.logged': 'Lawatan direkodkan untuk {unit}',
+  'reader.logged': 'Lawatan direkodkan',
   'reader.badPass': 'Kad tidak dikenali',
   'reader.wifi': 'Wi-Fi',
   'reader.wifi.off': 'Mati: pembaca menyemak kad sendiri',

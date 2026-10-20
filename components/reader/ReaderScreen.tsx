@@ -251,7 +251,7 @@ export function ReaderScreen({
               {shown?.granted === true && (
                 <>
                   <p className="text-2xl font-extrabold text-green-text">{t('reader.granted', { place: shown.label })}</p>
-                  <p className="text-base text-muted-2">{t('reader.logged', { unit: shown.unit })}</p>
+                  <p className="text-base text-muted-2">{t('reader.logged')}</p>
                 </>
               )}
               {shown?.granted === false && (

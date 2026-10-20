@@ -7,9 +7,10 @@ import { IconButton } from './IconButton';
 export type SheetSide = 'bottom' | 'right' | 'full';
 
 // No display utility (flex, block...) on the <dialog> itself: it would override `display: none` while closed.
+// The slide is motion-safe because `open:` is more specific than `motion-reduce:animate-none`, so that could never switch it off.
 const sides: Record<SheetSide, string> = {
-  bottom: 'inset-x-0 bottom-0 top-auto mx-auto max-h-[90dvh] w-full max-w-md rounded-t-3xl open:animate-sheet-up',
-  right: 'inset-y-0 left-auto right-0 h-full max-h-none w-full max-w-md rounded-l-3xl open:animate-sheet-left',
+  bottom: 'inset-x-0 bottom-0 top-auto mx-auto max-h-[90dvh] w-full max-w-md rounded-t-3xl motion-safe:open:animate-sheet-up',
+  right: 'inset-y-0 left-auto right-0 h-full max-h-none w-full max-w-md rounded-l-3xl motion-safe:open:animate-sheet-left',
   full: 'inset-0 h-dvh max-h-none w-full max-w-none',
 };
 
@@ -58,7 +59,7 @@ export function Sheet({
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
-      className={`fixed m-0 overflow-y-auto overscroll-contain bg-surface p-0 text-text shadow-xl backdrop:animate-fade-in backdrop:bg-black/50 motion-reduce:animate-none motion-reduce:backdrop:animate-none ${sides[side]} ${className}`}
+      className={`fixed m-0 overflow-y-auto overscroll-contain bg-surface p-0 text-text shadow-xl backdrop:animate-fade-in backdrop:bg-black/50 motion-reduce:backdrop:animate-none ${sides[side]} ${className}`}
       {...rest}
     >
       {/* Fills the dialog so a click on empty space inside the panel is not mistaken for the backdrop. */}

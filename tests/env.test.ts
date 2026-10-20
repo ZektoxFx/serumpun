@@ -44,4 +44,15 @@ describe('env', () => {
     expect(() => env.databaseUrl).toThrow(/server-only/);
     expect(() => env.cardSigningKey).toThrow(/server-only/);
   });
+
+  // A paste, or `echo … | vercel env add`, leaves a newline on the key, and lib/card/crypto.ts refuses any whitespace.
+  it('trims the card signing key', () => {
+    vi.stubEnv('CARD_SIGNING_KEY', '  fake-key_123\r\n');
+    expect(env.cardSigningKey).toBe('fake-key_123');
+  });
+
+  it.each(['', '   ', '\n', ' \t\r\n '])('treats a card signing key of %j as missing', (value) => {
+    vi.stubEnv('CARD_SIGNING_KEY', value);
+    expect(() => env.cardSigningKey).toThrow(/Missing env: CARD_SIGNING_KEY/);
+  });
 });

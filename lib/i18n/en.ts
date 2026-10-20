@@ -1188,7 +1188,7 @@ const en = {
   'reader.device': '{place} · Reader',
   'reader.hold': 'Hold your iPhone near the reader',
   'reader.granted': 'Access granted · {place}',
-  'reader.logged': 'Visit logged for {unit}',
+  'reader.logged': 'Visit logged',
   'reader.badPass': 'Card not recognised',
   'reader.wifi': 'Wi-Fi',
   'reader.wifi.off': 'Off: the reader checks cards by itself',

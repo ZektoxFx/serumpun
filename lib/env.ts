@@ -45,6 +45,8 @@ export const env = {
     return readServerEnv(['DEMO_PASSWORD']);
   },
   get cardSigningKey() {
-    return readServerEnv(['CARD_SIGNING_KEY']);
+    // Trimmed because a paste, or `echo … | vercel env add`, leaves a newline and lib/card/crypto.ts refuses any whitespace.
+    // Through readEnv again, so a value of only whitespace is missing too.
+    return readEnv({ CARD_SIGNING_KEY: readServerEnv(['CARD_SIGNING_KEY']).trim() }, ['CARD_SIGNING_KEY']);
   },
 };
