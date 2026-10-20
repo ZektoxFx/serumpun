@@ -12,7 +12,7 @@ import { Switch } from '@/components/ui/Switch';
 import { PLACES, readPresentation, type Place, type PublicJwk } from '@/lib/card/crypto';
 import { reasonKey, type DenyReason, type OfflineVisit, type ReaderCache, type TapRequest } from '@/lib/card/decide';
 import { afterFlush, decideOffline, enqueue, loadCache, loadQueue, saveCache, saveQueue } from '@/lib/card/queue';
-import type { TapResponse } from '@/lib/card/reader-server';
+import { BAD_PASS, JSON_BODY, askTownship, within, type Answer } from '@/lib/card/reader-client';
 import type { CardSummary } from '@/lib/card/summary';
 import { SPORT_ICON, type Sport } from '@/lib/domain/booking';
 import { clockTime } from '@/lib/domain/time';
@@ -20,7 +20,6 @@ import { useLang, useT } from '@/lib/i18n';
 
 const SYNC_MS = 30_000; // how often an online reader syncs
 const RESULT_MS = 3_000; // how long a result stays up before the reader waits for the next card
-const JSON_BODY = { 'Content-Type': 'application/json' };
 
 // What this page keeps for the reader. lib/card/queue.ts saves it in localStorage too, but storage can be blocked, so
 // these copies are what the reader decides on and sends from: the queue of taps decided offline, the last sync, and the
@@ -56,25 +55,6 @@ function subscribeOnline(onChange: () => void) {
   };
 }
 
-/** What the reader says about a tap. `bad_pass`: nothing this township signed, so not a card it can read at all. */
-type Answer = { granted: true; unit: string } | { granted: false; reason: DenyReason | 'bad_pass' };
-
-/**
- * The township's answer to an online tap, or null when there was none to be had (the request failed, or a 5xx): only
- * then does the reader decide by itself. A decision, granted or not, is final, and so is a bad pass.
- */
-async function askTownship(tap: TapRequest): Promise<Answer | null> {
-  let response: Response;
-  try {
-    response = await fetch('/api/reader/tap', { method: 'POST', headers: JSON_BODY, body: JSON.stringify(tap) });
-  } catch {
-    return null;
-  }
-  if (response.status >= 500) return null;
-  const answer = (await response.json().catch(() => null)) as TapResponse | null;
-  return answer && 'granted' in answer ? answer : { granted: false, reason: 'bad_pass' };
-}
-
 /** A note the township decided is seen too, so the same note shown again offline (within its minute) is refused. */
 async function remember(presentation: string, publicKey: PublicJwk) {
   const found = await readPresentation(presentation, lastSync()?.publicKey ?? publicKey);
@@ -85,7 +65,7 @@ async function remember(presentation: string, publicKey: PublicJwk) {
 async function decideHere(tap: TapRequest, publicKey: PublicJwk): Promise<Answer> {
   const known = lastSync() ?? { publicKey, offsetMs: 0, syncedAt: 0, stop: { cards: [], phones: [] }, bookings: [] };
   const decided = await decideOffline(tap, known, seen, Date.now());
-  if (!decided) return { granted: false, reason: 'bad_pass' };
+  if (!decided) return BAD_PASS;
   keepQueue(enqueue(queue(), decided.visit));
   return decided.decision.granted ? { granted: true, unit: decided.unit } : decided.decision;
 }
@@ -157,38 +137,51 @@ export function ReaderScreen({
   const label = place === 'facilities' && court ? court.court_label : t(`reader.place.${place}`);
 
   // Online: first the visits decided offline go to the township, then a sync (Review Focus 1: `offsetMs` is the
-  // township's clock minus this one). An offline reader sends nothing at all.
-  const refresh = useEffectEvent(async () => {
+  // township's clock minus this one). Every request has a time limit and also ends with `signal`, which the effect below
+  // aborts when the reader goes offline or the page closes. The queue shrinks only on an answer that was read in full, so
+  // a flush that is aborted leaves it as it was.
+  const refresh = useEffectEvent(async (signal: AbortSignal) => {
     if (refreshing.current) return;
     refreshing.current = true;
     try {
       if (queue().length) {
-        const response = await fetch('/api/reader/visits', { method: 'POST', headers: JSON_BODY, body: JSON.stringify({ visits: queue() }) });
+        const response = await fetch('/api/reader/visits', {
+          method: 'POST',
+          headers: JSON_BODY,
+          body: JSON.stringify({ visits: queue() }),
+          signal: within(signal),
+        });
         if (response.ok) {
           const { saved, skipped } = (await response.json()) as { saved: number; skipped: number };
           keepQueue(afterFlush(queue(), saved + skipped));
         }
       }
-      if (!online) return; // switched off while the queue was going
-      const response = await fetch(`/api/reader/sync?${new URLSearchParams({ township: townshipId })}`);
+      const response = await fetch(`/api/reader/sync?${new URLSearchParams({ township: townshipId })}`, { signal: within(signal) });
       if (!response.ok) return;
       const sync = (await response.json()) as Pick<ReaderCache, 'publicKey' | 'stop' | 'bookings'> & { serverTime: number };
       const now = Date.now();
       const offsetMs = sync.serverTime - now;
       if (Number.isFinite(offsetMs)) keepSync({ publicKey: sync.publicKey, offsetMs, syncedAt: now, stop: sync.stop, bookings: sync.bookings });
     } catch {
-      // The network went while this ran: the queue and the last sync stay as they were until the next try.
+      // The network went, a request hung or the reader was switched off while this ran: the queue and the last sync stay as they were until the next try.
     } finally {
       refreshing.current = false;
     }
   });
 
-  // On load and on coming back online, then every 30 s while online.
+  // On load and on coming back online, then every 30 s while online. Going offline, or leaving, aborts what is in flight.
+  // The first run waits a tick: React may set this effect up, tear it down and set it up again (Strict Mode, Fast
+  // Refresh), and a run started by the first setup would still be unwinding, so the guard would skip the second.
   useEffect(() => {
     if (!online) return;
-    void refresh();
-    const timer = setInterval(() => void refresh(), SYNC_MS);
-    return () => clearInterval(timer);
+    const controller = new AbortController();
+    const first = setTimeout(() => void refresh(controller.signal), 0);
+    const timer = setInterval(() => void refresh(controller.signal), SYNC_MS);
+    return () => {
+      clearTimeout(first);
+      clearInterval(timer);
+      controller.abort();
+    };
   }, [online]);
 
   // A result stays up for 3 seconds, then the reader waits for the next card.
@@ -205,9 +198,16 @@ export function ReaderScreen({
     const id = ++taps.current;
     // Back to nothing first, so the phone shows and buzzes the next result even when it is the same as the last.
     flushSync(() => setShown(null));
-    const township = online ? await askTownship(tap) : null;
-    if (township) void remember(presentation, publicKey);
-    const answer = township ?? (await decideHere(tap, publicKey));
+    let answer: Answer;
+    try {
+      const township = online ? await askTownship(tap) : null;
+      if (township) void remember(presentation, publicKey);
+      answer = township ?? (await decideHere(tap, publicKey));
+    } catch (error) {
+      // The phone doesn't wait for this, so a throw would leave the reader blank and unhandled: say it can't read the card.
+      console.error(`reader tap failed: ${error}`);
+      answer = BAD_PASS;
+    }
     if (id === taps.current) setShown({ ...answer, ...where });
   }
 
@@ -270,7 +270,8 @@ export function ReaderScreen({
               </label>
               <Switch id={wifiId} checked={wifi} onChange={setWifi} />
             </div>
-            {!online && <p className="text-sm font-bold text-amber-text">{t('reader.wifi.off')}</p>}
+            {/* Offline by the switch, or with the switch on, by the browser: either way the reader checks cards itself. */}
+            {!online && <p className="text-sm font-bold text-amber-text">{t(wifi ? 'reader.noConnection' : 'reader.wifi.off')}</p>}
             {cache !== undefined && (
               <p className="text-sm text-muted-2">
                 {cache ? t('reader.sync', { time: clockTime(new Date(cache.syncedAt), opened, lang) }) : t('reader.sync.never')}

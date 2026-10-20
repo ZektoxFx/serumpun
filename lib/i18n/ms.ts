@@ -1193,6 +1193,7 @@ const ms: Record<keyof typeof en, string> = {
   'reader.badPass': 'Kad tidak dikenali',
   'reader.wifi': 'Wi-Fi',
   'reader.wifi.off': 'Mati: pembaca menyemak kad sendiri',
+  'reader.noConnection': 'Tiada sambungan: pembaca menyemak kad sendiri',
   'reader.sync': 'Penyegerakan terakhir {time}',
   'reader.sync.never': 'Belum disegerakkan',
   'reader.phone': 'Telefon',

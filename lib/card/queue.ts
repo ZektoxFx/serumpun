@@ -48,11 +48,21 @@ export function saveQueue(queue: OfflineVisit[]): void {
   write(QUEUE_KEY, queue);
 }
 
-/** The last sync, or null for none. One that can't be decided on is none too: a clock offset that is not a number would stop every decision. */
+/**
+ * The last sync, or null for none. One that can't be decided on or shown is none too, so a bad one never stops the screen:
+ * an offset that is not a number stops every decision, a sync time that is not a number can't be written as a time, and a
+ * key short of its four parts verifies nothing.
+ */
 export function loadCache(): ReaderCache | null {
   const saved = read(CACHE_KEY) as Partial<ReaderCache> | null;
+  const key = saved?.publicKey;
   const usable =
-    Number.isFinite(saved?.offsetMs) && Array.isArray(saved?.bookings) && Array.isArray(saved?.stop?.cards) && Array.isArray(saved?.stop?.phones);
+    Number.isFinite(saved?.offsetMs) &&
+    Number.isFinite(saved?.syncedAt) &&
+    [key?.kty, key?.crv, key?.x, key?.y].every((part) => typeof part === 'string') &&
+    Array.isArray(saved?.bookings) &&
+    Array.isArray(saved?.stop?.cards) &&
+    Array.isArray(saved?.stop?.phones);
   return usable ? (saved as ReaderCache) : null;
 }
 

@@ -1192,6 +1192,7 @@ const en = {
   'reader.badPass': 'Card not recognised',
   'reader.wifi': 'Wi-Fi',
   'reader.wifi.off': 'Off: the reader checks cards by itself',
+  'reader.noConnection': 'No connection: the reader checks cards by itself',
   'reader.sync': 'Last sync {time}',
   'reader.sync.never': 'Not synced yet',
   'reader.phone': 'Phone',
