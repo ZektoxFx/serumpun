@@ -6,6 +6,7 @@ import { validateSignup, type SignupErrors, type SignupInput } from '@/lib/domai
 import { env } from '@/lib/env';
 import type { MessageKey } from '@/lib/i18n';
 import { getLang } from '@/lib/i18n/server';
+import { restoreDemoCard } from '@/lib/seed/cards';
 import { DEMO_EMAIL, type DemoAccount } from '@/lib/seed/people';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { homePath } from '@/lib/supabase/auth';
@@ -42,6 +43,14 @@ export async function signIn(formData: FormData): Promise<AuthResult> {
 export async function signInDemo(who: DemoAccount, next?: string): Promise<AuthResult> {
   // `who` comes from the browser: only these four accounts can be entered this way.
   if (!Object.hasOwn(DEMO_EMAIL, who)) return { error: 'landing.demo.error' };
+  // Each judge starts with a working card. Only on this tap, so a suspension made from the office during a take stays put.
+  if (who === 'aisyah') {
+    try {
+      await restoreDemoCard(createAdminClient());
+    } catch (error) {
+      console.error(`restore demo card failed: ${error instanceof Error ? error.message : error}`); // never blocks the sign-in
+    }
+  }
   return signInWith(DEMO_EMAIL[who], env.demoPassword, 'landing.demo.error', next);
 }
 

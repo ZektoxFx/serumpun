@@ -223,6 +223,7 @@ const en: HelpContent = {
         steps: [
           "We handle your personal data in line with Malaysia's Personal Data Protection Act 2010. Your unit number and phone number are seen only by the Management Office; neighbours see your name and neighbourhood.",
           'Your location is used only on your phone, for the map and Safe Walk, and to send an emergency alert you raise. Car plates you save for parking are kept for your account only.',
+          'When your household card is tapped at a reader, the visit is recorded with your unit, the place and the time, never your name. The reader shows no names either.',
         ],
       },
       {
@@ -466,6 +467,7 @@ const ms: HelpContent = {
         steps: [
           'Kami mengendalikan data peribadi anda selaras dengan Akta Perlindungan Data Peribadi 2010 Malaysia. Nombor unit dan nombor telefon anda hanya dilihat oleh Pejabat Pengurusan; jiran melihat nama dan kawasan kejiranan anda.',
           'Lokasi anda hanya digunakan pada telefon anda, untuk peta dan Jalan Selamat, dan untuk menghantar amaran kecemasan yang anda buat. Nombor plat kereta yang anda simpan untuk parkir hanya untuk akaun anda.',
+          'Apabila kad isi rumah anda diketuk di pembaca, lawatan direkodkan dengan unit, tempat dan masa sahaja, bukan nama anda. Pembaca juga tidak menunjukkan nama.',
         ],
       },
       {

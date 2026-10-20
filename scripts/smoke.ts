@@ -5,8 +5,8 @@ import { seedAll } from '@/lib/seed';
 import { DEMO_EMAIL, type DemoAccount } from '@/lib/seed/people';
 import { createAdminClient } from '@/lib/supabase/admin';
 
-// Run with `npm run smoke` on the seeded demo: the privacy, pending-user, double-tap and limit rules, each tried through
-// the API as the demo accounts would. Prints PASS or FAIL per check and exits 1 on any FAIL. The checks book, redeem and
+// Run with `npm run smoke` on the seeded demo: the privacy, pending-user, double-tap, limit and household-card rules, each
+// tried through the API as the demo accounts would. Prints PASS or FAIL per check and exits 1 on any FAIL. The checks book, redeem and
 // check in, so the demo is seeded again at the end.
 
 type Answer = { error: { message: string } | null };
@@ -205,6 +205,15 @@ async function checks() {
     'A resident cannot move a report on',
     refused(await daniel.client.rpc('update_report_status', { p_report: open.id, p_status: 'in_progress' }), 'not_management'),
   );
+
+  console.log('— household cards');
+  const mine = await daniel.client.from('cards').select('id');
+  check('Daniel sees only his own card', !mine.error && mine.data.length === 1, mine.error?.message ?? `${mine.data?.length} rows`);
+  const { data: card, error: cardError } = await admin.from('cards').select('id').limit(1).single();
+  if (cardError) throw new Error(`a card: ${cardError.message}`);
+  check('A resident cannot suspend a card', refused(await daniel.client.rpc('suspend_card', { p_card: card.id, p_reason: 'x' }), 'not_management'));
+  const pins = await daniel.client.from('member_pins').select('user_id');
+  check('Nobody reads the PINs', refused(pins), said(pins));
 }
 
 async function main() {
