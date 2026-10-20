@@ -45,7 +45,7 @@ and the courts with a tap. Home's favourites are the resident's to pick and orde
 | Facilities | `/book` | Badminton (2 courts), futsal, tennis, the hall, the gym, the BBQ pit and the function room. Free 1-hour slots from 7 am to 11 pm, up to 7 days ahead, 2 hours a day per household; a booking pass with QR and a calendar file; cancel up to 2 hours before. **Find players** (badminton, futsal and tennis): ask for 1 to 10 neighbours when booking; the game shows under **Open games** (here and on Home) until it is full, neighbours tap Join or message the host, and the pass shows who joined. |
 | Rewards | `/rewards` | Vouchers for points at Elmina Lakeside Mall; "Slide to use" at the counter. |
 | Me | `/me` | The **household card** at the top (next row); points and the next reward; my vouchers, reports, bookings, listings and notices; points history; **Help & policies**; emergency alerts on this phone; dark mode; **text size** (Small, Normal, Large, Extra large); language; township; sign out. |
-| Household card | `/me` | A Wallet-style card: the Serumpun gradient, "HOUSEHOLD CARD", the unit (Aisyah's is No. 18, Jalan Elmina Valley 3/2), the places it opens (Facilities, Gym, Pool) and the phones on it ("3 of 4"), never a name. One card per household, so everyone on it gets the same places. Tap it and enter the 6-digit PIN (the demo accounts show it: 123456) and the card pops up; it locks again when you leave it or after 60 seconds without a tap. 5 wrong PINs lock it for 15 minutes and tell the card's Owner and Co-owner. On a real phone the open card says "Hold near a reader". **Add to Apple Wallet (demo)** opens a sheet saying it is a look-alike; **Show QR instead** draws a QR that changes every 30 seconds. A suspended card shows "Suspended" with the office's reason, and a tenant's card shows "Lease ended" after the lease's last day. |
+| Household card | `/me` | A Wallet-style card: the Serumpun gradient, "HOUSEHOLD CARD", the unit (Aisyah's is No. 18, Jalan Elmina Valley 3/2), the places it opens (Facilities, Gym, Pool) and the phones on it ("3 of 4"), never a name. One card per household, so everyone on it gets the same places. Tap it and enter the 6-digit PIN (the demo accounts show it: 123456) and the card pops up; it locks again when you leave it or after 60 seconds without a tap. 5 wrong PINs lock it for 15 minutes and tell the card's Owner and Co-owner (on the shared demo accounts the lock stays in that browser and nobody is told). On a real phone the open card says "Hold near a reader". **Add to Apple Wallet (demo)** opens a sheet saying it is a look-alike; **Show QR instead** draws a QR that changes every 30 seconds. A suspended card shows "Suspended" with the office's reason, and a tenant's card shows "Lease ended" after the lease's last day. |
 | Reader | `/reader` | A tap reader for the demo laptop, open to anyone (no sign-in). Pick where it is: Facilities (then a court, the hall, the BBQ pit or the function room), Gym or Pool. The phone mockup beside it holds the card of whoever is signed in on that browser (the demo buttons when nobody is). Open the card with the PIN, then drag it onto the reader or press **Tap**: the phone buzzes, and the reader shows a big green tick and "Access granted · Pool", or a red ✕ and one reason (card suspended, lease ended, phone switched off, place switched off, no booking at this time, pass expired). It never shows a name. Facilities and the Gym open only with the household's booking for that hour; the Pool is walk-in. The **Wi-Fi** switch (or the laptop really going offline once the page has loaded) makes the reader decide by itself, and visits made offline are sent when it is back. |
 | Help & policies | `/help/guidelines` · `/help/rules` · `/help/faq` · `/help/terms` | How to use each feature, the community rules, an FAQ with search, and the Terms & Conditions (a draft for the competition). Readable signed out too: sign-up links its Terms. |
 | Notifications | `/notifications` | Emergencies nearby, report updates, borrow steps and a reminder at 8 am on the return day (to the borrower and the owner), comments, events approved or not for points, players joining or leaving your game (or a game you joined being cancelled), a notice noted by the office (and, for the office, a new notice), announcements and account news, with a live bell. |
@@ -219,8 +219,8 @@ Every township-level table has `township_id`. Residents read through the views a
   card, phone, places and booking, so a suspension acts at once; an offline reader decides from the pass and its last
   sync.
 - **PINs**: 6 digits, hashed with bcrypt in the database. 5 wrong tries lock a PIN for 15 minutes and tell the card's
-  Owner and Co-owner. Every visitor shares a demo account, so for those the wrong tries are counted in each browser and
-  one visitor can't lock the rest out.
+  Owner and Co-owner. Every visitor shares a demo account, so for those the wrong tries are counted in each browser,
+  nobody is told, and one visitor can't lock the rest out.
 - **No names at a reader**: it never shows one, and the visit log records the card (so the unit), the place, the time
   and the result, never the person or the phone.
 - **Every page and action checks the session itself.** `proxy.ts` only sends signed-out visitors to the landing page.
@@ -326,8 +326,9 @@ npm run smoke
 ```
 
 Apply new migrations before deploying code that needs them. The smoke test ends with a reset of the demo data. The card
-tables are filled by the seed, so after the first deploy with the household card run `npm run db:seed` (or Dashboard ›
-Reset demo data) to give the live demo its cards.
+tables are filled by the seed, so after the first deploy with the household card run `npm run db:seed:cards` to give the
+live demo its cards without touching anything else (never during a video take). `npm run db:seed` or Dashboard › Reset
+demo data fills them too, but resets all the demo data, visitors' sign-ups included.
 
 ## 13. Known limits and Later
 

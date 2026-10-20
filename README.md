@@ -37,6 +37,7 @@ laptop for the dashboard.
 ```bash
 npm install
 vercel env pull .env.local
+npm run card:key
 npm run db:migrate
 npm run db:seed
 npm run dev
@@ -49,6 +50,8 @@ npm run dev
 | `npm run lint` · `npm run typecheck` · `npm test` | ESLint, TypeScript, Vitest |
 | `npm run db:migrate` | Applies new database migrations |
 | `npm run db:seed` | Resets the demo data |
+| `npm run db:seed:cards` | Adds and updates the household cards only, but resets every card and PIN lockout: never during a video take |
+| `npm run card:key` | Adds `CARD_SIGNING_KEY` to `.env.local` when it has none. It never prints the key |
 | `npm run smoke` | Privacy and double-tap checks on the live database |
 
 Built with Next.js 16, Supabase (Postgres, Auth, Realtime, Storage) and Vercel, with Leaflet and OpenStreetMap.
