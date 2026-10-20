@@ -1236,6 +1236,32 @@ const en = {
   'card.pin.demo': 'Demo PIN: {pin}',
   'card.pin.entered': '{n} of 6 digits entered',
   'card.pin.delete': 'Delete',
+
+  // Access card: Dashboard › Units, where the office suspends and lifts a card (app/dashboard/units, lib/domain/units.ts)
+  'dashboard.nav.units': 'Units',
+  'units.intro': 'Every home in the township and its household card. Suspending a card tells everyone on it why.',
+  'units.openReader': 'Open reader screen',
+  'units.col.unit': 'Unit',
+  'units.col.record': 'On record',
+  'units.col.card': 'Card',
+  'units.col.action': 'Action',
+  'units.tenure.owner': 'Owner',
+  'units.tenure.tenant': 'Tenant',
+  'units.state.not_registered': 'Not registered',
+  'units.state.active': 'Active',
+  'units.state.suspended': 'Suspended',
+  'units.state.lease_ended': 'Lease ended',
+  'units.phones': '{n} of {max} phones',
+  'units.empty': 'No homes on record yet',
+  'units.suspend': 'Suspend…',
+  'units.suspendNow': 'Suspend card',
+  'units.lift': 'Lift',
+  'units.reason': 'Reason',
+  'units.reasonHint': 'Everyone on the card is told and sees this. Up to 200 characters.',
+  'units.error.not_management': 'Only the Management Office can do this.',
+  'units.error.not_found': 'This card is not in your township.',
+  'units.error.bad_reason': 'Give a reason of 1 to 200 characters.',
+  'units.error.not_suspended': 'This card is not suspended.',
 } satisfies Record<string, string>;
 
 export default en;

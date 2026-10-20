@@ -78,6 +78,7 @@ export default async function DashboardLayout({ children }: LayoutProps<'/dashbo
                 label: t(lang, 'dashboard.nav.residents'),
                 badge: { n: waiting.count ?? 0, label: t(lang, 'dashboard.nav.waiting', { n: waiting.count ?? 0 }) },
               },
+              { href: '/dashboard/units', icon: '🏘️', label: t(lang, 'dashboard.nav.units') },
               {
                 href: '/dashboard/events',
                 icon: '📅',

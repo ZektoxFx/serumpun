@@ -1237,6 +1237,32 @@ const ms: Record<keyof typeof en, string> = {
   'card.pin.demo': 'PIN demo: {pin}',
   'card.pin.entered': '{n} daripada 6 digit dimasukkan',
   'card.pin.delete': 'Padam',
+
+  // Kad akses: Pejabat Pengurusan › Unit, tempat pejabat menggantung dan mengangkat penggantungan kad (app/dashboard/units, lib/domain/units.ts)
+  'dashboard.nav.units': 'Unit',
+  'units.intro': 'Setiap rumah dalam perbandaran dan kad isi rumahnya. Menggantung kad memberitahu semua orang pada kad itu sebabnya.',
+  'units.openReader': 'Buka skrin pembaca',
+  'units.col.unit': 'Unit',
+  'units.col.record': 'Dalam rekod',
+  'units.col.card': 'Kad',
+  'units.col.action': 'Tindakan',
+  'units.tenure.owner': 'Pemilik',
+  'units.tenure.tenant': 'Penyewa',
+  'units.state.not_registered': 'Belum berdaftar',
+  'units.state.active': 'Aktif',
+  'units.state.suspended': 'Digantung',
+  'units.state.lease_ended': 'Tempoh sewa tamat',
+  'units.phones': '{n} daripada {max} telefon',
+  'units.empty': 'Belum ada rumah dalam rekod',
+  'units.suspend': 'Gantung…',
+  'units.suspendNow': 'Gantung kad',
+  'units.lift': 'Angkat',
+  'units.reason': 'Sebab',
+  'units.reasonHint': 'Semua orang pada kad ini diberitahu dan melihat sebab ini. Sehingga 200 aksara.',
+  'units.error.not_management': 'Hanya Pejabat Pengurusan boleh berbuat demikian.',
+  'units.error.not_found': 'Kad ini tiada dalam perbandaran anda.',
+  'units.error.bad_reason': 'Beri sebab sepanjang 1 hingga 200 aksara.',
+  'units.error.not_suspended': 'Kad ini tidak digantung.',
 };
 
 export default ms;
