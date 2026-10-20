@@ -1,4 +1,5 @@
-// Beyond the brief's test files: "Try as Aisyah" puts No. 18's card back as seeded, for her only, and signs her in whatever the restore does.
+// Beyond the brief's test files: "Try as Aisyah" puts No. 18's card back as seeded, for her only, and signs her in
+// whatever the restore does.
 vi.mock('server-only', () => ({}));
 const h = vi.hoisted(() => ({
   calls: [] as string[],

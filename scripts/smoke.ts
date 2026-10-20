@@ -5,9 +5,9 @@ import { seedAll } from '@/lib/seed';
 import { DEMO_EMAIL, type DemoAccount } from '@/lib/seed/people';
 import { createAdminClient } from '@/lib/supabase/admin';
 
-// Run with `npm run smoke` on the seeded demo: the privacy, pending-user, double-tap, limit and household-card rules, each
-// tried through the API as the demo accounts would. Prints PASS or FAIL per check and exits 1 on any FAIL. The checks book, redeem and
-// check in, so the demo is seeded again at the end.
+// Run with `npm run smoke` on the seeded demo: the privacy, pending-user, double-tap, limit and household-card rules,
+// each tried through the API as the demo accounts would. Prints PASS or FAIL per check and exits 1 on any FAIL. The
+// checks book, redeem and check in, so the demo is seeded again at the end.
 
 type Answer = { error: { message: string } | null };
 
