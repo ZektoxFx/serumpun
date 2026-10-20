@@ -1238,7 +1238,7 @@ const ms: Record<keyof typeof en, string> = {
   'card.pin.entered': '{n} daripada 6 digit dimasukkan',
   'card.pin.delete': 'Padam',
 
-  // Kad akses: Pejabat Pengurusan › Unit, tempat pejabat menggantung dan mengangkat penggantungan kad (app/dashboard/units, lib/domain/units.ts)
+  // Kad akses: Pejabat Pengurusan › Unit, tempat pejabat menggantung dan membatalkan penggantungan kad (app/dashboard/units, lib/domain/units.ts)
   'dashboard.nav.units': 'Unit',
   'units.intro': 'Setiap rumah dalam perbandaran dan kad isi rumahnya. Menggantung kad memberitahu semua orang pada kad itu sebabnya.',
   'units.openReader': 'Buka skrin pembaca',
@@ -1256,7 +1256,7 @@ const ms: Record<keyof typeof en, string> = {
   'units.empty': 'Belum ada rumah dalam rekod',
   'units.suspend': 'Gantung…',
   'units.suspendNow': 'Gantung kad',
-  'units.lift': 'Angkat',
+  'units.lift': 'Batalkan penggantungan',
   'units.reason': 'Sebab',
   'units.reasonHint': 'Semua orang pada kad ini diberitahu dan melihat sebab ini. Sehingga 200 aksara.',
   'units.error.not_management': 'Hanya Pejabat Pengurusan boleh berbuat demikian.',
