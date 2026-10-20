@@ -195,4 +195,4 @@ it('takes at most 500 visits and says how many it took, so the reader keeps the 
   expect(await handleVisits({ visits: [...Array.from({ length: 500 }, () => junk), valid] }, w.deps)).toEqual({ saved: 0, skipped: 500 });
   expect(w.stored).toEqual([]);
   expect(await handleVisits({ visits: Array.from({ length: 500 }, () => valid) }, w.deps)).toEqual({ saved: 1, skipped: 499 });
-});
+}, 20_000); // about 1,000 signature checks: past the 5 s default when every test file runs in parallel
