@@ -31,6 +31,8 @@ laptop for the dashboard.
    Mall's directory with pins on its layout plan
 10. Rewards: a voucher with Slide to use
 11. Me: Help & policies (guidelines, rules, FAQ, terms), text size, dark mode and Bahasa Malaysia
+12. Household access card: in Me, open the card with PIN 123456; on a laptop open `/reader`, pick Pool and tap the
+    card for a green tick; Dashboard › Units suspends it (the next tap is red), and the reader keeps working with Wi-Fi off
 
 ## Quick start
 
