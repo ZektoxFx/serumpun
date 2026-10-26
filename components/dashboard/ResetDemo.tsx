@@ -39,7 +39,7 @@ export function ResetDemo() {
           type="button"
           variant="outline"
           onClick={(event) => {
-            event.preventDefault(); // this click only opens the question; it must never reach "Yes, reset" (see ResidentDecision)
+            event.preventDefault(); // this click only opens the question: React reuses this button as "Yes, reset" while the click is handled, and the browser would submit it
             setConfirming(true);
           }}
         >

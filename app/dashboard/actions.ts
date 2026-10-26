@@ -39,32 +39,12 @@ export async function updateReport(formData: FormData): Promise<DashboardResult>
   return { ok: true };
 }
 
-const RESIDENT_ERRORS: Record<string, MessageKey> = {
-  not_management: 'map.error.notManagement',
-  not_found: 'dashboard.residents.gone',
-};
-
 /** Marks a resident's notice noted, with the office's reply if any. note_notice tells the resident. */
 export async function noteNotice(formData: FormData): Promise<DashboardResult> {
   await requireManagement();
   const supabase = await createClient();
   const { error } = await supabase.rpc('note_notice', { p_notice: field(formData, 'id'), p_reply: field(formData, 'reply') });
   if (error) return failed('note_notice', error, noticeErrorKey(error.message));
-  refresh();
-  return { ok: true };
-}
-
-/** Approves (`verified`) or rejects a pending resident. set_resident_status tells them. */
-export async function decideResident(formData: FormData): Promise<DashboardResult> {
-  await requireManagement();
-  const supabase = await createClient();
-  const { error } = await supabase.rpc('set_resident_status', {
-    p_profile: field(formData, 'id'),
-    p_status: field(formData, 'status'),
-  });
-  if (error) {
-    return failed('set_resident_status', error, Object.hasOwn(RESIDENT_ERRORS, error.message) ? RESIDENT_ERRORS[error.message] : 'common.error');
-  }
   refresh();
   return { ok: true };
 }

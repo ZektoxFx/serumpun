@@ -173,3 +173,14 @@
     overflow: hidden;
   }
 }
+
+/* "Print slip" in Dashboard › Units (components/dashboard/GiveCode.tsx): while a slip is on the page, a print shows the slip and
+   nothing else. Any other print is left alone. :where() keeps the hiding rules weaker than the one that shows the slip. */
+@media print {
+  :where(body:has([data-print-slip])) * { visibility: hidden; }
+  [data-print-slip], [data-print-slip] * { visibility: visible; }
+  [data-print-slip] { position: fixed; inset: 0; padding: 2rem; }
+  /* Hidden still takes room: the page behind would print as blank pages, each with a copy of the slip. So all of it goes but
+     the slip and what holds it (those are only hidden above). */
+  :where(body:has([data-print-slip])) :not([data-print-slip], [data-print-slip] *):not(:has([data-print-slip])) { display: none; }
+}

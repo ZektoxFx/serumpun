@@ -23,9 +23,8 @@ export default async function DashboardLayout({ children }: LayoutProps<'/dashbo
   const lang = await getLang();
   const supabase = await createClient();
   // Row-level security limits both counts to the office's own township.
-  const [open, waiting, asking, told] = await Promise.all([
+  const [open, asking, told] = await Promise.all([
     supabase.from('reports').select('id', { count: 'exact', head: true }).not('status', 'in', '(resolved,confirmed)'),
-    supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'resident').eq('status', 'pending'),
     supabase
       .from('public_events')
       .select('id', { count: 'exact', head: true })
@@ -33,7 +32,7 @@ export default async function DashboardLayout({ children }: LayoutProps<'/dashbo
       .gt('ends_at', new Date().toISOString()),
     supabase.from('resident_notices').select('id', { count: 'exact', head: true }).eq('status', 'sent'),
   ]);
-  for (const { error } of [open, waiting, asking, told]) if (error) console.error(`dashboard counts: ${error.message}`); // the menu still works
+  for (const { error } of [open, asking, told]) if (error) console.error(`dashboard counts: ${error.message}`); // the menu still works
   // Emergencies not yet resolved or cancelled, with who sent them and where they live: only the office sees that. They
   // stay here until resolved, even after they fade from residents' maps at 2 hours.
   const { data: live, error: liveError } = await supabase
@@ -71,12 +70,6 @@ export default async function DashboardLayout({ children }: LayoutProps<'/dashbo
                 icon: '📋',
                 label: t(lang, 'dashboard.nav.reports'),
                 badge: { n: open.count ?? 0, label: t(lang, 'dashboard.nav.open', { n: open.count ?? 0 }) },
-              },
-              {
-                href: '/dashboard/residents',
-                icon: '🪪',
-                label: t(lang, 'dashboard.nav.residents'),
-                badge: { n: waiting.count ?? 0, label: t(lang, 'dashboard.nav.waiting', { n: waiting.count ?? 0 }) },
               },
               { href: '/dashboard/units', icon: '🏘️', label: t(lang, 'dashboard.nav.units') },
               {
