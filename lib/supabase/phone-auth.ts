@@ -7,7 +7,7 @@ import { randomUUID } from 'node:crypto';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { isPinFormat } from '@/lib/card/pin';
 
-export type PhoneSignInResult = { userId: string } | { error: 'wrong' | 'expired' | 'failed' } | { error: 'locked'; lockedUntil: string };
+export type PhoneSignInResult = { userId: string } | { error: 'wrong' | 'expired' | 'failed' };
 
 type SmsCheckRow = { phone: string; verified_at: string | null; used_at: string | null; expires_at: string };
 
@@ -18,8 +18,9 @@ function failure(what: string, error: { message: string }): PhoneSignInResult {
 
 /**
  * Who a verified SMS check's number belongs to, when their PIN is right. A number with no account answers exactly as a
- * wrong PIN does, after the same questions to the database, so neither the answer nor the trips to the database show
- * that someone with that number lives in the township. A right PIN uses the check up, so it signs in once.
+ * wrong PIN does, after the same questions to the database, and so does a locked PIN (only a number with an account can
+ * lock), so neither the answer nor the trips to the database show that someone with that number lives in the township.
+ * A right PIN uses the check up, so it signs in once.
  */
 export async function phoneSignIn(
   admin: SupabaseClient,
@@ -50,7 +51,6 @@ export async function phoneSignIn(
   const { data: pinCheck, error: pinError } = await admin.rpc('check_member_pin', { p_user: person?.id ?? randomUUID(), p_pin: pin });
   if (pinError && pinError.message !== 'no_pin') return failure('check_member_pin', pinError);
   if (!person || pinError) return { error: 'wrong' };
-  if (pinCheck.locked_until) return { error: 'locked', lockedUntil: pinCheck.locked_until };
   if (!pinCheck.ok) return { error: 'wrong' };
 
   // Of two sign-ins with one check at the same moment, only the first to mark it used goes on.

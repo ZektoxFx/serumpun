@@ -82,7 +82,10 @@ export async function checkSmsCode(admin: SupabaseClient, check: string, sms: st
   return data.expired ? { ok: false, expired: true } : { ok: false, triesLeft: data.tries_left };
 }
 
-/** What `complete_registration` refuses with; any other error is `failed`. */
+/**
+ * What `complete_registration` refuses with. Any other error is `failed`, except a check id that is not an id (22P02),
+ * which is `bad_check`.
+ */
 export const REGISTER_REFUSALS = ['bad_code', 'bad_check', 'phone_taken', 'has_card', 'card_full', 'bad_pin'] as const;
 export type RegisterResult = { userId: string } | { error: (typeof REGISTER_REFUSALS)[number] | 'failed' };
 
@@ -117,6 +120,8 @@ export async function finishRegistration(
 
   const { error: deleteError } = await admin.auth.admin.deleteUser(userId);
   if (deleteError) console.error(`deleting a refused registration's account failed: ${deleteError.message}`);
+  // The check id comes from the browser, and Postgres refuses text that is not an id (22P02): there is no such check.
+  if (error.code === '22P02') return { error: 'bad_check' };
   const refusal = REGISTER_REFUSALS.find((refused) => refused === error.message);
   if (!refusal) console.error(`complete_registration failed: ${error.message}`);
   return { error: refusal ?? 'failed' };

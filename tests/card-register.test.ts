@@ -87,6 +87,8 @@ it('makes no account for a code that is not open, or a PIN that is not six digit
   const short = fakeAdmin({ card_codes: ok(OFFICE_ROW) });
   expect([await finish(closed), await finish(short, '12345')]).toEqual([{ error: 'bad_code' }, { error: 'bad_pin' }]);
   expect([...closed.calls, ...short.calls]).toEqual([]);
+  // A PIN that is not six digits is refused with no call at all: not even a look at the code.
+  expect(short.queries).toEqual([]);
 });
 
 // Beyond the brief's tests: an invite, what "open" means, the SMS check, and a failure that is not a refusal.
@@ -121,4 +123,11 @@ it('deletes the new account and says it failed, logging why, when the database b
   expect(await finish(db)).toEqual({ error: 'failed' });
   expect(db.calls).toEqual(['createUser', 'rpc complete_registration', 'deleteUser u-new']);
   expect(console.error).toHaveBeenCalledWith(expect.stringContaining('violates check constraint'));
+});
+it('reads a check id that is not an id as no check: bad_check, the new account deleted, nothing logged', async () => {
+  // The check id comes from the browser, and Postgres refuses text that is not an id (22P02).
+  const db = fakeAdmin({ card_codes: ok(OFFICE_ROW), rpc: failed('22P02', 'invalid input syntax for type uuid') });
+  expect(await finish(db)).toEqual({ error: 'bad_check' });
+  expect(db.calls).toEqual(['createUser', 'rpc complete_registration', 'deleteUser u-new']);
+  expect(console.error).not.toHaveBeenCalled();
 });

@@ -47,6 +47,8 @@ function fakeAdmin(answers: Record<string, Answer>) {
   const on = (table: string) => queries.filter((q) => q.table === table);
   return { queries, calls, on, client: client as never, get rpcArgs() { return rpcArgs; } };
 }
+/** The columns a query was narrowed by with `eq`. */
+const eqs = (steps: Step[]) => Object.fromEntries(steps.filter(([method]) => method === 'eq').map(([, column, value]) => [column, value]));
 const ok = (data: unknown): Answer => ({ data, error: null });
 const failed = (code: string, message = 'boom'): Answer => ({ data: null, error: { code, message } });
 
@@ -63,6 +65,9 @@ it('signs in with a verified check and the right PIN, and uses the check up', as
   const db = fakeAdmin({ sms_checks: ok(verified), sms_checks_update: ok([{ id: 'chk' }]), profile_private: ok({ id: 'u-nur' }), rpc: ok({ ok: true }) });
   expect(await signIn(db)).toEqual({ userId: 'u-nur' });
   expect(db.rpcArgs).toEqual({ p_user: 'u-nur', p_pin: '123456' });
+  // Which check is read, and whose number is looked up, decide who is signed in.
+  expect(eqs(db.on('sms_checks')[0].steps)).toEqual({ id: 'chk' });
+  expect(eqs(db.on('profile_private')[0].steps)).toEqual({ phone: verified.phone });
 });
 it('answers an unknown number exactly as a wrong PIN', async () => {
   const unknown = fakeAdmin({ sms_checks: ok(verified), profile_private: ok(null) });
@@ -79,8 +84,10 @@ it('refuses a check that was never verified, was used, or ran out, before lookin
 it('starts the session from a magic link it never sends', async () => {
   const generateLink = vi.fn(async () => ({ data: { properties: { hashed_token: 'th' } }, error: null }));
   const verifyOtp = vi.fn(async () => ({ error: null }));
-  const admin = { auth: { admin: { getUserById: async () => ({ data: { user: { email: 'resident-1@example.com' } }, error: null }), generateLink } } };
+  const getUserById = vi.fn(async () => ({ data: { user: { email: 'resident-1@example.com' } }, error: null }));
+  const admin = { auth: { admin: { getUserById, generateLink } } };
   await startSession(admin as never, { auth: { verifyOtp } } as never, 'u-nur');
+  expect(getUserById).toHaveBeenCalledWith('u-nur');
   expect(generateLink).toHaveBeenCalledWith({ type: 'magiclink', email: 'resident-1@example.com' });
   expect(verifyOtp).toHaveBeenCalledWith({ token_hash: 'th', type: 'magiclink' });
 });
@@ -98,9 +105,13 @@ it('fails alike for every number when the PIN check breaks, and logs why', async
   expect([await signIn(broken(null)), await signIn(broken({ id: 'u-nur' }))]).toEqual([{ error: 'failed' }, { error: 'failed' }]);
   expect(console.error).toHaveBeenCalledWith(expect.stringContaining('connection lost'));
 });
-it('tells a found account its PIN is locked, and calls a PIN nobody set, or one that is not six digits, wrong', async () => {
+it('answers a locked PIN, a PIN nobody set, and one that is not six digits exactly as a wrong PIN', async () => {
   const known = (rpc: Answer) => fakeAdmin({ sms_checks: ok(verified), profile_private: ok({ id: 'u-nur' }), rpc });
-  expect(await signIn(known(ok({ ok: false, locked_until: '2026-10-25T04:15:00+00:00' })))).toEqual({ error: 'locked', lockedUntil: '2026-10-25T04:15:00+00:00' });
+  // Only a number with an account can lock, so a lock that looked different would show that someone lives with that number.
+  const locked = known(ok({ ok: false, locked_until: '2026-10-25T04:15:00+00:00' }));
+  const unknown = fakeAdmin({ sms_checks: ok(verified), profile_private: ok(null), rpc: failed('P0001', 'no_pin') });
+  expect([await signIn(locked), await signIn(unknown)]).toEqual([{ error: 'wrong' }, { error: 'wrong' }]);
+  expect([locked.queries, locked.calls]).toEqual([unknown.queries, unknown.calls]);
   expect(await signIn(known(failed('P0001', 'no_pin')))).toEqual({ error: 'wrong' });
   // Not a PIN, so wrong for any number, before anything is asked: it costs nobody a try.
   const db = known(ok({ ok: true }));
