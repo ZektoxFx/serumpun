@@ -1,5 +1,6 @@
+import { clockTime } from '@/lib/domain/time';
 // From core, not the index: the index brings React context, and the seed script imports this file.
-import type { MessageKey } from '@/lib/i18n/core';
+import type { Lang, MessageKey } from '@/lib/i18n/core';
 
 export const DEMO_PIN = '123456';
 export const PIN_TRIES = 5;
@@ -11,6 +12,25 @@ export const PIN_LOCK_MS = 900_000; // 15 minutes
  */
 export function isPinFormat(pin: string): boolean {
   return typeof pin === 'string' && /^[0-9]{6}$/.test(pin);
+}
+
+/**
+ * What the PIN pad gets back. A wrong try fills `{n}` of the message from `triesLeft`. A locked PIN fills `{time}` from
+ * `time` (when it opens again, in Malaysia time and the resident's language), and `lockedUntil` is that moment as an
+ * ISO string, for a countdown.
+ */
+export type PinAnswer =
+  | { ok: true }
+  | { ok: false; error: MessageKey; triesLeft?: number; lockedUntil?: string; time?: string };
+
+/** A PIN check's answer from the database (`check_member_pin`), as the pad shows it. */
+export function pinAnswer(data: { ok: boolean; tries_left?: number; locked_until?: string }, now: Date, lang: Lang): PinAnswer {
+  if (data.ok) return { ok: true };
+  if (data.locked_until) {
+    const until = new Date(data.locked_until);
+    return { ok: false, error: 'card.pin.error.locked', lockedUntil: until.toISOString(), time: clockTime(until, now, lang) };
+  }
+  return { ok: false, error: 'card.pin.error.wrong', triesLeft: data.tries_left };
 }
 
 /**

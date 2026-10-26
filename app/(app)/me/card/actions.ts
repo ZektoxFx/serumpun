@@ -1,22 +1,12 @@
 'use server';
 
 import type { PublicJwk } from '@/lib/card/crypto';
-import { cardErrorKey, isPinFormat } from '@/lib/card/pin';
+import { cardErrorKey, isPinFormat, pinAnswer, type PinAnswer } from '@/lib/card/pin';
 import { issuePass } from '@/lib/card/server';
-import { clockTime } from '@/lib/domain/time';
 import { env } from '@/lib/env';
 import type { MessageKey } from '@/lib/i18n';
 import { requireMember } from '@/lib/supabase/auth';
 import { createClient } from '@/lib/supabase/server';
-
-/**
- * What the PIN pad gets back. A wrong try fills `{n}` of the message from `triesLeft`. A locked PIN fills `{time}` from
- * `time` (when it opens again, in Malaysia time and the resident's language), and `lockedUntil` is that moment as an
- * ISO string, for a countdown.
- */
-export type PinAnswer =
-  | { ok: true }
-  | { ok: false; error: MessageKey; triesLeft?: number; lockedUntil?: string; time?: string };
 
 /**
  * A fresh pass for this browser's key. The key comes from the browser, so issuePass first refuses anything that is not an
@@ -38,10 +28,5 @@ export async function checkCardPin(pin: string): Promise<PinAnswer> {
     console.error(`verify_card_pin failed: ${error.message}`);
     return { ok: false, error: 'common.error' };
   }
-  if (data.ok) return { ok: true };
-  if (data.locked_until) {
-    const until = new Date(data.locked_until);
-    return { ok: false, error: 'card.pin.error.locked', lockedUntil: until.toISOString(), time: clockTime(until, new Date(), lang) };
-  }
-  return { ok: false, error: 'card.pin.error.wrong', triesLeft: data.tries_left };
+  return pinAnswer(data, new Date(), lang);
 }
