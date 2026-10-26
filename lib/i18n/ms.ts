@@ -1199,10 +1199,14 @@ const ms: Record<keyof typeof en, string> = {
   'reader.phone': 'Telefon',
   'reader.phone.signIn': 'Log masuk untuk meletakkan kad pada telefon ini',
 
-  // Kad akses: pemberitahuan (supabase/migrations/0024_access_cards.sql)
+  // Kad akses: pemberitahuan (supabase/migrations/0024_access_cards.sql, 0025_getting_onto_the_card.sql). Isi tiga
+  // yang terakhir ialah nama orang itu.
   'notify.card.suspended': 'Kad isi rumah anda telah digantung',
   'notify.card.lifted': 'Kad isi rumah anda boleh digunakan semula',
   'notify.card.pinLocked': 'Terlalu banyak PIN salah pada kad isi rumah anda',
+  'notify.card.moveAsked': 'Telefon baharu meminta kad isi rumah anda',
+  'notify.card.moved': 'Kad isi rumah anda telah dipindahkan ke telefon baharu',
+  'notify.card.joined': 'Ahli baharu menyertai kad isi rumah anda',
 
   // Kad akses: apabila pas tidak dapat dikeluarkan, dan jawapan pad PIN (lib/card/pin.ts, app/(app)/me/card/actions.ts)
   'card.error.no_card': 'Anda belum berada pada kad isi rumah',

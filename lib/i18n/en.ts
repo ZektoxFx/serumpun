@@ -1198,10 +1198,14 @@ const en = {
   'reader.phone': 'Phone',
   'reader.phone.signIn': 'Sign in to put a card on this phone',
 
-  // Access card: notifications (supabase/migrations/0024_access_cards.sql)
+  // Access card: notifications (supabase/migrations/0024_access_cards.sql, 0025_getting_onto_the_card.sql). The body
+  // of the last three is the person's name.
   'notify.card.suspended': 'Your household card was suspended',
   'notify.card.lifted': 'Your household card works again',
   'notify.card.pinLocked': 'Too many wrong PINs on your household card',
+  'notify.card.moveAsked': 'A new phone asked for your household card',
+  'notify.card.moved': 'Your household card moved to a new phone',
+  'notify.card.joined': 'Someone new joined your household card',
 
   // Access card: when a pass can't be issued, and the PIN pad's answers (lib/card/pin.ts, app/(app)/me/card/actions.ts)
   'card.error.no_card': "You're not on a household card yet",
