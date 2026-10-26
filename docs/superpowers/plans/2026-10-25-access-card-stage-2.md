@@ -360,7 +360,7 @@ export const REGISTER_REFUSALS = ['bad_code', 'bad_check', 'phone_taken', 'has_c
 export type RegisterResult = { userId: string } | { error: (typeof REGISTER_REFUSALS)[number] | 'failed' };
 export function finishRegistration(admin: SupabaseClient, i: { code: string; check: string; pin: string; lang: Lang; now: Date }): Promise<RegisterResult>;
 // lib/supabase/phone-auth.ts
-export type PhoneSignInResult = { userId: string } | { error: 'wrong' | 'expired' | 'failed' } | { error: 'locked'; lockedUntil: string };
+export type PhoneSignInResult = { userId: string } | { error: 'wrong' | 'expired' | 'failed' };
 export function phoneSignIn(admin: SupabaseClient, i: { check: string; pin: string; now: Date }): Promise<PhoneSignInResult>;
 export function startSession(admin: SupabaseClient, supabase: SupabaseClient, userId: string): Promise<void>; // throws if Auth refuses
 ```
@@ -382,7 +382,7 @@ export function startSession(admin: SupabaseClient, supabase: SupabaseClient, us
 - **`phoneSignIn`:**
   1. A check that isn't verified, is used, has expired or is missing: `expired`, before looking for anyone.
   2. No account by `profile_private.phone`: `wrong`, exactly as for a wrong PIN.
-  3. `check_member_pin`: a lock answers `locked`; tries left or `no_pin` answer `wrong`.
+  3. `check_member_pin`: a lock, tries left or `no_pin` all answer `wrong` (Task 2 ruling: a lock must not reveal an account).
   4. Right: mark the check used with `.is('used_at', null)`. It must return 1 row, else `expired`.
 - **`startSession`:** `getUserById`, then `generateLink({ type: 'magiclink', email })`, then `supabase.auth.verifyOtp({ token_hash: properties.hashed_token, type: 'magiclink' })`.
 
@@ -694,8 +694,7 @@ export function PhoneSignIn(props: { next?: string }): React.JSX.Element;
 - **`checkSms`:** not six digits: `card.pin.error.format`. Tries left: `sms.error.wrong` (`{n}`). Expired: `sms.error.expired`.
 - **`sendSignInSms`:** starts a check for any well-formed number, and never looks for an account.
 - **`signInWithPin`:**
-  - `wrong`: `signIn.error.wrong`, with no tries count.
-  - `locked`: `pinAnswer`'s locked answer.
+  - `wrong`: `signIn.error.wrong`, with no tries count. A locked PIN also answers `wrong` (Task 2 ruling, plan call 6), so phone sign-in has no locked state and never shows a locked time.
   - `expired`: `sms.error.expired`.
   - Success: `startSession`, then `redirect(returnPath(next) ?? '/home')`.
 - **The pages:**
