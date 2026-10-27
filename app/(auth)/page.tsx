@@ -7,7 +7,7 @@ import { t } from '@/lib/i18n';
 import { getLang } from '@/lib/i18n/server';
 import { returnPath } from '@/lib/domain/notifications';
 import { getSessionProfile, homePath } from '@/lib/supabase/auth';
-import { DemoButtons, SignInForm } from './forms';
+import { DemoButtons } from './forms';
 
 export default async function LandingPage({ searchParams }: PageProps<'/'>) {
   // Where a signed-out visitor was sent away from (proxy.ts): signing in takes them back there.
@@ -25,23 +25,20 @@ export default async function LandingPage({ searchParams }: PageProps<'/'>) {
         <p className="mt-2 text-xl font-bold">{t(lang, 'landing.tagline')}</p>
       </header>
       <div className="grid gap-8 px-6 py-8">
+        <section className="grid gap-3">
+          <Link href="/register" className={`${buttonClasses('primary', 'lg')} w-full`}>
+            {t(lang, 'landing.register')}
+          </Link>
+          <Link href={next ? `/sign-in?next=${encodeURIComponent(next)}` : '/sign-in'} className={`${buttonClasses('outline', 'lg')} w-full`}>
+            {t(lang, 'auth.signIn')}
+          </Link>
+          <p className="text-sm text-muted-2">{t(lang, 'landing.codeHint')}</p>
+        </section>
         <section aria-labelledby="demo-heading" className="grid gap-3">
           <h2 id="demo-heading" className="text-lg font-extrabold">
             {t(lang, 'landing.demo.title')}
           </h2>
           <DemoButtons next={next} />
-        </section>
-        <section aria-labelledby="sign-in-heading" className="grid gap-3">
-          <h2 id="sign-in-heading" className="text-lg font-extrabold">
-            {t(lang, 'landing.signIn.title')}
-          </h2>
-          <SignInForm next={next} />
-        </section>
-        <section className="grid gap-3">
-          <p className="text-sm text-muted">{t(lang, 'landing.newHere')}</p>
-          <Link href="/signup" className={`${buttonClasses('outline', 'lg')} w-full`}>
-            {t(lang, 'landing.createAccount')}
-          </Link>
         </section>
         <LanguageSwitch lang={lang} />
       </div>

@@ -34,9 +34,11 @@ const pressable = `${row} rounded-[inherit] hover:bg-soft focus-visible:outline-
 const rowIcon = 'w-6 shrink-0 text-center text-lg';
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
-export default async function MePage() {
+export default async function MePage({ searchParams }: PageProps<'/me'>) {
   const profile = await requireMember();
   const lang = await getLang();
+  // Register opens Me this way once the card is made.
+  const ready = (await searchParams).ready === '1';
   const textSize = (await cookies()).get('textSize')?.value;
   const supabase = await createClient();
   const now = new Date();
@@ -85,6 +87,12 @@ export default async function MePage() {
       </header>
 
       <main className="relative -mt-10 grid gap-3 px-4">
+        {ready && card && (
+          <p role="status" className="flex items-center gap-2 rounded-xl bg-tint-green px-3 py-2 text-base font-extrabold text-green-text">
+            <span aria-hidden="true">✓</span>
+            {t(lang, 'me.ready')}
+          </p>
+        )}
         {card && <HouseholdCard summary={card} demoPin={demo ? DEMO_PIN : null} />}
 
         <section aria-labelledby="your-points" className="rounded-2xl border border-line bg-surface p-4 shadow-lg">

@@ -1,23 +1,21 @@
 'use server';
 
 import { redirect } from 'next/navigation';
+import { isPinFormat, type PinAnswer } from '@/lib/card/pin';
+import { checkSmsCode, startSmsCheck } from '@/lib/card/register';
 import { returnPath } from '@/lib/domain/notifications';
-import { validateSignup, type SignupErrors, type SignupInput } from '@/lib/domain/signup';
+import { normalizePhone } from '@/lib/domain/phone';
 import { env } from '@/lib/env';
 import type { MessageKey } from '@/lib/i18n';
-import { getLang } from '@/lib/i18n/server';
 import { restoreDemoCard } from '@/lib/seed/cards';
 import { DEMO_EMAIL, type DemoAccount } from '@/lib/seed/people';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { homePath } from '@/lib/supabase/auth';
+import { phoneSignIn, startSession, type PhoneSignInResult } from '@/lib/supabase/phone-auth';
 import { createClient } from '@/lib/supabase/server';
 
 /** What a failed action hands back to its form (a successful one redirects). Passwords are never sent back. */
-export type AuthResult = {
-  error?: MessageKey;
-  errors?: SignupErrors;
-  values?: Partial<Omit<SignupInput, 'password'>>;
-} | null;
+export type AuthResult = { error?: MessageKey; values?: { email: string } } | null;
 
 const field = (formData: FormData, name: string) => String(formData.get(name) ?? '');
 
@@ -55,60 +53,64 @@ export async function signInDemo(who: DemoAccount, next?: string): Promise<AuthR
   return signInWith(DEMO_EMAIL[who], env.demoPassword, 'landing.demo.error', next);
 }
 
-/** Creates a pending resident (the Management Office verifies them later), then signs them in. */
-export async function signUp(formData: FormData): Promise<AuthResult> {
-  const input: SignupInput = {
-    fullName: field(formData, 'fullName').trim(),
-    email: field(formData, 'email').trim().toLowerCase(),
-    password: field(formData, 'password'),
-    townshipSlug: field(formData, 'townshipSlug'),
-    neighbourhood: field(formData, 'neighbourhood').trim(),
-    unitNo: field(formData, 'unitNo').trim(),
-  };
-  const { password, ...values } = input;
-  const checked = validateSignup(input);
-  if (!checked.ok) return { errors: checked.errors, values };
+// Register and Sign in with a phone (components/auth). Nobody is signed in yet, so the service role asks the database,
+// which checks every rule again. SMS codes and PINs arrive as arguments and are never logged.
 
+function logged(what: string, error: unknown) {
+  console.error(`${what} failed: ${error instanceof Error ? error.message : error}`);
+}
+
+/** One try at an SMS code, for Register and Sign in. The database counts the tries (5) and knows the code only hashed. */
+export async function checkSms(check: string, sms: string): Promise<{ ok: true } | { ok: false; error: MessageKey; triesLeft?: number }> {
+  // Six digits, like a PIN: anything else is not sent, so it costs no try.
+  if (!isPinFormat(sms)) return { ok: false, error: 'card.pin.error.format' };
+  try {
+    const answer = await checkSmsCode(createAdminClient(), check, sms);
+    if (answer.ok) return answer;
+    // The fifth wrong try leaves none, and then only a new code helps.
+    if ('triesLeft' in answer && answer.triesLeft > 0) return { ok: false, error: 'sms.error.wrong', triesLeft: answer.triesLeft };
+    return { ok: false, error: 'sms.error.expired' };
+  } catch (error) {
+    logged('checking an SMS code', error);
+    return { ok: false, error: 'common.error' };
+  }
+}
+
+/** Starts the SMS check of a number to sign in with. Any Malaysian mobile number gets one: no account is looked for. */
+export async function sendSignInSms(phone: string): Promise<{ check: string; sms: string; phone: string } | { error: MessageKey }> {
+  const to = normalizePhone(phone);
+  if (!to) return { error: 'phone.error.format' };
+  try {
+    return { ...(await startSmsCheck(createAdminClient(), to)), phone: to };
+  } catch (error) {
+    logged('sending a sign-in SMS code', error);
+    return { error: 'common.error' };
+  }
+}
+
+// A locked PIN answers `wrong` too (lib/supabase/phone-auth.ts), so phone sign-in never shows a lock.
+const SIGN_IN_ERRORS: Record<Extract<PhoneSignInResult, { error: string }>['error'], MessageKey> = {
+  wrong: 'signIn.error.wrong',
+  expired: 'sms.error.expired',
+  failed: 'common.error',
+};
+
+/**
+ * The PIN after a checked SMS code. An unknown number and a wrong PIN get the same answer, so a number never shows that
+ * someone lives here. The right PIN signs in on this browser and goes to `next` (checked again) or Home.
+ */
+export async function signInWithPin(check: string, pin: string, next?: string): Promise<PinAnswer> {
   const admin = createAdminClient();
-  const { data: township } = await admin
-    .from('townships')
-    .select('id')
-    .eq('slug', input.townshipSlug)
-    .eq('active', true)
-    .maybeSingle();
-  if (!township) return { errors: { townshipSlug: 'signup.error.townshipSoon' }, values };
-
-  // Email confirmation is on for this project, and residents are verified by the Management Office instead.
-  const { data: created, error } = await admin.auth.admin.createUser({ email: input.email, password, email_confirm: true });
-  if (error) {
-    if (error.code === 'email_exists' || error.code === 'user_already_exists') {
-      return { errors: { email: 'signup.error.emailTaken' }, values };
-    }
-    if (error.code === 'email_address_invalid') return { errors: { email: 'signup.error.email' }, values };
-    if (error.code === 'weak_password') return { errors: { password: 'signup.error.password' }, values };
-    return { error: 'common.error', values };
+  const signedIn = await phoneSignIn(admin, { check, pin, now: new Date() });
+  if ('error' in signedIn) return { ok: false, error: SIGN_IN_ERRORS[signedIn.error] };
+  try {
+    await startSession(admin, await createClient(), signedIn.userId);
+  } catch (error) {
+    // Auth keeps one live sign-in link per account, so of two sign-ins to one account at the same moment one can fail.
+    logged('starting a phone sign-in session', error);
+    return { ok: false, error: 'common.error' };
   }
-
-  const id = created.user.id;
-  const profile = {
-    id,
-    township_id: township.id,
-    full_name: input.fullName,
-    neighbourhood: input.neighbourhood,
-    role: 'resident',
-    status: 'pending',
-    lang: await getLang(),
-  };
-  const saved =
-    !(await admin.from('profiles').insert(profile)).error &&
-    !(await admin.from('profile_private').insert({ id, unit_no: input.unitNo })).error;
-  if (!saved) {
-    // No half-made accounts: an auth user without a profile could never sign up again with this email.
-    await admin.auth.admin.deleteUser(id);
-    return { error: 'common.error', values };
-  }
-
-  return signInWith(input.email, password, 'common.error');
+  redirect(returnPath(next) ?? '/home');
 }
 
 export async function signOut() {

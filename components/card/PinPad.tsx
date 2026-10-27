@@ -1,9 +1,10 @@
 'use client';
 
+import { unstable_rethrow } from 'next/navigation';
 import { useEffect, useEffectEvent, useState } from 'react';
 import { checkCardPin } from '@/app/(app)/me/card/actions';
 import { Button } from '@/components/ui/Button';
-import { afterDemoTry, demoLocked, PIN_TRIES, type DemoLock } from '@/lib/card/pin';
+import { afterDemoTry, demoLocked, PIN_TRIES, type DemoLock, type PinAnswer } from '@/lib/card/pin';
 import { clockTime } from '@/lib/domain/time';
 import { useLang, useT } from '@/lib/i18n';
 
@@ -35,11 +36,22 @@ function writeLock(cardId: string, lock: DemoLock) {
 }
 
 /**
- * The 6-digit PIN pad, for a sheet. The sixth digit sends the PIN, and the right one calls `onUnlock`. The keyboard
- * types too, for a laptop. A locked PIN greys the keys until it opens again. With `demoPin` (a demo account) the pad
- * shows that PIN and counts the wrong tries and the lock here instead of in the database.
+ * The 6-digit PIN pad. The sixth digit sends the PIN to `check` (the card's own PIN by default), and the right one
+ * calls `onUnlock`; Register and Sign in pass their own check, which signs someone in by redirecting. The keyboard
+ * types too, for a laptop. A locked PIN greys the keys until it opens again. With `demoPin` (the card `cardId` of a demo
+ * account) the pad shows that PIN and counts the wrong tries and the lock here instead of in the database.
  */
-export function PinPad({ cardId, demoPin, onUnlock }: { cardId: string; demoPin: string | null; onUnlock: () => void }) {
+export function PinPad({
+  cardId = '',
+  demoPin = null,
+  check = checkCardPin,
+  onUnlock,
+}: {
+  cardId?: string;
+  demoPin?: string | null;
+  check?: (pin: string) => Promise<PinAnswer>;
+  onUnlock?: () => void;
+}) {
   const t = useT();
   const lang = useLang();
   const [digits, setDigits] = useState('');
@@ -69,10 +81,10 @@ export function PinPad({ cardId, demoPin, onUnlock }: { cardId: string; demoPin:
       // The lock is looked at before the database is asked, because the database never locks a demo account.
       const lock = demoPin ? readLock(cardId) : null;
       if (lock && demoLocked(lock, Date.now())) return showLock(lock.until!);
-      const answer = await checkCardPin(pin);
+      const answer = await check(pin);
       if (answer.ok) {
         if (lock) writeLock(cardId, afterDemoTry(lock, true, Date.now())); // a right PIN starts the count again
-        return onUnlock();
+        return onUnlock?.();
       }
       // Only a wrong PIN is a try. A failed lookup is not, and the server always says 5 left for a demo account.
       if (lock && answer.error === 'card.pin.error.wrong') {
@@ -82,7 +94,9 @@ export function PinPad({ cardId, demoPin, onUnlock }: { cardId: string; demoPin:
       }
       if (answer.lockedUntil) return showLock(Date.parse(answer.lockedUntil), answer.time);
       setMessage(t(answer.error, { n: answer.triesLeft ?? 0 }));
-    } catch {
+    } catch (error) {
+      // A check that signed someone in ends in a redirect, which reaches here as a throw: the router finishes it.
+      unstable_rethrow(error);
       setMessage(t('common.error'));
     } finally {
       setBusy(false);

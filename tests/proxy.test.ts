@@ -38,7 +38,7 @@ it('lets a signed-in resident through', async () => {
 });
 
 it('guards whole path segments only, so the landing page and look-alike paths stay public', async () => {
-  for (const path of ['/', '/signup', '/media', '/homework', '/reportsfoo', '/reader']) {
+  for (const path of ['/', '/register', '/sign-in', '/media', '/homework', '/reportsfoo', '/reader']) {
     expect(redirectedTo(await visit(path, false)), path).toBeNull();
   }
 });

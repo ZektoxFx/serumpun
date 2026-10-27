@@ -36,6 +36,7 @@ const ms: Record<keyof typeof en, string> = {
   'common.send': 'Hantar',
   'common.join': 'Sertai',
   'common.message': 'Mesej',
+  'common.next': 'Seterusnya',
 
   // Home greeting (picked by Malaysia time of day)
   'home.greeting.morning': 'Selamat pagi, {name}',
@@ -91,47 +92,62 @@ const ms: Record<keyof typeof en, string> = {
   'text.xl': 'Lebih besar',
   'me.township': 'Perbandaran',
 
-  // Landing page
+  // Landing page. The office's printed slip quotes landing.register (units.give.slip).
+  'landing.register': 'Daftar dengan kod',
+  'landing.codeHint': 'Kod anda diberi oleh Pejabat Pengurusan, atau oleh keluarga anda jika mereka menjemput anda.',
   'landing.demo.title': 'Cuba demo',
   'landing.demo.aisyah': 'Cuba sebagai Aisyah (penduduk)',
   'landing.demo.nur': 'Cuba sebagai Nur (menunggu kelulusan)',
   'landing.demo.office': 'Cuba sebagai Pejabat Pengurusan',
   'landing.demo.error': 'Log masuk demo tidak berjaya. Sila cuba lagi.',
-  'landing.signIn.title': 'Log masuk',
-  'landing.newHere': 'Baru di Serumpun?',
-  'landing.createAccount': 'Daftar akaun',
 
-  // Accounts
+  // Accounts. Office staff sign in with email and password.
   'auth.email': 'E-mel',
   'auth.password': 'Kata laluan',
   'auth.signIn': 'Log masuk',
   'auth.signOut': 'Log keluar',
   'auth.error.signIn': 'E-mel atau kata laluan tidak betul.',
-
-  // Sign-up
-  'signup.title': 'Daftar akaun anda',
-  'signup.intro': 'Pejabat Pengurusan akan menyemak nombor rumah atau unit anda sebelum anda boleh menyiarkan.',
-  'signup.township': 'Perbandaran',
-  'signup.comingSoon': '{name} (akan datang)',
-  'signup.neighbourhood': 'Kejiranan',
-  'signup.neighbourhood.hint': 'Contohnya, Elmina Valley 3',
-  'signup.unitNo': 'No. rumah / unit',
-  'signup.unitNo.hint': 'Pejabat Pengurusan menggunakan ini untuk mengesahkan anda.',
-  'signup.demoNotice':
-    'Ini demo awam: sesiapa sahaja boleh mencuba paparan Pejabat Pengurusan. Sila gunakan nama dan alamat rekaan.',
-  'signup.fullName': 'Nama penuh',
-  'signup.password.hint': 'Sekurang-kurangnya 8 aksara.',
-  'signup.submit': 'Daftar akaun',
-  'signup.haveAccount': 'Sudah ada akaun?',
+  // Named for the sign-up form it came from; the office's announcement form uses it now.
   'signup.error.required': 'Sila isi ruangan ini.',
-  'signup.error.email': 'Masukkan alamat e-mel yang sah.',
-  'signup.error.emailTaken': 'E-mel ini sudah mempunyai akaun. Sila log masuk.',
-  'signup.error.password': 'Gunakan 8 hingga 72 aksara.',
-  'signup.error.townshipSoon': 'Serumpun belum dibuka di perbandaran ini.',
+
+  // Register with a code, and Sign in with a phone (app/(auth), components/auth)
+  'register.code.title': 'Masukkan kod anda',
+  'register.code.hint': 'Kod boleh digunakan sekali sahaja dan sah selama 3 hari. Hilang? Pejabat akan memberi anda kod baharu.',
+  'register.agree': 'Dengan mendaftar, anda bersetuju dengan',
+  'register.haveAccount': 'Sudah berdaftar?',
+  'register.home.title': 'Adakah ini rumah anda?',
+  'register.home.checked': 'IC dan geran disemak di pejabat: {time}',
+  'register.home.leaseEnd': 'Sewa tamat {date}',
+  'register.home.yes': 'Ya, ini saya',
+  'register.home.notYou': 'Bukan anda? Hubungi pejabat.',
+  'register.invite.title': 'Sertai kad isi rumah {unit}',
+  'register.invite.by': 'Dijemput oleh {name}',
+  'register.sms.office': 'Kami telah menghantar kod 6 digit ke {phone}, nombor yang ada pada pejabat.',
+  'register.sms.demo': 'Demo: tiada SMS dihantar. Kod anda ialah {code}.',
+  'register.pin.choose': 'Pilih PIN 6 digit',
+  'register.pin.why':
+    'Diminta apabila anda membuka kad, dan sebelum anda menambah atau membuang seseorang, menghidupkan atau mematikan sesuatu tempat, membekukan telefon atau membuat pas tetamu. 5 percubaan salah menguncinya selama 15 minit dan memaklumkan Pemilik dan Pemilik bersama.',
+  'register.pin.again': 'Masukkan PIN yang sama sekali lagi',
+  'register.pin.mismatch': 'PIN tidak sepadan. Pilih PIN anda sekali lagi.',
+  'register.error.code':
+    'Kod ini tidak berfungsi. Ia mungkin sudah digunakan, tamat tempoh atau diganti dengan kod yang lebih baharu. Tanya pejabat, atau orang yang menjemput anda.',
+  'register.error.noPhone': 'Pejabat tiada nombor telefon bimbit untuk rumah ini. Minta pejabat menambah nombor anda.',
+  'register.error.phoneTaken': 'Nombor ini sudah mempunyai akaun. Sila log masuk.',
+  'register.error.hasCard': 'Rumah ini sudah mempunyai kad isi rumah. Tanya pejabat.',
+  'register.error.session': 'Anda sudah berdaftar, tetapi kami tidak dapat melog masuk anda. Log masuk dengan nombor telefon dan PIN anda.',
+  'sms.title': 'Semak telefon anda',
+  'sms.sent': 'Kami telah menghantar kod 6 digit ke {phone}.',
+  'sms.label': 'Kod SMS',
+  'sms.send': 'Hantar kod',
+  'sms.resend': 'Hantar kod baharu',
+  'sms.error.wrong': 'Kod SMS itu salah. Tinggal {n} percubaan.',
+  'sms.error.expired': 'Kod SMS ini tidak lagi sah. Hantar kod baharu.',
+  'signIn.newHere': 'Baru di sini?',
+  'signIn.staff': 'Kakitangan Pejabat Pengurusan: log masuk dengan e-mel',
+  'signIn.error.wrong': 'Nombor telefon atau PIN salah.',
+  'me.ready': 'Kad anda sudah sedia · terikat pada telefon ini',
 
   // Account status and roles
-  'pending.banner':
-    'Akaun anda sedang menunggu kelulusan Pejabat Pengurusan. Anda boleh melihat-lihat; anda boleh menyiarkan selepas disahkan.',
   'rejected.title': 'Permohonan anda tidak diluluskan',
   'rejected.body': 'Sila hubungi Pejabat Pengurusan.',
   'role.resident': 'Penduduk',
@@ -1031,7 +1047,6 @@ const ms: Record<keyof typeof en, string> = {
   'help.terms': 'Terma & Syarat',
   'help.terms.hint': 'Terma penggunaan dan privasi',
   'help.terms.updated': 'Kemas kini terakhir {date}',
-  'signup.agree': 'Dengan mendaftar, anda bersetuju dengan',
 
   // Kegemaran Utama, Lagi dan Sunting (maklum balas pusingan 2)
   'service.messages': 'Mesej',
@@ -1275,7 +1290,14 @@ const ms: Record<keyof typeof en, string> = {
   'units.error.not_checked': 'Semak IC dan dokumen secara bersemuka, kemudian tandakan kedua-duanya.',
 
   // Nombor telefon (lib/domain/phone.ts)
+  'phone.label': 'Nombor telefon bimbit anda',
   'phone.error.format': 'Masukkan nombor telefon bimbit Malaysia, seperti 012-345 6789.',
+
+  // Kad akses: peranan pada kad isi rumah
+  'household.role.owner': 'Pemilik',
+  'household.role.co_owner': 'Pemilik bersama',
+  'household.role.adult': 'Dewasa',
+  'household.role.child': 'Kanak-kanak',
 };
 
 export default ms;

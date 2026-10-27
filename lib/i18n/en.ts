@@ -35,6 +35,7 @@ const en = {
   'common.send': 'Send',
   'common.join': 'Join',
   'common.message': 'Message',
+  'common.next': 'Next',
 
   // Home greeting (picked by Malaysia time of day)
   'home.greeting.morning': 'Good morning, {name}',
@@ -90,47 +91,62 @@ const en = {
   'text.xl': 'Extra large',
   'me.township': 'Township',
 
-  // Landing page
+  // Landing page. The office's printed slip quotes landing.register (units.give.slip).
+  'landing.register': 'Register with a code',
+  'landing.codeHint': 'Your code comes from the Management Office, or from your family if they invited you.',
   'landing.demo.title': 'Try the demo',
   'landing.demo.aisyah': 'Try as Aisyah (resident)',
   'landing.demo.nur': 'Try as Nur (waiting for approval)',
   'landing.demo.office': 'Try as Management Office',
   'landing.demo.error': 'The demo sign-in did not work. Please try again.',
-  'landing.signIn.title': 'Sign in',
-  'landing.newHere': 'New to Serumpun?',
-  'landing.createAccount': 'Create an account',
 
-  // Accounts
+  // Accounts. Office staff sign in with email and password.
   'auth.email': 'Email',
   'auth.password': 'Password',
   'auth.signIn': 'Sign in',
   'auth.signOut': 'Sign out',
   'auth.error.signIn': 'Email or password is incorrect.',
-
-  // Sign-up
-  'signup.title': 'Create your account',
-  'signup.intro': 'The Management Office checks your house or unit number before you can post.',
-  'signup.township': 'Township',
-  'signup.comingSoon': '{name} (coming soon)',
-  'signup.neighbourhood': 'Neighbourhood',
-  'signup.neighbourhood.hint': 'For example, Elmina Valley 3',
-  'signup.unitNo': 'House / unit no.',
-  'signup.unitNo.hint': 'The Management Office uses this to verify you.',
-  'signup.demoNotice':
-    'This is a public demo: anyone can try the Management Office view. Please use a made-up name and address.',
-  'signup.fullName': 'Full name',
-  'signup.password.hint': 'At least 8 characters.',
-  'signup.submit': 'Create account',
-  'signup.haveAccount': 'Already have an account?',
+  // Named for the sign-up form it came from; the office's announcement form uses it now.
   'signup.error.required': 'Please fill this in.',
-  'signup.error.email': 'Enter a valid email address.',
-  'signup.error.emailTaken': 'This email already has an account. Sign in instead.',
-  'signup.error.password': 'Use 8 to 72 characters.',
-  'signup.error.townshipSoon': 'Serumpun is not open in this township yet.',
+
+  // Register with a code, and Sign in with a phone (app/(auth), components/auth)
+  'register.code.title': 'Enter your code',
+  'register.code.hint': 'A code works once and lasts 3 days. Lost it? The office gives you a new one.',
+  'register.agree': 'By registering you agree to the',
+  'register.haveAccount': 'Already registered?',
+  'register.home.title': 'Is this your home?',
+  'register.home.checked': 'IC and title checked at the office: {time}',
+  'register.home.leaseEnd': 'Lease ends {date}',
+  'register.home.yes': 'Yes, this is me',
+  'register.home.notYou': 'Not you? Call the office.',
+  'register.invite.title': 'Join the household card of {unit}',
+  'register.invite.by': 'Invited by {name}',
+  'register.sms.office': 'We sent a 6-digit code to {phone}, the number the office has.',
+  'register.sms.demo': 'Demo: no SMS is sent. Your code is {code}.',
+  'register.pin.choose': 'Choose a 6-digit PIN',
+  'register.pin.why':
+    'Asked when you open your card, and before you add or remove someone, switch a place on or off, freeze a phone or make a guest pass. 5 wrong tries lock it for 15 minutes and tell the Owner and Co-owner.',
+  'register.pin.again': 'Enter the same PIN again',
+  'register.pin.mismatch': "The PINs didn't match. Choose your PIN again.",
+  'register.error.code':
+    "This code doesn't work. It may be used, out of date or replaced by a newer one. Ask the office, or whoever invited you.",
+  'register.error.noPhone': 'The office has no mobile number for this home. Ask the office to add yours.',
+  'register.error.phoneTaken': 'This number already has an account. Sign in instead.',
+  'register.error.hasCard': 'This home already has a household card. Ask the office.',
+  'register.error.session': "You're registered, but we couldn't sign you in. Sign in with your phone number and PIN.",
+  'sms.title': 'Check your phone',
+  'sms.sent': 'We sent a 6-digit code to {phone}.',
+  'sms.label': 'SMS code',
+  'sms.send': 'Send code',
+  'sms.resend': 'Send a new code',
+  'sms.error.wrong': 'That SMS code is wrong. {n} tries left.',
+  'sms.error.expired': 'This SMS code no longer works. Send a new one.',
+  'signIn.newHere': 'New here?',
+  'signIn.staff': 'Management Office staff: sign in with email',
+  'signIn.error.wrong': 'The phone number or PIN is wrong.',
+  'me.ready': 'Your card is ready · bound to this phone',
 
   // Account status and roles
-  'pending.banner':
-    'Your account is waiting for approval from the Management Office. You can look around; posting opens once you are verified.',
   'rejected.title': 'Your application was not approved',
   'rejected.body': 'Please contact the Management Office.',
   'role.resident': 'Resident',
@@ -1030,7 +1046,6 @@ const en = {
   'help.terms': 'Terms & Conditions',
   'help.terms.hint': 'Terms of use and privacy',
   'help.terms.updated': 'Last updated {date}',
-  'signup.agree': 'By signing up you agree to the',
 
   // Home favourites, More and Edit (feedback round 2)
   'service.messages': 'Messages',
@@ -1274,7 +1289,14 @@ const en = {
   'units.error.not_checked': 'Check the IC and the papers in person, then tick both.',
 
   // Phone numbers (lib/domain/phone.ts)
+  'phone.label': 'Your mobile number',
   'phone.error.format': 'Enter a Malaysian mobile number, like 012-345 6789.',
+
+  // Access card: the roles on a household card
+  'household.role.owner': 'Owner',
+  'household.role.co_owner': 'Co-owner',
+  'household.role.adult': 'Adult',
+  'household.role.child': 'Child',
 } satisfies Record<string, string>;
 
 export default en;
