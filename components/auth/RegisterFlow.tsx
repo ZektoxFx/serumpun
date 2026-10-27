@@ -5,12 +5,13 @@ import { readCode, register, sendSms } from '@/app/(auth)/register/actions';
 import { PinPad } from '@/components/card/PinPad';
 import { Button } from '@/components/ui/Button';
 import { Field } from '@/components/ui/Field';
+import { focusOnMount, stepHeading } from '@/components/ui/stepHeading';
 import { formatCode } from '@/lib/card/codes';
 import type { PinAnswer } from '@/lib/card/pin';
 import type { Home } from '@/lib/card/register';
 import { clockTime, TZ } from '@/lib/domain/time';
 import { useLang, useT } from '@/lib/i18n';
-import { focusOnMount, PhoneStep, SmsStep, stepHeading, useRequest, type SmsSent } from './PhoneSignIn';
+import { PhoneStep, SmsStep, useRequest, type SmsSent } from './PhoneSignIn';
 
 type Step = 'code' | 'home' | 'phone' | 'sms' | 'pin';
 

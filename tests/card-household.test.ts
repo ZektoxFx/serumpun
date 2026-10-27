@@ -1,4 +1,4 @@
-import { householdErrorKey, inviteChoices, isManager, loadHousehold, type InviteRole, type Member } from '@/lib/card/household';
+import { householdErrorKey, inviteChoices, isCardFull, isManager, loadHousehold, type InviteRole, type Member } from '@/lib/card/household';
 import { t } from '@/lib/i18n';
 
 const aisyah: Member = { userId: 'a', role: 'owner', icChecked: true };
@@ -44,6 +44,24 @@ it("gives every reason a disabled role shows its own words in both languages", (
     expect(t('en', householdErrorKey(choice)), choice).not.toBe(householdErrorKey(choice));
     expect(t('ms', householdErrorKey(choice)), choice).not.toBe(t('en', householdErrorKey(choice)));
   }
+});
+
+// A full card: the count create_invite makes before it asks for the PIN (0025), so the page can say so first.
+it('calls a card full when its phones and its open invites fill every place', () => {
+  const at18 = { phones: 3, phoneLimit: 4 }; // "3 of 4 phones"
+  expect(isCardFull(at18, 0)).toBe(false);
+  expect(isCardFull(at18, 1)).toBe(true); // an open invite holds the fourth place
+  expect(isCardFull({ phones: 4, phoneLimit: 4 }, 0)).toBe(true);
+  expect(isCardFull({ phones: 2, phoneLimit: 4 }, 1)).toBe(false);
+  expect(isCardFull({ phones: 2, phoneLimit: 4 }, 2)).toBe(true);
+  expect(isCardFull({ phones: 4, phoneLimit: 4 }, 3)).toBe(true); // a count past the limit is still full
+  expect(isCardFull({ phones: 1, phoneLimit: 1 }, 0)).toBe(true); // whatever the limit is
+});
+it('says in both languages that a full card has no place until an invite is cancelled', () => {
+  expect(t('en', 'household.full')).toBe(
+    'Every phone place is taken or held by an open invite. Cancel an invite, or ask the office for an extra card.',
+  );
+  expect(t('ms', 'household.full')).not.toBe(t('en', 'household.full'));
 });
 
 type Step = [method: string, ...args: unknown[]];

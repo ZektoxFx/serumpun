@@ -4,7 +4,7 @@ import { CancelInvite } from '@/components/card/CancelInvite';
 import { InviteSheet } from '@/components/card/InviteSheet';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Tag } from '@/components/ui/Tag';
-import { INVITE_ROLES, isManager, loadHousehold } from '@/lib/card/household';
+import { INVITE_ROLES, isCardFull, isManager, loadHousehold } from '@/lib/card/household';
 import { DEMO_PIN } from '@/lib/card/pin';
 import { loadMyCard } from '@/lib/card/summary';
 import { clockTime } from '@/lib/domain/time';
@@ -23,7 +23,8 @@ const boxHeading = 'text-xs font-extrabold uppercase tracking-wide text-muted';
 /**
  * Who is on the household card and in what role, and the family invited to join it. The Owner, and a Co-owner whose IC the
  * office has checked, can invite; what each may is worked out in lib/card/household.ts, and create_invite decides again.
- * `?invite=co_owner` (from "Add a Co-owner?" on Me) opens the invite sheet on that role.
+ * `?invite=co_owner` (from "Add a Co-owner?" on Me) opens the invite sheet on that role. A full card (its phones and open
+ * invites reach the limit) says so in place of the button, and `?invite=` opens nothing.
  */
 export default async function HouseholdPage({ searchParams }: PageProps<'/me/household'>) {
   const profile = await requireMember();
@@ -81,6 +82,7 @@ export default async function HouseholdPage({ searchParams }: PageProps<'/me/hou
                 demoPin={demo ? DEMO_PIN : null}
                 choices={choices}
                 initialRole={INVITE_ROLES.find((role) => role === asked)}
+                full={isCardFull(card, invites.length)}
               />
             </div>
           )}

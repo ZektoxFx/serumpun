@@ -1305,6 +1305,7 @@ const en = {
   'household.you': 'You',
   'household.icPending': 'IC not checked at the office yet',
   'household.invite': 'Invite someone',
+  'household.full': 'Every phone place is taken or held by an open invite. Cancel an invite, or ask the office for an extra card.',
   'household.rules':
     "A child: the Owner or Co-owner, alone. An adult: both of you, once the office has checked the Co-owner's IC. Neither of you can remove the other; only the office can.",
   'household.invites': 'Invites',

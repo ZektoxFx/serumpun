@@ -1306,6 +1306,8 @@ const ms: Record<keyof typeof en, string> = {
   'household.you': 'Anda',
   'household.icPending': 'IC belum disemak di pejabat',
   'household.invite': 'Jemput seseorang',
+  'household.full':
+    'Semua tempat telefon sudah diisi atau dikhaskan untuk jemputan yang masih terbuka. Batalkan satu jemputan, atau minta kad tambahan daripada pejabat.',
   'household.rules':
     'Kanak-kanak: Pemilik atau Pemilik bersama, seorang sahaja. Dewasa: anda berdua, selepas pejabat menyemak IC Pemilik bersama. Anda berdua tidak boleh mengeluarkan satu sama lain; hanya pejabat yang boleh.',
   'household.invites': 'Jemputan',

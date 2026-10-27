@@ -6,6 +6,7 @@ import { Button, buttonClasses } from '@/components/ui/Button';
 import { Field } from '@/components/ui/Field';
 import { Segmented } from '@/components/ui/Segmented';
 import { Sheet } from '@/components/ui/Sheet';
+import { focusOnMount, stepHeading } from '@/components/ui/stepHeading';
 import { householdErrorKey, INVITE_ROLES, type InviteChoice, type InviteRole } from '@/lib/card/household';
 import type { PinAnswer } from '@/lib/card/pin';
 import { clockTime } from '@/lib/domain/time';
@@ -13,10 +14,6 @@ import { useLang, useT } from '@/lib/i18n';
 import { PinPad } from './PinPad';
 
 type Props = { cardId: string; demoPin: string | null; choices: Record<InviteRole, InviteChoice>; initialRole?: InviteRole };
-
-// A step that replaces the one before takes the focus, so a screen reader starts reading there (as Register does).
-const focusOnMount = (heading: HTMLElement | null) => heading?.focus();
-const stepHeading = 'text-xl font-extrabold outline-none';
 
 /**
  * The name and the role, then the PIN, then the code. It mounts only while the sheet is open, so closing the sheet takes the
@@ -30,6 +27,8 @@ function InviteFlow({ cardId, demoPin, choices, initialRole }: Props) {
     initialRole && choices[initialRole] === true ? initialRole : (INVITE_ROLES.find((r) => choices[r] === true) ?? 'child'),
   );
   const [asking, setAsking] = useState(false);
+  // Set by Back: the form step then takes the focus the PIN step's button had. Not on first open, or a phone's keyboard would jump up.
+  const [back, setBack] = useState(false);
   const [made, setMade] = useState<{ code: string; expiresAt: string } | null>(null);
   const who = name.trim();
   const roleName = t(`household.role.${role}`);
@@ -77,7 +76,14 @@ function InviteFlow({ cardId, demoPin, choices, initialRole }: Props) {
           {who} · {roleName}
         </p>
         <PinPad cardId={cardId} demoPin={demoPin} check={confirm} />
-        <Button type="button" variant="outline" onClick={() => setAsking(false)}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => {
+            setAsking(false);
+            setBack(true);
+          }}
+        >
           {t('common.back')}
         </Button>
       </div>
@@ -97,7 +103,18 @@ function InviteFlow({ cardId, demoPin, choices, initialRole }: Props) {
       className="grid gap-4 pb-2"
     >
       <Field label={t('invite.name')}>
-        {(control) => <input {...control} name="name" required maxLength={40} autoComplete="off" value={name} onChange={(event) => setName(event.target.value)} />}
+        {(control) => (
+          <input
+            {...control}
+            ref={back ? focusOnMount : undefined}
+            name="name"
+            required
+            maxLength={40}
+            autoComplete="off"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+          />
+        )}
       </Field>
       <div className="grid gap-1.5">
         <p className="text-sm font-bold">{t('invite.role')}</p>
@@ -122,18 +139,33 @@ function InviteFlow({ cardId, demoPin, choices, initialRole }: Props) {
 
 /**
  * "Invite someone" for a manager of the card, and the sheet it opens. `choices` says which roles the card allows and why
- * not the others. With `initialRole` (from "Add a Co-owner") the sheet opens at once on that role.
+ * not the others. With `initialRole` (from "Add a Co-owner") the sheet opens at once on that role, and closing it takes
+ * `?invite=` off the address, so a reload or Back does not open it again.
+ *
+ * A `full` card (isCardFull) would refuse every invite after the PIN, so the line that says so takes the button's place and
+ * `initialRole` opens nothing. The sheet stays in the tree either way: making the invite fills the card, and the page
+ * refreshes behind the open sheet, which must go on showing the code until it is closed.
  */
-export function InviteSheet(props: Props) {
+export function InviteSheet({ full = false, ...flow }: Props & { full?: boolean }) {
   const t = useT();
-  const [open, setOpen] = useState(props.initialRole !== undefined);
+  const [open, setOpen] = useState(flow.initialRole !== undefined && !full);
+
+  function close() {
+    setOpen(false);
+    if (flow.initialRole !== undefined) window.history.replaceState(null, '', window.location.pathname);
+  }
+
   return (
     <>
-      <Button type="button" size="lg" aria-haspopup="dialog" onClick={() => setOpen(true)} className="w-full">
-        {t('household.invite')}
-      </Button>
-      <Sheet open={open} onClose={() => setOpen(false)} title={t('household.invite')}>
-        <InviteFlow {...props} />
+      {full ? (
+        <p className="rounded-xl bg-soft px-4 py-3 text-sm text-muted-2">{t('household.full')}</p>
+      ) : (
+        <Button type="button" size="lg" aria-haspopup="dialog" onClick={() => setOpen(true)} className="w-full">
+          {t('household.invite')}
+        </Button>
+      )}
+      <Sheet open={open} onClose={close} title={t('household.invite')}>
+        <InviteFlow {...flow} />
       </Sheet>
     </>
   );

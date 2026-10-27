@@ -31,8 +31,14 @@ function savedLater() {
   return later;
 }
 
+/** What Later saves: 3 days from `now`. */
+export const laterUntil = (now: number) => new Date(now + LATER_MS).toISOString();
+
+/** Whether the saved time is still ahead. Nothing saved, a time that cannot be read, or one that has passed asks again. */
+export const isPutOff = (saved: string | null, now: number) => Date.parse(saved ?? '') > now;
+
 function remindLater() {
-  later = new Date(Date.now() + LATER_MS).toISOString();
+  later = laterUntil(Date.now());
   try {
     localStorage.setItem(KEY, later);
   } catch {
@@ -50,7 +56,7 @@ export function CoOwnerPrompt() {
   const t = useT();
   const [now] = useState(() => Date.now());
   const until = useSyncExternalStore(subscribe, savedLater, () => undefined);
-  if (until === undefined || Date.parse(until ?? '') > now) return null;
+  if (until === undefined || isPutOff(until, now)) return null;
   return (
     <section aria-labelledby="co-owner-prompt" className="grid gap-2 rounded-2xl border border-line bg-surface p-4 shadow-card">
       <h2 id="co-owner-prompt" className="text-base font-extrabold">

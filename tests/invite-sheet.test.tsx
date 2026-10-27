@@ -6,8 +6,8 @@ vi.mock('@/app/(app)/me/card/actions', () => ({ renewPass: vi.fn(), checkCardPin
 import { InviteSheet } from '@/components/card/InviteSheet';
 import type { InviteChoice, InviteRole } from '@/lib/card/household';
 
-const render = (choices: Record<InviteRole, InviteChoice>, initialRole?: InviteRole) =>
-  renderToStaticMarkup(<InviteSheet cardId="c18" demoPin={null} choices={choices} initialRole={initialRole} />);
+const render = (choices: Record<InviteRole, InviteChoice>, initialRole?: InviteRole, full?: boolean) =>
+  renderToStaticMarkup(<InviteSheet cardId="c18" demoPin={null} choices={choices} initialRole={initialRole} full={full} />);
 /** Each role button as [its text, whether it is chosen, whether it is disabled]. */
 const roles = (html: string) =>
   [...html.matchAll(/<button[^>]*role="radio"[^>]*>(.*?)<\/button>/g)].map(([tag, label]) => [label, tag.includes('aria-checked="true"'), tag.includes('disabled=""')]);
@@ -39,4 +39,18 @@ it('tells a Co-owner that only the Owner invites a Co-owner', () => {
 });
 it('starts on the first role the card allows when it is asked for one it does not', () => {
   expect(roles(render(ownerWithCoOwner, 'co_owner')).map(([, chosen]) => chosen)).toEqual([true, false, false]);
+});
+
+// A full card refuses every invite, so the page says so in place of the button, before anyone types a name and a PIN.
+it('says a full card is full, in place of the button that would only be refused', () => {
+  const html = render(owner, undefined, true);
+  expect(html).toContain('Every phone place is taken or held by an open invite. Cancel an invite, or ask the office for an extra card.');
+  expect(html).not.toContain('aria-haspopup'); // the "Invite someone" button
+});
+it('does not open on ?invite= when the card is full', () => {
+  expect(render(owner, 'co_owner', true)).not.toContain('Their name');
+});
+it('keeps the sheet when the card fills, so the code just made stays on screen until it is closed', () => {
+  // Making the invite fills the card and the page refreshes behind the open sheet: only the button may give way to the line.
+  expect(render(owner, undefined, true)).toContain('<dialog');
 });

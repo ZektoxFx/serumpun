@@ -6,6 +6,7 @@ import { checkSms, sendSignInSms, signInWithPin } from '@/app/(auth)/actions';
 import { PinPad } from '@/components/card/PinPad';
 import { Button } from '@/components/ui/Button';
 import { Field } from '@/components/ui/Field';
+import { focusOnMount, stepHeading } from '@/components/ui/stepHeading';
 import type { PinAnswer } from '@/lib/card/pin';
 import { formatPhone } from '@/lib/domain/phone';
 import { useT } from '@/lib/i18n';
@@ -14,10 +15,6 @@ import { useT } from '@/lib/i18n';
 
 /** An SMS check that was started: its id, its code (shown on screen: there is no SMS provider) and the number, +601…. */
 export type SmsSent = { check: string; sms: string; phone: string };
-
-/** A step that replaces the one before takes the focus, so a screen reader starts reading there. Stable, so mount only. */
-export const focusOnMount = (heading: HTMLElement | null) => heading?.focus();
-export const stepHeading = 'text-xl font-extrabold outline-none';
 
 /** One request at a time for the step on screen: its buttons wait meanwhile, and `message` says what went wrong. */
 export function useRequest() {

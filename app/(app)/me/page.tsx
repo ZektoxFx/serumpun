@@ -12,7 +12,7 @@ import { HouseholdCard } from '@/components/card/HouseholdCard';
 import { Avatar } from '@/components/ui/Avatar';
 import { buttonClasses } from '@/components/ui/Button';
 import { Glyph } from '@/components/ui/Glyph';
-import { loadHousehold } from '@/lib/card/household';
+import { isCardFull, loadHousehold } from '@/lib/card/household';
 import { DEMO_PIN } from '@/lib/card/pin';
 import { loadMyCard } from '@/lib/card/summary';
 import { HELP_LINKS, ME_LINKS } from '@/lib/domain/nav';
@@ -65,8 +65,17 @@ export default async function MePage({ searchParams }: PageProps<'/me'>) {
   for (const { error } of [total, catalog, week, vouchers]) if (error) throw new Error(`points lookup failed: ${error.message}`);
   // A demo account is shared by every visitor, so its PIN is shown on the pad. `app_metadata` is set by the seed only.
   const demo = card && (await supabase.auth.getClaims()).data?.claims.app_metadata?.demo;
-  // An Owner whose card has no Co-owner, and no invite for one, is asked to add one (CoOwnerPrompt remembers "Later").
-  const askForCoOwner = card?.role === 'owner' && (await loadHousehold(supabase, card.id, profile.id, now)).choices.co_owner === true;
+  // An Owner whose card has no Co-owner, and no invite for one, is asked to add one (CoOwnerPrompt remembers "Later"), unless
+  // the card is full: the invite would only be refused. The prompt is optional, so a failed lookup shows none rather than
+  // taking down the card, sign-out and settings with it.
+  const household =
+    card?.role === 'owner'
+      ? await loadHousehold(supabase, card.id, profile.id, now).catch((error: Error) => {
+          console.error(`co-owner prompt lookup failed: ${error.message}`);
+          return null;
+        })
+      : null;
+  const askForCoOwner = card !== null && household?.choices.co_owner === true && !isCardFull(card, household.invites.length);
   const points = Number(total.data ?? 0);
   const next = nextReward(points, catalog.data!);
   // "+150 this week · Gotong-royong": the week's check-ins, named after the latest.

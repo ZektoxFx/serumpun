@@ -36,6 +36,15 @@ export function inviteChoices(
   };
 }
 
+/**
+ * Whether the card has no place left for an invite: its phones plus its open invites reach the phone limit, the count
+ * `create_invite` makes (0025) before it asks for the PIN. An open invite holds a place, so "3 of 4 phones" with one open
+ * invite is full, and the page says so instead of letting someone type a name and a PIN to be refused.
+ */
+export function isCardFull(card: { phones: number; phoneLimit: number }, openInvites: number): boolean {
+  return card.phones + openInvites >= card.phoneLimit;
+}
+
 // The `raise exception` codes of create_invite and cancel_invite that a resident can act on.
 const HOUSEHOLD_ERRORS: Record<string, MessageKey> = {
   no_card: 'card.error.no_card',
