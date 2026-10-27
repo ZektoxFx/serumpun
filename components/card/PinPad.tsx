@@ -35,23 +35,19 @@ function writeLock(cardId: string, lock: DemoLock) {
   }
 }
 
+// `cardId` and `demoPin` go together: the demo lock is kept under the card's id, so a demo PIN without one is refused.
+type PinPadProps = {
+  check?: (pin: string) => Promise<PinAnswer>;
+  onUnlock?: () => void;
+} & ({ cardId: string; demoPin: string | null } | { cardId?: never; demoPin?: never });
+
 /**
  * The 6-digit PIN pad. The sixth digit sends the PIN to `check` (the card's own PIN by default), and the right one
  * calls `onUnlock`; Register and Sign in pass their own check, which signs someone in by redirecting. The keyboard
  * types too, for a laptop. A locked PIN greys the keys until it opens again. With `demoPin` (the card `cardId` of a demo
  * account) the pad shows that PIN and counts the wrong tries and the lock here instead of in the database.
  */
-export function PinPad({
-  cardId = '',
-  demoPin = null,
-  check = checkCardPin,
-  onUnlock,
-}: {
-  cardId?: string;
-  demoPin?: string | null;
-  check?: (pin: string) => Promise<PinAnswer>;
-  onUnlock?: () => void;
-}) {
+export function PinPad({ cardId, demoPin, check = checkCardPin, onUnlock }: PinPadProps) {
   const t = useT();
   const lang = useLang();
   const [digits, setDigits] = useState('');
@@ -79,17 +75,17 @@ export function PinPad({
     setBusy(true);
     try {
       // The lock is looked at before the database is asked, because the database never locks a demo account.
-      const lock = demoPin ? readLock(cardId) : null;
-      if (lock && demoLocked(lock, Date.now())) return showLock(lock.until!);
+      const demo = demoPin ? { cardId, lock: readLock(cardId) } : null;
+      if (demo && demoLocked(demo.lock, Date.now())) return showLock(demo.lock.until!);
       const answer = await check(pin);
       if (answer.ok) {
-        if (lock) writeLock(cardId, afterDemoTry(lock, true, Date.now())); // a right PIN starts the count again
+        if (demo) writeLock(demo.cardId, afterDemoTry(demo.lock, true, Date.now())); // a right PIN starts the count again
         return onUnlock?.();
       }
       // Only a wrong PIN is a try. A failed lookup is not, and the server always says 5 left for a demo account.
-      if (lock && answer.error === 'card.pin.error.wrong') {
-        const next = afterDemoTry(lock, false, Date.now());
-        writeLock(cardId, next);
+      if (demo && answer.error === 'card.pin.error.wrong') {
+        const next = afterDemoTry(demo.lock, false, Date.now());
+        writeLock(demo.cardId, next);
         return next.until === null ? setMessage(t(answer.error, { n: PIN_TRIES - next.fails })) : showLock(next.until);
       }
       if (answer.lockedUntil) return showLock(Date.parse(answer.lockedUntil), answer.time);
@@ -121,6 +117,8 @@ export function PinPad({
   // The listener lives on the document, so typing works wherever the focus sits in the sheet (it starts on the close button).
   const typed = useEffectEvent((event: KeyboardEvent) => {
     if (event.ctrlKey || event.metaKey || event.altKey || event.repeat) return;
+    // A key typed into a field is the field's: on /sign-in the staff email form sits beside the pad.
+    if (event.target instanceof HTMLElement && event.target.closest('input, textarea, select')) return;
     if (/^[0-9]$/.test(event.key)) press(event.key);
     else if (event.key === 'Backspace') erase();
   });

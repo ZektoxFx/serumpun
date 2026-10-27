@@ -137,7 +137,8 @@ export function RegisterFlow({ initialCode }: { initialCode: string | null }) {
   if (step === 'pin' && sent) {
     return (
       <section aria-labelledby="pin-title" className="grid gap-4">
-        <h2 id="pin-title" ref={focusOnMount} tabIndex={-1} className={stepHeading}>
+        {/* Keyed by the entry, so the second one's heading mounts afresh: it takes the focus and is read out. */}
+        <h2 key={pin === null ? 'choose' : 'again'} id="pin-title" ref={focusOnMount} tabIndex={-1} className={stepHeading}>
           {t(pin === null ? 'register.pin.choose' : 'register.pin.again')}
         </h2>
         {/* One pad for both: a mismatch shows its message under "Choose" again. */}
