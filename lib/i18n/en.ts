@@ -1297,6 +1297,37 @@ const en = {
   'household.role.co_owner': 'Co-owner',
   'household.role.adult': 'Adult',
   'household.role.child': 'Child',
+
+  // Access card: Me › Household, where family are invited (app/(app)/me/household, components/card/InviteSheet.tsx, lib/card/household.ts)
+  'household.heading': 'Household',
+  'household.title': 'Household · {unit}',
+  'household.people': 'People on the card · {n} of {max} phones',
+  'household.you': 'You',
+  'household.icPending': 'IC not checked at the office yet',
+  'household.invite': 'Invite someone',
+  'household.rules':
+    "A child: the Owner or Co-owner, alone. An adult: both of you, once the office has checked the Co-owner's IC. Neither of you can remove the other; only the office can.",
+  'household.invites': 'Invites',
+  'household.invite.until': '{name} · {role} · works until {time}',
+  'household.error.not_allowed': 'Only the Owner can do this.',
+  'household.error.bad_role': 'Choose Child, Adult or Co-owner.',
+  'household.error.bad_name': 'Give a name of 1 to 40 characters.',
+  'household.error.name_taken': 'That name is already taken on this card. Add a surname or a nickname.',
+  'household.error.not_found': 'That invite is not open any more.',
+  'invite.name': 'Their name',
+  'invite.role': 'Role',
+  'invite.why.needs_both': "Adding an adult needs the Owner and the Co-owner to agree. That isn't available yet.",
+  'invite.why.has_co_owner': 'This card already has a Co-owner, or an invite for one.',
+  'invite.confirm': 'Confirm with PIN',
+  'invite.code.title': "{name}'s invite",
+  'invite.code.works': 'Works once, until {time}. {name} types it under Register on their own phone.',
+  'invite.whatsapp': 'Send by WhatsApp',
+  'invite.whatsapp.message':
+    'Hi {name}, join our household card on Serumpun. Open {url}, tap Register with a code and type {code}. It works once, until {time}.',
+  'coOwner.title': 'Add a Co-owner?',
+  'coOwner.body': 'Your spouse or another adult, so no one person holds all the power over the card.',
+  'coOwner.add': 'Add a Co-owner',
+  'coOwner.later': "Later · we'll remind you in 3 days",
 } satisfies Record<string, string>;
 
 export default en;

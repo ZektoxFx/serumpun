@@ -1,8 +1,9 @@
 'use client';
 
+import Link from 'next/link';
 import { startTransition, useEffect, useEffectEvent, useRef, useState, type PointerEvent } from 'react';
 import { renewPass } from '@/app/(app)/me/card/actions';
-import { Button } from '@/components/ui/Button';
+import { Button, buttonClasses } from '@/components/ui/Button';
 import { Glyph } from '@/components/ui/Glyph';
 import { Sheet } from '@/components/ui/Sheet';
 import { PASS_TTL_SECONDS, type Place, type PublicJwk } from '@/lib/card/crypto';
@@ -220,6 +221,12 @@ export function HouseholdCard({
               {qr ? t('card.qr.hide') : t('card.qr.show')}
             </Button>
             {qr && usable && <CardQr device={usable} />}
+            {/* The demo phone beside the reader screen is a phone, not a person's Me page. */}
+            {!reader && (
+              <Link href="/me/household" className={buttonClasses('outline')}>
+                {t('household.heading')} <span aria-hidden="true">›</span>
+              </Link>
+            )}
           </div>
         </>
       ) : device === 'unsupported' ? (

@@ -7,10 +7,12 @@ import { LanguageSwitch } from '@/components/app/LanguageSwitch';
 import { PushAlerts } from '@/components/app/PushAlerts';
 import { TextSizeSwitch } from '@/components/app/TextSizeSwitch';
 import { ThemeSwitch } from '@/components/app/ThemeSwitch';
+import { CoOwnerPrompt } from '@/components/card/CoOwnerPrompt';
 import { HouseholdCard } from '@/components/card/HouseholdCard';
 import { Avatar } from '@/components/ui/Avatar';
 import { buttonClasses } from '@/components/ui/Button';
 import { Glyph } from '@/components/ui/Glyph';
+import { loadHousehold } from '@/lib/card/household';
 import { DEMO_PIN } from '@/lib/card/pin';
 import { loadMyCard } from '@/lib/card/summary';
 import { HELP_LINKS, ME_LINKS } from '@/lib/domain/nav';
@@ -63,6 +65,8 @@ export default async function MePage({ searchParams }: PageProps<'/me'>) {
   for (const { error } of [total, catalog, week, vouchers]) if (error) throw new Error(`points lookup failed: ${error.message}`);
   // A demo account is shared by every visitor, so its PIN is shown on the pad. `app_metadata` is set by the seed only.
   const demo = card && (await supabase.auth.getClaims()).data?.claims.app_metadata?.demo;
+  // An Owner whose card has no Co-owner, and no invite for one, is asked to add one (CoOwnerPrompt remembers "Later").
+  const askForCoOwner = card?.role === 'owner' && (await loadHousehold(supabase, card.id, profile.id, now)).choices.co_owner === true;
   const points = Number(total.data ?? 0);
   const next = nextReward(points, catalog.data!);
   // "+150 this week · Gotong-royong": the week's check-ins, named after the latest.
@@ -94,6 +98,7 @@ export default async function MePage({ searchParams }: PageProps<'/me'>) {
           </p>
         )}
         {card && <HouseholdCard summary={card} demoPin={demo ? DEMO_PIN : null} />}
+        {askForCoOwner && <CoOwnerPrompt />}
 
         <section aria-labelledby="your-points" className="rounded-2xl border border-line bg-surface p-4 shadow-lg">
           <div className="flex items-center justify-between gap-3">

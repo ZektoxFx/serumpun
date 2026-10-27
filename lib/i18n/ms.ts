@@ -1298,6 +1298,37 @@ const ms: Record<keyof typeof en, string> = {
   'household.role.co_owner': 'Pemilik bersama',
   'household.role.adult': 'Dewasa',
   'household.role.child': 'Kanak-kanak',
+
+  // Kad akses: Saya › Isi rumah, tempat keluarga dijemput (app/(app)/me/household, components/card/InviteSheet.tsx, lib/card/household.ts)
+  'household.heading': 'Isi rumah',
+  'household.title': 'Isi rumah · {unit}',
+  'household.people': 'Orang pada kad · {n} daripada {max} telefon',
+  'household.you': 'Anda',
+  'household.icPending': 'IC belum disemak di pejabat',
+  'household.invite': 'Jemput seseorang',
+  'household.rules':
+    'Kanak-kanak: Pemilik atau Pemilik bersama, seorang sahaja. Dewasa: anda berdua, selepas pejabat menyemak IC Pemilik bersama. Anda berdua tidak boleh mengeluarkan satu sama lain; hanya pejabat yang boleh.',
+  'household.invites': 'Jemputan',
+  'household.invite.until': '{name} · {role} · boleh digunakan sehingga {time}',
+  'household.error.not_allowed': 'Hanya Pemilik boleh berbuat demikian.',
+  'household.error.bad_role': 'Pilih Kanak-kanak, Dewasa atau Pemilik bersama.',
+  'household.error.bad_name': 'Beri nama sepanjang 1 hingga 40 aksara.',
+  'household.error.name_taken': 'Nama itu sudah digunakan pada kad ini. Tambah nama keluarga atau nama panggilan.',
+  'household.error.not_found': 'Jemputan itu tidak terbuka lagi.',
+  'invite.name': 'Nama mereka',
+  'invite.role': 'Peranan',
+  'invite.why.needs_both': 'Menambah orang dewasa memerlukan persetujuan Pemilik dan Pemilik bersama. Itu belum tersedia.',
+  'invite.why.has_co_owner': 'Kad ini sudah ada Pemilik bersama, atau jemputan untuknya.',
+  'invite.confirm': 'Sahkan dengan PIN',
+  'invite.code.title': 'Jemputan untuk {name}',
+  'invite.code.works': 'Boleh digunakan sekali, sehingga {time}. {name} menaipnya di bawah Daftar pada telefon mereka sendiri.',
+  'invite.whatsapp': 'Hantar melalui WhatsApp',
+  'invite.whatsapp.message':
+    'Hai {name}, sertai kad isi rumah kami di Serumpun. Buka {url}, ketik Daftar dengan kod dan taip {code}. Boleh digunakan sekali, sehingga {time}.',
+  'coOwner.title': 'Tambah Pemilik bersama?',
+  'coOwner.body': 'Pasangan anda atau orang dewasa lain, supaya tiada seorang pun memegang seluruh kuasa ke atas kad ini.',
+  'coOwner.add': 'Tambah Pemilik bersama',
+  'coOwner.later': 'Nanti · kami akan ingatkan anda dalam 3 hari',
 };
 
 export default ms;
