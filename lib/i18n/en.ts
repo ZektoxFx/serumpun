@@ -1210,11 +1210,18 @@ const en = {
 
   // Access card: when a pass can't be issued, and the PIN pad's answers (lib/card/pin.ts, app/(app)/me/card/actions.ts)
   'card.error.no_card': "You're not on a household card yet",
-  'card.error.card_full': 'This card already has 4 phones. Ask the office for an extra card.',
+  'card.error.card_full': 'This card has no free phone. Ask the office for an extra card.',
   'card.error.bad_key': "This browser's key didn't work. Reload and try again.",
+  'card.error.phone_elsewhere': 'Your phone is still on another household card. Ask the office to move it.',
   'card.pin.error.format': 'Enter all 6 digits',
   'card.pin.error.wrong': 'Wrong PIN. {n} tries left.',
   'card.pin.error.locked': 'Too many wrong tries. Try again at {time}.',
+
+  // Access card: moving to a new phone (lib/card/server.ts, app/(app)/me/card/actions.ts)
+  'card.move.waiting':
+    'This phone is waiting for your card. Have your old phone? Open Me there and move the card here. Old phone lost? The Owner or Co-owner approves it in Household. Alone on the card? Take your IC to the office.',
+  'card.move.moved': 'Your card is on another phone now.',
+  'card.move.error.proof': "This phone couldn't prove it holds the card. Make sure its clock is right, then try again.",
 
   // Access card: the card in Me and its PIN pad (components/card/*). The places are named by reader.place.*
   'card.title': 'Household card',
@@ -1233,7 +1240,7 @@ const en = {
   'card.qr.show': 'Show QR instead',
   'card.qr.hide': 'Hide QR',
   'card.qr.label': 'Household card QR code',
-  'card.qr.hint': 'A reader can scan this. It changes every 30 seconds.',
+  'card.qr.hint': "It changes every 30 seconds, so a screenshot won't work.",
   'card.wallet': 'Add to Apple Wallet (demo)',
   'card.wallet.body':
     "This button is a look-alike. A real Wallet pass needs a paid Apple Developer account, and passes that open doors need Apple's approval. Until then your Serumpun card lives here in the app.",
@@ -1315,6 +1322,8 @@ const en = {
   'household.error.bad_name': 'Give a name of 1 to 40 characters.',
   'household.error.name_taken': 'That name is already taken on this card. Add a surname or a nickname.',
   'household.error.not_found': 'That invite is not open any more.',
+  'household.error.not_this_phone': "Your card isn't on this phone any more, so it can't be moved from here.",
+  'household.error.nothing_waiting': 'No new phone is waiting any more.',
   'invite.name': 'Their name',
   'invite.role': 'Role',
   'invite.why.needs_both': "Adding an adult needs the Owner and the Co-owner to agree. That isn't available yet.",

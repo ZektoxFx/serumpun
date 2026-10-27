@@ -32,6 +32,7 @@ const live = (card: Record<string, unknown> = {}) => (table: string) =>
   ({
     cards: { status: 'active', places: ['facilities', 'gym', 'pool'], unit: { lease_end: null }, ...card },
     card_phones: { frozen_at: null },
+    phone_keys: { state: 'active' },
   })[table] ?? [];
 
 async function presentation(nonce: string) {
@@ -109,15 +110,15 @@ describe('POST /api/reader/tap', () => {
   it('grants a good tap and logs the visit for the card', async () => {
     const db = fakeDb(live());
     h.client = db;
-    const res = await post(tap, JSON.stringify({ presentation: await presentation('t1'), place: 'pool', facility: null }));
+    const res = await post(tap, JSON.stringify({ presentation: await presentation('nonce-t1-0000000'), place: 'pool', facility: null }));
     expect(res.status).toBe(200);
     expect(res.headers.get('cache-control')).toBe('no-store');
     expect(await res.json()).toEqual({ granted: true, unit: UNIT });
-    expect(db.inserted).toEqual([{ table: 'card_visits', row: { township_id: 't', card_id: 'c18', place: 'pool', facility_id: null, granted: true, reason: null, offline: false, nonce: 't1', at: now.toISOString() } }]);
+    expect(db.inserted).toEqual([{ table: 'card_visits', row: { township_id: 't', card_id: 'c18', place: 'pool', facility_id: null, granted: true, reason: null, offline: false, nonce: 'nonce-t1-0000000', at: now.toISOString() } }]);
   });
   it('answers a refusal as a normal 200 with the reason, since the reader understood the card', async () => {
     h.client = fakeDb(live({ status: 'suspended' }));
-    const res = await post(tap, JSON.stringify({ presentation: await presentation('t2'), place: 'pool', facility: null }));
+    const res = await post(tap, JSON.stringify({ presentation: await presentation('nonce-t2-0000000'), place: 'pool', facility: null }));
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ granted: false, reason: 'card_suspended' });
   });
@@ -140,9 +141,9 @@ describe('POST /api/reader/visits', () => {
     h.client = db;
     const at = now.getTime();
     const visit = { place: 'pool', facility: null, at, granted: true, reason: null };
-    const res = await post(visits, JSON.stringify({ visits: [{ ...visit, presentation: await presentation('v1') }, { ...visit, presentation: 'junk' }] }));
+    const res = await post(visits, JSON.stringify({ visits: [{ ...visit, presentation: await presentation('nonce-v1-0000000') }, { ...visit, presentation: 'junk' }] }));
     expect(await res.json()).toEqual({ saved: 1, skipped: 1 });
     expect(db.inserted).toHaveLength(1);
-    expect(db.inserted[0].row).toMatchObject({ nonce: 'v1', offline: true, card_id: 'c18' });
+    expect(db.inserted[0].row).toMatchObject({ nonce: 'nonce-v1-0000000', offline: true, card_id: 'c18' });
   });
 });

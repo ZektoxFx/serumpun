@@ -51,11 +51,15 @@ export function afterDemoTry(lock: DemoLock, ok: boolean, now: number): DemoLock
   return fails < PIN_TRIES ? { fails, until: null } : { fails: 0, until: now + PIN_LOCK_MS };
 }
 
-// The `raise exception` codes of register_phone_key that a resident can act on.
+// What a resident can act on when issuePass gives no pass: register_phone_key's `raise exception` codes, and its answers
+// for a key that waits for the card or that the card has moved away from.
 const CARD_ERRORS: Record<string, MessageKey> = {
   no_card: 'card.error.no_card',
   card_full: 'card.error.card_full',
   bad_key: 'card.error.bad_key',
+  phone_elsewhere: 'card.error.phone_elsewhere',
+  move_waiting: 'card.move.waiting',
+  moved: 'card.move.moved',
 };
 
 /** What to tell a resident whose pass could not be issued. Anything unexpected is the generic error. */

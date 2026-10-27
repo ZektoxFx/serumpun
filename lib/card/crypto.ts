@@ -47,7 +47,10 @@ async function verifies(jwk: PublicJwk, signature: string, signed: string): Prom
   return crypto.subtle.verify(SIGNATURE, key, fromB64u(signature), utf8.encode(signed));
 }
 
-/** A phone signs whatever it likes, so a note is rebuilt field by field instead of trusted as parsed. */
+/**
+ * A phone signs whatever it likes, so a note is rebuilt field by field instead of trusted as parsed. The nonce is the
+ * replay check's key, so it must look like one: 16 to 64 base64url characters (a phone sends 16 random bytes, 22).
+ */
 function parseNote(value: unknown): TapNote | null {
   if (typeof value !== 'object' || value === null) return null;
   const { place, facility, at, nonce } = value as { [K in keyof TapNote]?: unknown };
@@ -55,7 +58,8 @@ function parseNote(value: unknown): TapNote | null {
     (place === null || PLACES.includes(place as Place)) &&
     (facility === null || typeof facility === 'string') &&
     Number.isFinite(at) &&
-    typeof nonce === 'string';
+    typeof nonce === 'string' &&
+    /^[A-Za-z0-9_-]{16,64}$/.test(nonce);
   return valid ? ({ place, facility, at, nonce } as TapNote) : null;
 }
 

@@ -1211,11 +1211,18 @@ const ms: Record<keyof typeof en, string> = {
 
   // Kad akses: apabila pas tidak dapat dikeluarkan, dan jawapan pad PIN (lib/card/pin.ts, app/(app)/me/card/actions.ts)
   'card.error.no_card': 'Anda belum berada pada kad isi rumah',
-  'card.error.card_full': 'Kad ini sudah ada 4 telefon. Minta kad tambahan daripada pejabat.',
+  'card.error.card_full': 'Kad ini tiada tempat telefon yang kosong. Minta kad tambahan daripada pejabat.',
   'card.error.bad_key': 'Kunci pelayar ini tidak berfungsi. Muat semula dan cuba lagi.',
+  'card.error.phone_elsewhere': 'Telefon anda masih pada kad isi rumah lain. Minta pejabat memindahkannya.',
   'card.pin.error.format': 'Masukkan kesemua 6 digit',
   'card.pin.error.wrong': 'PIN salah. Tinggal {n} percubaan.',
   'card.pin.error.locked': 'Terlalu banyak percubaan salah. Cuba lagi pada {time}.',
+
+  // Kad akses: berpindah ke telefon baharu (lib/card/server.ts, app/(app)/me/card/actions.ts)
+  'card.move.waiting':
+    'Telefon ini sedang menunggu kad anda. Ada telefon lama? Buka Saya di sana dan pindahkan kad ke sini. Telefon lama hilang? Pemilik atau Pemilik bersama meluluskannya di Isi rumah. Seorang sahaja pada kad? Bawa IC anda ke pejabat.',
+  'card.move.moved': 'Kad anda kini berada pada telefon lain.',
+  'card.move.error.proof': 'Telefon ini tidak dapat membuktikan ia memegang kad. Pastikan jamnya betul, kemudian cuba lagi.',
 
   // Kad akses: kad dalam Saya dan pad PIN-nya (components/card/*). Tempat dinamakan oleh reader.place.*
   'card.title': 'Kad isi rumah',
@@ -1234,7 +1241,7 @@ const ms: Record<keyof typeof en, string> = {
   'card.qr.show': 'Tunjuk kod QR sebaliknya',
   'card.qr.hide': 'Sembunyikan kod QR',
   'card.qr.label': 'Kod QR kad isi rumah',
-  'card.qr.hint': 'Pembaca boleh mengimbas kod ini. Ia berubah setiap 30 saat.',
+  'card.qr.hint': 'Ia berubah setiap 30 saat, jadi tangkapan skrin tidak akan berfungsi.',
   'card.wallet': 'Tambah ke Apple Wallet (demo)',
   'card.wallet.body':
     'Butang ini hanyalah contoh. Pas Wallet sebenar memerlukan akaun Apple Developer berbayar, dan pas yang membuka pintu memerlukan kelulusan Apple. Sehingga itu, kad Serumpun anda disimpan di sini dalam aplikasi.',
@@ -1317,6 +1324,8 @@ const ms: Record<keyof typeof en, string> = {
   'household.error.bad_name': 'Beri nama sepanjang 1 hingga 40 aksara.',
   'household.error.name_taken': 'Nama itu sudah digunakan pada kad ini. Tambah nama keluarga atau nama panggilan.',
   'household.error.not_found': 'Jemputan itu tidak terbuka lagi.',
+  'household.error.not_this_phone': 'Kad anda tiada lagi pada telefon ini, jadi ia tidak boleh dipindahkan dari sini.',
+  'household.error.nothing_waiting': 'Tiada lagi telefon baharu yang menunggu.',
   'invite.name': 'Nama mereka',
   'invite.role': 'Peranan',
   'invite.why.needs_both': 'Menambah orang dewasa memerlukan persetujuan Pemilik dan Pemilik bersama. Itu belum tersedia.',

@@ -30,6 +30,13 @@ it("passes the database's refusal through", async () => {
   expect(await issuePass(fakeDb({ data: null, error: { message: 'card_full' } }).client, key, now, await generateSigningKey())).toEqual({ error: 'card_full' });
   expect(await issuePass(fakeDb({ data: null, error: { message: 'boom' } }).client, key, now, await generateSigningKey())).toEqual({ error: 'failed' });
 });
+it('says when the key waits for the old phone, has moved away, or sits on another card', async () => {
+  const key = { kty: 'EC', crv: 'P-256', x: 'x', y: 'y' } as PublicJwk;
+  const issue = async (result: { data: unknown; error: { message: string } | null }) => issuePass(fakeDb(result).client, key, now, await generateSigningKey());
+  expect(await issue({ data: { waiting: true }, error: null })).toEqual({ error: 'move_waiting' });
+  expect(await issue({ data: { moved: true }, error: null })).toEqual({ error: 'moved' });
+  expect(await issue({ data: null, error: { message: 'phone_elsewhere' } })).toEqual({ error: 'phone_elsewhere' });
+});
 
 // Beyond the brief.
 const browserKey = { kty: 'EC', crv: 'P-256', x: 'x', y: 'y' } as PublicJwk;

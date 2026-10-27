@@ -33,7 +33,7 @@ it("decides offline on the township's clock, refuses a note it has seen, and que
   const slowClock = serverNow - 300_000;
   const cache: ReaderCache = { publicKey: publicJwkFromSigningKey(signing), offsetMs: 300_000, syncedAt: slowClock, stop: { cards: [], phones: [] }, bookings: [] };
   const seen = new Set<string>();
-  const tap = await tapAt('n1');
+  const tap = await tapAt('nonce-n1-0000000');
 
   expect(await decideOffline(tap, cache, seen, slowClock)).toEqual({
     decision: { granted: true },
@@ -43,10 +43,10 @@ it("decides offline on the township's clock, refuses a note it has seen, and que
   // The same note again is refused like a stale pass. Its visit is queued like any other; the township skips the copy.
   expect((await decideOffline(tap, cache, seen, slowClock))!.visit).toEqual({ ...tap, at: serverNow, granted: false, reason: 'pass_expired' });
   // Without the correction that fresh note would look 5 minutes old.
-  expect((await decideOffline(await tapAt('n2'), { ...cache, offsetMs: 0 }, seen, slowClock))!.decision).toEqual({ granted: false, reason: 'pass_expired' });
+  expect((await decideOffline(await tapAt('nonce-n2-0000000'), { ...cache, offsetMs: 0 }, seen, slowClock))!.decision).toEqual({ granted: false, reason: 'pass_expired' });
   // A card on the stop list since its pass was signed is refused.
   const stopped = { ...cache, stop: { cards: ['c18'], phones: [] } };
-  expect((await decideOffline(await tapAt('n3'), stopped, seen, slowClock))!.decision).toEqual({ granted: false, reason: 'card_suspended' });
+  expect((await decideOffline(await tapAt('nonce-n3-0000000'), stopped, seen, slowClock))!.decision).toEqual({ granted: false, reason: 'card_suspended' });
   // Something no township key signed is nothing to decide on, or to queue.
   expect(await decideOffline({ ...tap, presentation: 'not.a.card.pass' }, cache, seen, slowClock)).toBeNull();
   expect(await decideOffline(tap, { ...cache, publicKey: publicJwkFromSigningKey(await generateSigningKey()) }, new Set(), slowClock)).toBeNull();

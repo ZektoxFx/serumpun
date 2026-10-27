@@ -45,6 +45,7 @@ describe('loadState', () => {
     o[table] ?? {
       cards: ok({ status: 'active', places: ['facilities', 'gym', 'pool'], unit: { lease_end: null } }),
       card_phones: ok({ frozen_at: null }),
+      phone_keys: ok({ state: 'active' }),
       bookings: ok([]),
       card_members: ok([]),
     }[table]!;
@@ -72,6 +73,14 @@ describe('loadState', () => {
       suspended: true, leaseEnd: null, phoneFrozen: true, places: [], hasBooking: false,
     });
   });
+  it('treats a pass whose key moved away, or still waits, as a switched-off phone', async () => {
+    for (const key of [ok({ state: 'retired' }), ok({ state: 'waiting' }), ok(null)]) {
+      expect((await adminReaderDeps(fakeAdmin(rows({ phone_keys: key })).client, publicKey).loadState(pass, null, now)).phoneFrozen).toBe(true);
+    }
+    const db = fakeAdmin(rows());
+    expect((await adminReaderDeps(db.client, publicKey).loadState(pass, null, now)).phoneFrozen).toBe(false);
+    expect(eqs(db.on('phone_keys')[0].steps)).toEqual({ phone_id: 'phone-1', x: 'x', y: 'y' });
+  });
 
   it("finds a booking by someone on the card, for the reader's court and this hour in Malaysia", async () => {
     const db = fakeAdmin(rows({ bookings: ok([{ user_id: 'u2' }]), card_members: ok([{ user_id: 'u1' }, { user_id: 'u2' }]) }));
@@ -94,7 +103,7 @@ describe('loadState', () => {
   it('looks up no booking at a reader with no facility', async () => {
     const db = fakeAdmin(rows());
     await adminReaderDeps(db.client, publicKey).loadState(pass, null, now);
-    expect(db.queries.map((q) => q.table).sort()).toEqual(['card_phones', 'cards']);
+    expect(db.queries.map((q) => q.table).sort()).toEqual(['card_phones', 'cards', 'phone_keys']);
   });
   it('finds no booking at a facility that is not an id, instead of failing', async () => {
     const db = fakeAdmin(rows({ bookings: failed('22P02', 'invalid input syntax for type uuid') }));
@@ -102,7 +111,7 @@ describe('loadState', () => {
   });
 
   it('throws on a failed lookup, so the reader decides for itself instead of being told a guess', async () => {
-    for (const table of ['cards', 'card_phones', 'bookings', 'card_members']) {
+    for (const table of ['cards', 'card_phones', 'phone_keys', 'bookings', 'card_members']) {
       const db = fakeAdmin(rows({ [table]: failed('57P01', 'connection lost') }));
       await expect(adminReaderDeps(db.client, publicKey).loadState(pass, 'gym-1', now), table).rejects.toThrow('connection lost');
     }

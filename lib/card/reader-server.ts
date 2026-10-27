@@ -77,8 +77,18 @@ export async function handleTap(body: unknown, deps: ReaderDeps): Promise<TapRes
   const state = await deps.loadState(read.pass, tap.facility, now);
   const decision = decideTap({ pass: read.pass, note: read.note, place: tap.place, facility: tap.facility, state, now });
   const result = decision.granted ? { granted: true, reason: null } : decision;
+  let saved: 'saved' | 'duplicate';
+  try {
+    saved = await deps.saveVisit(visitRow(read, tap, result, false, now));
+  } catch (error) {
+    // A grant that isn't logged fails, so the reader decides again offline. A refusal is answered anyway: failing it
+    // could let the reader's offline check, which knows less, grant it.
+    if (decision.granted) throw error;
+    console.error(`a refusal was answered but not saved: ${error instanceof Error ? error.message : String(error)}`);
+    return decision;
+  }
   // A note that has been used before is a copy, which no pass or note check can tell from the first.
-  if ((await deps.saveVisit(visitRow(read, tap, result, false, now))) === 'duplicate') return { granted: false, reason: 'pass_expired' };
+  if (saved === 'duplicate') return { granted: false, reason: 'pass_expired' };
   return decision.granted ? { granted: true, unit: read.pass.unit } : decision;
 }
 
@@ -127,20 +137,33 @@ async function hasBooking(admin: SupabaseClient, cardId: string, facility: strin
   return slot.data.some((booking) => members.data.some((member) => member.user_id === booking.user_id));
 }
 
-/** The state of the card and phone a pass names as they are now, so a suspension or a freeze after the pass was signed counts. */
+/**
+ * The state of the card, phone and key a pass names as they are now, so a suspension, a freeze or a move to a new phone
+ * after the pass was signed counts.
+ */
 async function loadState(admin: SupabaseClient, pass: PassPayload, facility: string | null, now: Date): Promise<TapState> {
-  const [card, phone, booked] = await Promise.all([
+  const [card, phone, key, booked] = await Promise.all([
     admin.from('cards').select('status, places, unit:units(lease_end)').eq('id', pass.card).maybeSingle().overrideTypes<CardRow, { merge: false }>(),
     admin.from('card_phones').select('frozen_at').eq('id', pass.phone).maybeSingle().overrideTypes<{ frozen_at: string | null }, { merge: false }>(),
+    admin
+      .from('phone_keys')
+      .select('state')
+      .eq('phone_id', pass.phone)
+      .eq('x', pass.key.x)
+      .eq('y', pass.key.y)
+      .maybeSingle()
+      .overrideTypes<{ state: string }, { merge: false }>(),
     hasBooking(admin, pass.card, facility, now),
   ]);
   if (card.error) throw new Error(`card lookup failed: ${card.error.message}`);
   if (phone.error) throw new Error(`phone lookup failed: ${phone.error.message}`);
-  // A card or phone that is gone since the pass was signed (a demo reset, say) opens nothing.
+  if (key.error) throw new Error(`phone key lookup failed: ${key.error.message}`);
+  // A card or phone that is gone since the pass was signed (a demo reset, say) opens nothing. Nor does a key that is no
+  // longer the phone's active one: it moved away, or it still waits. Offline readers stop it when its pass runs out.
   return {
     suspended: card.data?.status !== 'active',
     leaseEnd: card.data?.unit.lease_end ?? null,
-    phoneFrozen: !phone.data || phone.data.frozen_at !== null,
+    phoneFrozen: !phone.data || phone.data.frozen_at !== null || key.data?.state !== 'active',
     places: card.data?.places ?? [],
     hasBooking: booked,
   };

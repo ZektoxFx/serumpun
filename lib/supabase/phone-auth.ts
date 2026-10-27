@@ -45,9 +45,8 @@ export async function phoneSignIn(
     .maybeSingle()
     .overrideTypes<{ id: string }, { merge: false }>();
   if (personError) return failure('account lookup', personError);
-  // With no account, a PIN is still checked, for an id nobody has (no_pin): the same trip to the database as a wrong PIN.
-  // shortcut: check_member_pin raises no_pin before it hashes, so this is one bcrypt (about 6 ms) quicker than a wrong
-  // PIN; a dummy crypt before that raise, in a later migration, would even it out.
+  // With no account, a PIN is still checked, for an id nobody has (no_pin): the same trip to the database as a wrong PIN,
+  // and the same bcrypt, which check_member_pin spends before it raises no_pin (0025a).
   const { data: pinCheck, error: pinError } = await admin.rpc('check_member_pin', { p_user: person?.id ?? randomUUID(), p_pin: pin });
   if (pinError && pinError.message !== 'no_pin') return failure('check_member_pin', pinError);
   if (!person || pinError) return { error: 'wrong' };

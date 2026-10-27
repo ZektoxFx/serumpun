@@ -51,3 +51,17 @@ export async function cancelInvite(invite: string): Promise<{ error?: MessageKey
   refresh();
   return error ? { error: refused('cancel_invite', error.message) } : {};
 }
+
+/**
+ * For a lost phone: a manager moves `member`'s card to the phone that waits for it, confirmed with the manager's own PIN.
+ * approve_phone_move decides who may. The page is refreshed whatever the answer, as after cancelling an invite: a
+ * refusal means it was out of date (the phone moved, or stopped waiting, elsewhere).
+ */
+export async function approveMove(member: string, pin: string): Promise<PinAnswer> {
+  const { lang } = await requireMember();
+  // It arrives from the browser: a PIN that is not six digits is not sent, or the database would count it as a wrong try.
+  if (!isPinFormat(pin)) return { ok: false, error: 'card.pin.error.format' };
+  const { data, error } = await (await createClient()).rpc('approve_phone_move', { p_member: member, p_pin: pin });
+  refresh();
+  return error ? { ok: false, error: refused('approve_phone_move', error.message) } : pinAnswer(data, new Date(), lang);
+}

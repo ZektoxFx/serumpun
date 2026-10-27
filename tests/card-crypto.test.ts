@@ -12,7 +12,7 @@ const payload = (key: PublicJwk): PassPayload => ({
   v: 1, card: 'card-18', unit: 'No. 18, Jalan Elmina Valley 3/2', township: 'elmina', phone: 'phone-1', key,
   places: ['facilities', 'gym', 'pool'], suspended: false, leaseEnd: null, iat: 1_792_000_000, exp: 1_792_086_400,
 });
-const NOTE: TapNote = { place: 'pool', facility: null, at: 1_792_000_100_000, nonce: 'n-1' };
+const NOTE: TapNote = { place: 'pool', facility: null, at: 1_792_000_100_000, nonce: 'nonce-note-00001' };
 
 describe('passes', () => {
   it('verify with the township key and give back their payload', async () => {
@@ -63,6 +63,27 @@ describe('tap notes', () => {
   it('come back null, never throw, for junk', async () => {
     const pub = publicJwkFromSigningKey(await generateSigningKey());
     for (const junk of ['', 'a.b.c', 'x.y.z.w', '!!!.???.***.###']) expect(await readPresentation(junk, pub)).toBeNull();
+  });
+  it('refuses a note whose nonce is not 16 to 64 base64url characters', async () => {
+    const encoded = await generateSigningKey();
+    const device = await phone();
+    const pass = await signPass(payload(device.jwk), await importSigningKey(encoded));
+    for (const nonce of ['short', 'x'.repeat(65), 'has.a.dot.in.it.0000']) {
+      expect(await readPresentation(await signNote(pass, { ...NOTE, nonce }, device.privateKey), publicJwkFromSigningKey(encoded)), nonce).toBeNull();
+    }
+  });
+  // Beyond the brief: the cap's edges, and the nonce a phone really sends (16 random bytes, 22 characters).
+  it('takes a nonce of exactly 16 or 64 base64url characters, and the one a phone makes', async () => {
+    const encoded = await generateSigningKey();
+    const device = await phone();
+    const pass = await signPass(payload(device.jwk), await importSigningKey(encoded));
+    const real = Buffer.from(crypto.getRandomValues(new Uint8Array(16))).toString('base64url');
+    for (const nonce of ['A'.repeat(16), '-_'.repeat(32), real]) {
+      expect((await readPresentation(await signNote(pass, { ...NOTE, nonce }, device.privateKey), publicJwkFromSigningKey(encoded)))?.note.nonce, nonce).toBe(nonce);
+    }
+    for (const nonce of ['A'.repeat(15), `${'A'.repeat(15)}=`, `${'A'.repeat(15)}+`]) {
+      expect(await readPresentation(await signNote(pass, { ...NOTE, nonce }, device.privateKey), publicJwkFromSigningKey(encoded)), nonce).toBeNull();
+    }
   });
   // Beyond the brief: a phone signs whatever it likes, so a correctly signed note that is not shaped like a TapNote must not get through.
   it('refuse a signed note that is not shaped like a note, and drop fields they do not know', async () => {

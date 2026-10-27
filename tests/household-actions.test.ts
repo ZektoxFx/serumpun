@@ -10,7 +10,7 @@ vi.mock('@/lib/supabase/auth', () => ({
 }));
 vi.mock('@/lib/supabase/server', () => ({ createClient: async () => ({ rpc: h.rpc }) }));
 
-import { cancelInvite, createInvite } from '@/app/(app)/me/household/actions';
+import { approveMove, cancelInvite, createInvite } from '@/app/(app)/me/household/actions';
 import { hashCode, normalizeCode } from '@/lib/card/codes';
 
 const made = { data: { ok: true, expires_at: '2026-10-28T04:00:00+00:00' }, error: null };
@@ -35,6 +35,12 @@ it('hands back a wrong PIN as the pad expects, and names a refusal', async () =>
   expect(await createInvite('Adam', 'child', '000000')).toEqual({ ok: false, error: 'card.pin.error.wrong', triesLeft: 4 });
   h.rpc.mockResolvedValueOnce({ data: null, error: { message: 'needs_both' } });
   expect(await createInvite('Farid', 'adult', '123456')).toEqual({ ok: false, error: 'invite.why.needs_both' });
+});
+it("hands back an approver's wrong PIN, and names a refusal", async () => {
+  h.rpc.mockResolvedValueOnce({ data: { ok: false, tries_left: 2 }, error: null });
+  expect(await approveMove('u-sara', '000000')).toEqual({ ok: false, error: 'card.pin.error.wrong', triesLeft: 2 });
+  h.rpc.mockResolvedValueOnce({ data: null, error: { message: 'nothing_waiting' } });
+  expect(await approveMove('u-sara', '123456')).toEqual({ ok: false, error: 'household.error.nothing_waiting' });
 });
 
 // Beyond the brief: the rules around those two.
@@ -124,10 +130,41 @@ describe('cancelInvite', () => {
   });
 });
 
+describe('approveMove', () => {
+  it('turns away a PIN that is not six digits without a call, so it costs no try', async () => {
+    for (const pin of ['12345', 123456, null]) {
+      expect(await approveMove('u-sara', pin as never), String(pin)).toEqual({ ok: false, error: 'card.pin.error.format' });
+    }
+    expect(h.rpc).not.toHaveBeenCalled();
+    expect(h.refresh).not.toHaveBeenCalled();
+  });
+  it('approves the person it is given as the signed-in manager, with their PIN, then refreshes the page', async () => {
+    h.rpc.mockResolvedValueOnce({ data: { ok: true }, error: null });
+    expect(await approveMove('u-sara', '123456')).toEqual({ ok: true });
+    expect(h.rpc).toHaveBeenCalledWith('approve_phone_move', { p_member: 'u-sara', p_pin: '123456' });
+    expect(h.refresh).toHaveBeenCalledOnce();
+  });
+  it('refreshes after a refusal too: the page was out of date, so the waiting phone should not stay on it', async () => {
+    for (const [code, key] of [['nothing_waiting', 'household.error.nothing_waiting'], ['not_allowed', 'household.error.not_allowed'], ['not_found', 'household.error.not_found']]) {
+      h.rpc.mockResolvedValueOnce({ data: null, error: { message: code } });
+      expect(await approveMove('u-sara', '123456'), code).toEqual({ ok: false, error: key });
+    }
+    expect(h.refresh).toHaveBeenCalledTimes(3);
+    expect(console.error).not.toHaveBeenCalled();
+  });
+  it('says something went wrong for anything else, and logs the message but never the PIN', async () => {
+    h.rpc.mockResolvedValueOnce({ data: null, error: { message: 'boom' } });
+    expect(await approveMove('u-sara', '123456')).toEqual({ ok: false, error: 'common.error' });
+    expect(console.error).toHaveBeenCalledWith('approve_phone_move failed: boom');
+    expect(JSON.stringify(vi.mocked(console.error).mock.calls)).not.toContain('123456');
+  });
+});
+
 it('does nothing for someone who is not signed in', async () => {
   h.signedIn = false;
   await expect(createInvite('Adam', 'child', '123456')).rejects.toThrow('NEXT_REDIRECT');
   await expect(cancelInvite('inv-1')).rejects.toThrow('NEXT_REDIRECT');
+  await expect(approveMove('u-sara', '123456')).rejects.toThrow('NEXT_REDIRECT');
   expect(h.rpc).not.toHaveBeenCalled();
   expect(h.refresh).not.toHaveBeenCalled();
 });

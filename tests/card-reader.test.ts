@@ -6,6 +6,10 @@ import { handleTap, handleVisits, type ReaderDeps, type VisitRow } from '@/lib/c
 const now = new Date('2026-10-24T10:00:00Z');
 const active: TapState = { suspended: false, leaseEnd: null, phoneFrozen: false, places: ['facilities', 'gym', 'pool'], hasBooking: false };
 
+// A refusal whose visit can't be saved is logged; keep that out of the test output.
+beforeEach(() => { vi.spyOn(console, 'error').mockImplementation(() => {}); });
+afterEach(() => { vi.restoreAllMocks(); });
+
 async function setup(state: TapState = active, save: 'saved' | 'duplicate' = 'saved') {
   const encoded = await generateSigningKey();
   const phone = await crypto.subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-256' }, false, ['sign', 'verify']);
@@ -24,17 +28,36 @@ async function setup(state: TapState = active, save: 'saved' | 'duplicate' = 'sa
 
 it('grants a valid tap and logs the visit by unit, not by person', async () => {
   const { deps, present, saved } = await setup();
-  expect(await handleTap({ presentation: await present('pool', 'n1'), place: 'pool', facility: null }, deps)).toEqual({ granted: true, unit: 'No. 18, Jalan Elmina Valley 3/2' });
-  expect(saved).toEqual([{ township_id: 't', card_id: 'c18', place: 'pool', facility_id: null, granted: true, reason: null, offline: false, nonce: 'n1', at: now.toISOString() }]);
+  expect(await handleTap({ presentation: await present('pool', 'nonce-n1-0000000'), place: 'pool', facility: null }, deps)).toEqual({ granted: true, unit: 'No. 18, Jalan Elmina Valley 3/2' });
+  expect(saved).toEqual([{ township_id: 't', card_id: 'c18', place: 'pool', facility_id: null, granted: true, reason: null, offline: false, nonce: 'nonce-n1-0000000', at: now.toISOString() }]);
 });
 it('refuses an online tap for a card suspended after its pass was issued', async () => {
   const { deps, present, saved } = await setup({ ...active, suspended: true });
-  expect(await handleTap({ presentation: await present('pool', 'n2'), place: 'pool', facility: null }, deps)).toEqual({ granted: false, reason: 'card_suspended' });
+  expect(await handleTap({ presentation: await present('pool', 'nonce-n2-0000000'), place: 'pool', facility: null }, deps)).toEqual({ granted: false, reason: 'card_suspended' });
   expect(saved[0]).toMatchObject({ granted: false, reason: 'card_suspended' });
 });
 it('refuses a replayed note', async () => {
   const { deps, present } = await setup(active, 'duplicate');
-  expect(await handleTap({ presentation: await present('pool', 'n3'), place: 'pool', facility: null }, deps)).toEqual({ granted: false, reason: 'pass_expired' });
+  expect(await handleTap({ presentation: await present('pool', 'nonce-n3-0000000'), place: 'pool', facility: null }, deps)).toEqual({ granted: false, reason: 'pass_expired' });
+});
+it('answers a refusal even when its visit cannot be saved', async () => {
+  const { deps, present } = await setup({ ...active, suspended: true });
+  deps.saveVisit = async () => { throw new Error('connection lost'); };
+  expect(await handleTap({ presentation: await present('pool', 'nonce-refused-0001'), place: 'pool', facility: null }, deps)).toEqual({ granted: false, reason: 'card_suspended' });
+});
+it('still fails a grant whose visit cannot be saved, so the reader decides it again offline', async () => {
+  const { deps, present } = await setup();
+  deps.saveVisit = async () => { throw new Error('connection lost'); };
+  await expect(handleTap({ presentation: await present('pool', 'nonce-granted-0001'), place: 'pool', facility: null }, deps)).rejects.toThrow('connection lost');
+});
+// Beyond the brief: the refusal's lost visit still leaves a trace, as the throw did before.
+it('logs a refusal it answered without saving, by the error message only', async () => {
+  const { deps, present } = await setup({ ...active, suspended: true });
+  deps.saveVisit = async () => { throw new Error('connection lost'); };
+  const presentation = await present('pool', 'nonce-refused-0002');
+  await handleTap({ presentation, place: 'pool', facility: null }, deps);
+  expect(console.error).toHaveBeenCalledWith('a refusal was answered but not saved: connection lost');
+  expect(JSON.stringify(vi.mocked(console.error).mock.calls)).not.toContain(presentation);
 });
 it('answers bad_pass for junk, and saves nothing', async () => {
   const { deps, saved } = await setup();
@@ -47,12 +70,12 @@ it('saves offline visits as the reader decided them and skips bad ones', async (
   const { deps, present, saved } = await setup();
   const at = now.getTime();
   const visits = [
-    { presentation: await present('pool', 'o1'), place: 'pool', facility: null, at, granted: true, reason: null },
-    { presentation: await present('gym', 'o2'), place: 'gym', facility: null, at, granted: false, reason: 'no_booking' },
+    { presentation: await present('pool', 'nonce-o1-0000000'), place: 'pool', facility: null, at, granted: true, reason: null },
+    { presentation: await present('gym', 'nonce-o2-0000000'), place: 'gym', facility: null, at, granted: false, reason: 'no_booking' },
     { presentation: 'junk', place: 'pool', facility: null, at, granted: true, reason: null },
   ];
   expect(await handleVisits({ visits }, deps)).toEqual({ saved: 2, skipped: 1 });
-  expect(saved.map((v) => [v.nonce, v.offline, v.granted, v.reason])).toEqual([['o1', true, true, null], ['o2', true, false, 'no_booking']]);
+  expect(saved.map((v) => [v.nonce, v.offline, v.granted, v.reason])).toEqual([['nonce-o1-0000000', true, true, null], ['nonce-o2-0000000', true, false, 'no_booking']]);
 });
 
 // Beyond the brief. These routes are public: anyone can post anything, so the same few lines must survive all of it.
@@ -75,7 +98,7 @@ async function world() {
       return 'saved';
     },
   };
-  const note = (fields: Partial<TapNote>) => signNote(pass, { place: 'pool', facility: null, at: now.getTime(), nonce: 'n', ...fields }, phone.privateKey);
+  const note = (fields: Partial<TapNote>) => signNote(pass, { place: 'pool', facility: null, at: now.getTime(), nonce: 'nonce-default-00', ...fields }, phone.privateKey);
   return { deps, stored, note };
 }
 const tapAt = (presentation: string, place: 'pool' | 'gym' = 'pool', facility: string | null = null) => ({ presentation, place, facility });
@@ -89,28 +112,28 @@ const respelled = (presentation: string) => {
 
 it('refuses a note shown again with its signature respelled: replay keys on the signed nonce, not on the text', async () => {
   const w = await world();
-  const first = await w.note({ nonce: 'r1' });
+  const first = await w.note({ nonce: 'nonce-r1-0000000' });
   const again = respelled(first);
   // The premise: a different text that still verifies, so only the nonce can tell the two are one note.
   expect(again).not.toBe(first);
   expect(await readPresentation(again, w.deps.publicKey)).not.toBeNull();
   expect(await handleTap(tapAt(first), w.deps)).toEqual({ granted: true, unit: UNIT });
   expect(await handleTap(tapAt(again), w.deps)).toEqual({ granted: false, reason: 'pass_expired' });
-  expect(w.stored.map((v) => v.nonce)).toEqual(['r1']);
+  expect(w.stored.map((v) => v.nonce)).toEqual(['nonce-r1-0000000']);
 });
 it('skips a respelled copy of an offline visit, and one the server already took online', async () => {
   const w = await world();
-  const first = await w.note({ nonce: 'r2' });
-  const queued = await w.note({ nonce: 'r3' });
+  const first = await w.note({ nonce: 'nonce-r2-0000000' });
+  const queued = await w.note({ nonce: 'nonce-r3-0000000' });
   const visit = (presentation: string) => ({ ...tapAt(presentation), at: now.getTime(), granted: true, reason: null });
   expect(await handleTap(tapAt(first), w.deps)).toEqual({ granted: true, unit: UNIT }); // the answer to this was lost, so the reader queued it too
   expect(await handleVisits({ visits: [visit(first), visit(queued), visit(respelled(queued))] }, w.deps)).toEqual({ saved: 1, skipped: 2 });
-  expect(w.stored.map((v) => v.nonce)).toEqual(['r2', 'r3']);
+  expect(w.stored.map((v) => v.nonce)).toEqual(['nonce-r2-0000000', 'nonce-r3-0000000']);
 });
 
 it('answers bad_pass to every body that is not a tap request, before it checks a signature or touches the database', async () => {
   const w = await world();
-  const presentation = await w.note({ nonce: 'b1' });
+  const presentation = await w.note({ nonce: 'nonce-b1-0000000' });
   const loadState = vi.fn(w.deps.loadState);
   const saveVisit = vi.fn(w.deps.saveVisit);
   const bodies = [
@@ -127,20 +150,22 @@ it('answers bad_pass to every body that is not a tap request, before it checks a
 it('answers bad_pass to a pass another township signed', async () => {
   const w = await world();
   const other = { ...w.deps, publicKey: publicJwkFromSigningKey(await generateSigningKey()) };
-  expect(await handleTap(tapAt(await w.note({ nonce: 'b2' })), other)).toEqual({ error: 'bad_pass' });
+  expect(await handleTap(tapAt(await w.note({ nonce: 'nonce-b2-0000000' })), other)).toEqual({ error: 'bad_pass' });
   expect(w.stored).toEqual([]);
 });
 it('takes a presentation up to 4096 characters and refuses the next size up', async () => {
   const w = await world();
-  // The nonce stretches it. The text grows with the nonce, so search for the longest nonce that still fits.
-  const length = async (n: number) => (await w.note({ nonce: 'x'.repeat(n) })).length;
+  // A QR note's court stretches it: the note names no reader, so any reader takes it, whatever the court says. The text
+  // grows with the court, so search for the longest court that still fits.
+  const stretched = (n: number) => w.note({ place: null, facility: 'x'.repeat(n) });
+  const length = async (n: number) => (await stretched(n)).length;
   let [fits, over] = [1, 4000];
   while (fits < over) {
     const mid = Math.ceil((fits + over) / 2);
     if ((await length(mid)) <= 4096) fits = mid;
     else over = mid - 1;
   }
-  const [inside, outside] = [await w.note({ nonce: 'x'.repeat(fits) }), await w.note({ nonce: 'x'.repeat(fits + 1) })];
+  const [inside, outside] = [await stretched(fits), await stretched(fits + 1)];
   expect(inside.length).toBeGreaterThan(4090);
   expect(inside.length).toBeLessThanOrEqual(4096);
   expect(outside.length).toBeGreaterThan(4096);
@@ -153,7 +178,7 @@ it("looks up the booking at the reader's court, never at the court a QR note nam
   const asked: (string | null)[] = [];
   const deps = { ...w.deps, loadState: async (_pass: PassPayload, facility: string | null) => (asked.push(facility), { ...active, hasBooking: facility === 'court-a' }) };
   // A QR note fits any reader, so what it says about a court must not choose which booking is looked up.
-  const qr = await w.note({ place: null, facility: 'court-a', nonce: 'q1' });
+  const qr = await w.note({ place: null, facility: 'court-a', nonce: 'nonce-q1-0000000' });
   expect(await handleTap(tapAt(qr, 'gym', 'gym-1'), deps)).toEqual({ granted: false, reason: 'no_booking' });
   expect(asked).toEqual(['gym-1']);
   expect(w.stored[0]).toMatchObject({ place: 'gym', facility_id: 'gym-1', granted: false, reason: 'no_booking' });
@@ -162,13 +187,13 @@ it("looks up the booking at the reader's court, never at the court a QR note nam
 it("records an offline visit at the reader's own time and decision, for the card and nothing else", async () => {
   const w = await world();
   const at = now.getTime() + 5_000; // the reader's clock, not the phone's
-  const presentation = await w.note({ nonce: 'o3' });
+  const presentation = await w.note({ nonce: 'nonce-o3-0000000' });
   expect(await handleVisits({ visits: [{ ...tapAt(presentation), at, granted: false, reason: 'place_off' }] }, w.deps)).toEqual({ saved: 1, skipped: 0 });
-  expect(w.stored).toEqual([{ township_id: 't', card_id: 'c18', place: 'pool', facility_id: null, granted: false, reason: 'place_off', offline: true, nonce: 'o3', at: new Date(at).toISOString() }]);
+  expect(w.stored).toEqual([{ township_id: 't', card_id: 'c18', place: 'pool', facility_id: null, granted: false, reason: 'place_off', offline: true, nonce: 'nonce-o3-0000000', at: new Date(at).toISOString() }]);
 });
 it('saves nothing from a body that is not { visits: [...] }', async () => {
   const w = await world();
-  const visit = { ...tapAt(await w.note({ nonce: 'j1' })), at: now.getTime(), granted: true, reason: null };
+  const visit = { ...tapAt(await w.note({ nonce: 'nonce-j1-0000000' })), at: now.getTime(), granted: true, reason: null };
   for (const body of [undefined, null, 'x', 5, [], [visit], {}, { visits: 'x' }, { visits: visit }, { visits: { 0: visit, length: 1 } }]) {
     expect(await handleVisits(body, w.deps), JSON.stringify(body) ?? 'undefined').toEqual({ saved: 0, skipped: 0 });
   }
@@ -176,7 +201,7 @@ it('saves nothing from a body that is not { visits: [...] }', async () => {
 });
 it('skips each queued visit that is not the shape a reader queues, without trusting any of it', async () => {
   const w = await world();
-  const good = { ...tapAt(await w.note({ nonce: 'j2' })), at: now.getTime(), granted: true, reason: null };
+  const good = { ...tapAt(await w.note({ nonce: 'nonce-j2-0000000' })), at: now.getTime(), granted: true, reason: null };
   const junk = [
     null, 5, 'x', [], {},
     { ...good, presentation: 5 }, { ...good, place: 'lift' }, { ...good, facility: 5 }, { ...good, facility: undefined },
@@ -190,7 +215,7 @@ it('skips each queued visit that is not the shape a reader queues, without trust
 it('takes at most 500 visits and says how many it took, so the reader keeps the rest', async () => {
   const w = await world();
   const junk = { ...tapAt('junk'), at: now.getTime(), granted: true, reason: null };
-  const valid = { ...tapAt(await w.note({ nonce: 'j3' })), at: now.getTime(), granted: true, reason: null };
+  const valid = { ...tapAt(await w.note({ nonce: 'nonce-j3-0000000' })), at: now.getTime(), granted: true, reason: null };
   // The 501st is a good one: it is left alone, not skipped, because the reader removes only as many as the answer counts.
   expect(await handleVisits({ visits: [...Array.from({ length: 500 }, () => junk), valid] }, w.deps)).toEqual({ saved: 0, skipped: 500 });
   expect(w.stored).toEqual([]);

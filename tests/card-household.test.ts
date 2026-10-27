@@ -1,4 +1,4 @@
-import { householdErrorKey, inviteChoices, isCardFull, isManager, loadHousehold, type InviteRole, type Member } from '@/lib/card/household';
+import { canApproveMove, householdErrorKey, inviteChoices, isCardFull, isManager, loadHousehold, type InviteRole, type Member } from '@/lib/card/household';
 import { t } from '@/lib/i18n';
 
 const aisyah: Member = { userId: 'a', role: 'owner', icChecked: true };
@@ -21,8 +21,15 @@ it('counts a Co-owner whose IC is not checked as an adult', () => {
   expect(inviteChoices(nur, card([nur, rizal]))).toEqual({ child: true, adult: true, co_owner: 'has_co_owner' });
   expect(inviteChoices(rizal, card([nur, rizal]))).toEqual({ child: 'not_allowed', adult: 'not_allowed', co_owner: 'not_allowed' });
 });
+it('lets the other of the Owner and Co-owner approve a lost phone, and a manager approve anyone else', () => {
+  expect([canApproveMove(imran, aisyah), canApproveMove(aisyah, imran), canApproveMove(imran, sara)]).toEqual([true, true, true]);
+  expect([canApproveMove(aisyah, aisyah), canApproveMove(sara, aisyah), canApproveMove(rizal, nur)]).toEqual([false, false, false]);
+});
 it('names every household refusal in both languages', () => {
-  for (const code of ['no_card', 'not_allowed', 'bad_role', 'has_co_owner', 'needs_both', 'bad_name', 'name_taken', 'card_full', 'not_found']) {
+  for (const code of [
+    'no_card', 'not_allowed', 'bad_role', 'has_co_owner', 'needs_both', 'bad_name', 'name_taken', 'card_full', 'not_found',
+    'not_this_phone', 'nothing_waiting',
+  ]) {
     expect(householdErrorKey(code), code).not.toBe('common.error');
     expect(t('ms', householdErrorKey(code))).not.toBe(t('en', householdErrorKey(code)));
   }

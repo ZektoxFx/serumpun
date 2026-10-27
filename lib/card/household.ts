@@ -17,6 +17,15 @@ export function isManager(m: Pick<Member, 'role' | 'icChecked'>): boolean {
 }
 
 /**
+ * Whether `approver` may move `member`'s card to their waiting phone, for a lost one. It mirrors `approve_phone_move`
+ * (0025), which stays the authority: a manager, never for themselves, so the Owner's move needs the checked Co-owner, the
+ * Co-owner's the Owner, and anyone else's either of them.
+ */
+export function canApproveMove(approver: Member, member: Member): boolean {
+  return isManager(approver) && approver.userId !== member.userId;
+}
+
+/**
  * What `me` may invite to a card, for the invite sheet. It mirrors `create_invite` (0025), which stays the authority and
  * asks again. A child: any manager. An adult: the Owner, while no checked Co-owner has to agree too (stage 3 adds the
  * two-person approvals). A Co-owner: the Owner, while the card has none and no invite for one is open.
@@ -45,7 +54,7 @@ export function isCardFull(card: { phones: number; phoneLimit: number }, openInv
   return card.phones + openInvites >= card.phoneLimit;
 }
 
-// The `raise exception` codes of create_invite and cancel_invite that a resident can act on.
+// The `raise exception` codes of create_invite, cancel_invite and the moves that a resident can act on.
 const HOUSEHOLD_ERRORS: Record<string, MessageKey> = {
   no_card: 'card.error.no_card',
   card_full: 'card.error.card_full',
@@ -56,9 +65,11 @@ const HOUSEHOLD_ERRORS: Record<string, MessageKey> = {
   bad_name: 'household.error.bad_name',
   name_taken: 'household.error.name_taken',
   not_found: 'household.error.not_found',
+  not_this_phone: 'household.error.not_this_phone',
+  nothing_waiting: 'household.error.nothing_waiting',
 };
 
-/** What to tell a resident whose invite was refused. Anything unexpected is the generic error. A disabled role's reason is told the same way. */
+/** What to tell a resident whose invite or move was refused. Anything unexpected is the generic error. A disabled role's reason is told the same way. */
 export function householdErrorKey(code: string | undefined): MessageKey {
   return code !== undefined && Object.hasOwn(HOUSEHOLD_ERRORS, code) ? HOUSEHOLD_ERRORS[code] : 'common.error';
 }
