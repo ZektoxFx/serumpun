@@ -8,7 +8,7 @@ import { Glyph } from '@/components/ui/Glyph';
 import { Sheet } from '@/components/ui/Sheet';
 import { PASS_TTL_SECONDS, type Place, type PublicJwk } from '@/lib/card/crypto';
 import { leaseEnded } from '@/lib/card/decide';
-import { clearPass, forgetDevice, needsRenewal, openDevice, presentTap, renewalOutcome, savePass, type Device } from '@/lib/card/device';
+import { clearPass, dropForeignPass, forgetDevice, needsRenewal, openDevice, presentTap, renewalOutcome, savePass, type Device } from '@/lib/card/device';
 import type { CardSummary } from '@/lib/card/summary';
 import { useT, type MessageKey } from '@/lib/i18n';
 import { CardFace } from './CardFace';
@@ -29,12 +29,20 @@ function browserIdb(): IDBFactory | undefined {
   }
 }
 
+/** Drops the pass from storage and keeps the keys. Best effort: the pass is out of memory whether or not this works. */
+function dropStoredPass() {
+  const idb = browserIdb();
+  if (idb) clearPass(idb).catch((cause) => console.warn('the old pass could not be dropped from this browser', cause));
+}
+
 /**
- * This browser's device (key and pass). Its pass is renewed as soon as the device is ready, so that it carries the card's
- * state as it is now (a reader that is offline trusts the places and the suspension written in it), and again whenever
- * the browser comes back online or a page left open is down to its last hour. `problem` is why a renewal failed, and what
- * each answer means (renewalOutcome):
- * - the key waits for the card to move to it: asks again every few seconds, the only thing in the app that polls;
+ * This browser's device (key and pass). A pass kept here for another card (an account that signed out of this browser) is
+ * dropped as the device opens, before anything can present it. The pass is renewed as soon as the device is ready, so that
+ * it carries the card's state as it is now (a reader that is offline trusts the places and the suspension written in it),
+ * and again whenever the browser comes back online or a page left open is down to its last hour. `problem` is why a
+ * renewal failed, and what each answer means (renewalOutcome):
+ * - the key waits for the card to move to it: a waiting key has no pass of its own, so the pass held is dropped, and it asks
+ *   again every few seconds, the only thing in the app that polls (an ask that fails in the meantime changes nothing);
  * - the card moved away, or the township refused: the pass is dropped, here and in storage, and nothing asks again until the
  *   page loads again (or, once the card moved, until `claimHere`);
  * - the township could not be reached: the pass stays, and the usual schedule asks again.
@@ -56,14 +64,15 @@ function useDevice(summary: CardSummary) {
 
   // Handles an error answer. A pass the township refused must not stay to present: it goes from memory at once, and then from storage.
   const refuse = (error: MessageKey) => {
-    const { dropPass, retry } = renewalOutcome(error);
-    setProblem(error);
+    const { problem: told, dropPass, retry } = renewalOutcome(error, problem === 'card.move.waiting');
+    setProblem(told);
     if (retry === 'never') halted.current = true;
-    if (!dropPass) return;
+    // A waiting key asks again every few seconds. Once its pass is gone there is nothing to drop, and dropping again would
+    // rewrite storage and restart the device effect on every answer.
+    if (!dropPass || (device !== null && device !== 'unsupported' && device.pass === null)) return;
     setRenewed(false);
-    setDevice((current) => (current === null || current === 'unsupported' ? current : { ...current, pass: null, passExp: null }));
-    const idb = browserIdb();
-    if (idb) clearPass(idb).catch((cause) => console.warn('the old pass could not be dropped from this browser', cause));
+    setDevice((current) => (current === null || current === 'unsupported' || current.pass === null ? current : { ...current, pass: null, passExp: null }));
+    dropStoredPass();
   };
 
   // A new pass for this browser's key, kept with it. Offline there is nobody to ask, and the pass it has stays.
@@ -91,13 +100,17 @@ function useDevice(summary: CardSummary) {
     let live = true;
     void openDevice(browserIdb()).then((found) => {
       if (!live) return;
-      setDevice(found);
-      if (found !== 'unsupported') startTransition(() => renew(found.publicKey));
+      // A pass kept for another card must not be presentable, not even before the township answers.
+      const mine = found === 'unsupported' ? found : dropForeignPass(found, summary.id);
+      setDevice(mine);
+      if (found === 'unsupported') return;
+      if (mine !== found) dropStoredPass();
+      startTransition(() => renew(found.publicKey));
     });
     return () => {
       live = false;
     };
-  }, [attempt]);
+  }, [attempt, summary.id]);
 
   useEffect(() => {
     if (device === null || device === 'unsupported') return;

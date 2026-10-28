@@ -99,6 +99,20 @@ export async function signNote(pass: string, note: TapNote, phoneKey: CryptoKey)
   return `${signed}.${await sign(phoneKey, signed)}`;
 }
 
+/**
+ * The card a pass names, read WITHOUT checking its signature; null when the text is not a readable pass. Only for a browser
+ * looking at the pass it keeps for itself, to not present another card's. Whoever trusts a pass (the reader, the server)
+ * must use verifyPass.
+ */
+export function unverifiedPassCard(token: string): string | null {
+  try {
+    const card = (decodeJson(token.split('.')[0]) as { card?: unknown } | null)?.card;
+    return typeof card === 'string' ? card : null;
+  } catch {
+    return null;
+  }
+}
+
 /** The pass must carry the township's signature, and the note the signature of the phone key written inside that pass. */
 export async function readPresentation(
   presentation: string,

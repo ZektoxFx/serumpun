@@ -58,7 +58,12 @@ export function MoveQuestion({ cardId, device, onMoved }: { cardId: string; devi
         // A demo account never has a new phone waiting (it skips waiting), so there is no demo PIN to show here.
         demoPin={null}
         // A fresh note signed with this browser's key: it proves to the server that the phone being moved is this one.
-        check={async (pin) => moveCard(await presentTap(device, { place: null, facility: null }, Date.now()), pin)}
+        check={async (pin) => {
+          const answer = await moveCard(await presentTap(device, { place: null, facility: null }, Date.now()), pin);
+          // "Not this phone": this browser's key is no longer the active one (the card moved already, or this phone was turned
+          // away). That is where a move would have left it, so it ends as one: the pass goes and the moved note shows.
+          return !answer.ok && answer.error === 'household.error.not_this_phone' ? { ok: true } : answer;
+        }}
         onDone={() => {
           setPinOpen(false);
           onMoved();

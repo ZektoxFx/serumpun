@@ -5,7 +5,7 @@
  */
 // From core, not the index: the index brings React context, and this is library code.
 import type { MessageKey } from '@/lib/i18n/core';
-import { signNote, type Place, type PublicJwk } from './crypto';
+import { signNote, unverifiedPassCard, type Place, type PublicJwk } from './crypto';
 
 export type Device = { keys: CryptoKeyPair; publicKey: PublicJwk; pass: string | null; passExp: number | null };
 
@@ -104,19 +104,35 @@ export function forgetDevice(idb: IDBFactory): Promise<void> {
 }
 
 /**
- * What an error answer to a renewal means for the pass this browser holds, and when it asks again:
- * - the key waits for the card to move to it: there is no pass to drop, and it asks again in a few seconds;
+ * What an error answer to a renewal means for the pass this browser holds, what the page tells the person (`problem`), and
+ * when it asks again:
+ * - the key waits for the card to move to it: a waiting key never has a pass of its own (keys only go waiting, active,
+ *   retired), so a pass held here is another key's, left by an account that signed out of this browser, and must not stay to
+ *   present; it asks again in a few seconds;
  * - the card moved away, or any other card error (no card, a full card, a bad key, a phone on another card): the township
  *   refused, so no pass is left to present, and asking again would only get the same answer until the page loads again;
  * - anything else (the township could not be reached): the pass it has may still be good, so it stays, and the usual schedule
- *   (when the pass is down to its last hour, or the browser comes back online) asks again.
- * Any error not named here counts as a refusal: the pass goes rather than stays.
+ *   (when the pass is down to its last hour, or the browser comes back online) asks again. During a wait that would be too
+ *   slow (with no pass, the usual check comes every 5 minutes): the waiting note stays, and so does the asking every few seconds.
+ * `waiting` is whether the page is showing the waiting note already. Any error not named here counts as a refusal: the pass
+ * goes rather than stays.
  */
-export type RenewalOutcome = { dropPass: boolean; retry: 'soon' | 'usual' | 'never' };
-export function renewalOutcome(error: MessageKey): RenewalOutcome {
-  if (error === 'card.move.waiting') return { dropPass: false, retry: 'soon' };
-  if (error === 'common.error') return { dropPass: false, retry: 'usual' };
-  return { dropPass: true, retry: 'never' };
+export type RenewalOutcome = { problem: MessageKey; dropPass: boolean; retry: 'soon' | 'usual' | 'never' };
+export function renewalOutcome(error: MessageKey, waiting: boolean): RenewalOutcome {
+  if (error === 'card.move.waiting' || (waiting && error === 'common.error')) return { problem: 'card.move.waiting', dropPass: true, retry: 'soon' };
+  if (error === 'common.error') return { problem: error, dropPass: false, retry: 'usual' };
+  return { problem: error, dropPass: true, retry: 'never' };
+}
+
+/**
+ * `device` as the page of card `cardId` may hold it: a stored pass that is for another card, or that cannot be read, goes.
+ * A browser keeps its keys and its pass when an account signs out of it, so the next account to sign in here finds the last
+ * one's, and its key may still be active on the last one's phone. This is a rule on what the pass says, not a check of its
+ * signature (this browser has not got the township's key, and the reader judges every presentation anyway).
+ */
+export function dropForeignPass(device: Device, cardId: string): Device {
+  if (device.pass === null || unverifiedPassCard(device.pass) === cardId) return device;
+  return { ...device, pass: null, passExp: null };
 }
 
 /** No pass at all, or less than an hour left on it. `passExp` is in seconds, `now` in milliseconds. */
