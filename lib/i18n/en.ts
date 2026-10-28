@@ -1222,6 +1222,10 @@ const en = {
     'This phone is waiting for your card. Have your old phone? Open Me there and move the card here. Old phone lost? The Owner or Co-owner approves it in Household. No one else can approve? Take your IC to the office.',
   'card.move.moved': 'Your card is on another phone now.',
   'card.move.error.proof': "This phone couldn't prove it holds the card. Make sure its clock is right, then try again.",
+  'card.move.question': 'Move the card to your new phone?',
+  'card.move.yes': 'Yes, move it',
+  'card.move.no': "No, that wasn't me",
+  'card.move.useHere': 'Use the card on this phone',
 
   // Access card: the card in Me and its PIN pad (components/card/*). The places are named by reader.place.*
   'card.title': 'Household card',
@@ -1324,6 +1328,10 @@ const en = {
   'household.error.not_found': 'That invite is not open any more.',
   'household.error.not_this_phone': "Your card isn't on this phone any more, so it can't be moved from here.",
   'household.error.nothing_waiting': 'No new phone is waiting any more.',
+  'household.move.waiting': 'New phone waiting',
+  'household.move.approve': 'Approve',
+  'household.move.approveHint': 'Only if their old phone is lost: approving stops it at once.',
+  'household.move.approveTitle': "Approve {name}'s new phone",
   'invite.name': 'Their name',
   'invite.role': 'Role',
   'invite.why.needs_both': "Adding an adult needs the Owner and the Co-owner to agree. That isn't available yet.",

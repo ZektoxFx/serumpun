@@ -2,21 +2,23 @@
 
 import Link from 'next/link';
 import { startTransition, useEffect, useEffectEvent, useRef, useState, type PointerEvent } from 'react';
-import { renewPass } from '@/app/(app)/me/card/actions';
+import { checkCardPin, renewPass } from '@/app/(app)/me/card/actions';
 import { Button, buttonClasses } from '@/components/ui/Button';
 import { Glyph } from '@/components/ui/Glyph';
 import { Sheet } from '@/components/ui/Sheet';
 import { PASS_TTL_SECONDS, type Place, type PublicJwk } from '@/lib/card/crypto';
 import { leaseEnded } from '@/lib/card/decide';
-import { needsRenewal, openDevice, presentTap, savePass, type Device } from '@/lib/card/device';
+import { clearPass, forgetDevice, needsRenewal, openDevice, presentTap, renewalOutcome, savePass, type Device } from '@/lib/card/device';
 import type { CardSummary } from '@/lib/card/summary';
 import { useT, type MessageKey } from '@/lib/i18n';
 import { CardFace } from './CardFace';
 import { CardQr } from './CardQr';
-import { PinPad } from './PinPad';
+import { MoveQuestion } from './MoveQuestion';
+import { PinSheet } from './PinSheet';
 
 const IDLE_MS = 60_000; // the open card locks again after this long without a touch
 const RECHECK_MS = 300_000; // while the page stays open, how often the pass is looked at again
+const WAITING_RETRY_MS = 5_000; // while the card waits to move to this phone, how often it asks again
 
 // Some in-app browsers have no IndexedDB, and some throw when it is touched at all (site data blocked).
 function browserIdb(): IDBFactory | undefined {
@@ -30,12 +32,39 @@ function browserIdb(): IDBFactory | undefined {
 /**
  * This browser's device (key and pass). Its pass is renewed as soon as the device is ready, so that it carries the card's
  * state as it is now (a reader that is offline trusts the places and the suspension written in it), and again whenever
- * the browser comes back online or a page left open is down to its last hour. `problem` is why a renewal failed.
+ * the browser comes back online or a page left open is down to its last hour. `problem` is why a renewal failed, and what
+ * each answer means (renewalOutcome):
+ * - the key waits for the card to move to it: asks again every few seconds, the only thing in the app that polls;
+ * - the card moved away, or the township refused: the pass is dropped, here and in storage, and nothing asks again until the
+ *   page loads again (or, once the card moved, until `claimHere`);
+ * - the township could not be reached: the pass stays, and the usual schedule asks again.
+ * `holdsCard` says this browser's key is the active one, as far as the page can tell: the township has given this page a
+ * pass for it, and the page's `moveWaiting` is not about this browser's own wait. The flag is read when the server renders
+ * the page and the waiting browser shares the phone, so it sees the flag too; once it has the card the flag is stale (it
+ * was about itself) until the server sends the page again, as a new `summary`. It must not be asked to move the card it just got.
  */
-function useDevice() {
+function useDevice(summary: CardSummary) {
   const [device, setDevice] = useState<Device | 'unsupported' | null>(null);
   const [problem, setProblem] = useState<MessageKey | null>(null);
+  const [renewed, setRenewed] = useState(false);
+  const [waitedAs, setWaitedAs] = useState<CardSummary | null>(null);
+  // `claimHere` bumps it to open the device again, which makes a new key once the old one is forgotten.
+  const [attempt, setAttempt] = useState(0);
   const renewing = useRef(false);
+  // Set by a refusal that asking again would not change: no renewal starts from the schedule until the page loads again.
+  const halted = useRef(false);
+
+  // Handles an error answer. A pass the township refused must not stay to present: it goes from memory at once, and then from storage.
+  const refuse = (error: MessageKey) => {
+    const { dropPass, retry } = renewalOutcome(error);
+    setProblem(error);
+    if (retry === 'never') halted.current = true;
+    if (!dropPass) return;
+    setRenewed(false);
+    setDevice((current) => (current === null || current === 'unsupported' ? current : { ...current, pass: null, passExp: null }));
+    const idb = browserIdb();
+    if (idb) clearPass(idb).catch((cause) => console.warn('the old pass could not be dropped from this browser', cause));
+  };
 
   // A new pass for this browser's key, kept with it. Offline there is nobody to ask, and the pass it has stays.
   const renew = useEffectEvent(async (publicKey: PublicJwk) => {
@@ -43,14 +72,16 @@ function useDevice() {
     renewing.current = true;
     try {
       const answer = await renewPass(publicKey);
-      if ('error' in answer) return setProblem(answer.error);
+      if ('error' in answer) return refuse(answer.error);
       // The township signs a pass for PASS_TTL_SECONDS from now.
       const passExp = Math.floor(Date.now() / 1000) + PASS_TTL_SECONDS;
       await savePass(browserIdb()!, answer.pass, passExp);
+      if (problem === 'card.move.waiting') setWaitedAs(summary);
       setProblem(null);
+      setRenewed(true);
       setDevice((current) => (current === null || current === 'unsupported' ? current : { ...current, pass: answer.pass, passExp }));
     } catch {
-      setProblem('common.error');
+      refuse('common.error');
     } finally {
       renewing.current = false;
     }
@@ -66,12 +97,12 @@ function useDevice() {
     return () => {
       live = false;
     };
-  }, []);
+  }, [attempt]);
 
   useEffect(() => {
     if (device === null || device === 'unsupported') return;
     const check = () => {
-      if (needsRenewal(device.passExp, Date.now())) startTransition(() => renew(device.publicKey));
+      if (!halted.current && needsRenewal(device.passExp, Date.now())) startTransition(() => renew(device.publicKey));
     };
     window.addEventListener('online', check);
     const timer = setInterval(check, RECHECK_MS);
@@ -81,7 +112,34 @@ function useDevice() {
     };
   }, [device]);
 
-  return { device, problem };
+  // While the key waits for the card to move to it, ask again every few seconds: the old phone or a manager may have moved it.
+  const waitingKey = problem === 'card.move.waiting' && device !== null && device !== 'unsupported' ? device.publicKey : null;
+  useEffect(() => {
+    if (waitingKey === null) return;
+    const timer = setInterval(() => startTransition(() => renew(waitingKey)), WAITING_RETRY_MS);
+    return () => clearInterval(timer);
+  }, [waitingKey]);
+
+  /** The old phone moved the card away on purpose: this browser is in the state the township's `moved` answer would leave it in. */
+  const onMoved = () => refuse('card.move.moved');
+
+  /** "Use the card on this phone", once the card moved away: forget the retired key, and open the device again, which asks for the card with a new key. */
+  const claimHere = async () => {
+    const idb = browserIdb();
+    if (!idb) return;
+    try {
+      await forgetDevice(idb);
+    } catch {
+      return setProblem('common.error');
+    }
+    halted.current = false;
+    setProblem(null);
+    setRenewed(false);
+    setDevice(null);
+    setAttempt((n) => n + 1);
+  };
+
+  return { device, problem, holdsCard: renewed && waitedAs !== summary, onMoved, claimHere };
 }
 
 /** Whether a point is over the reader (the element marked `data-reader-drop`). The card in the hand is let through first, or it would be what is found. */
@@ -108,7 +166,7 @@ export function HouseholdCard({
   reader?: { place: Place; facility: string | null; onPresent: (presentation: string) => void; result: 'granted' | 'denied' | null };
 }) {
   const t = useT();
-  const { device, problem } = useDevice();
+  const { device, problem, holdsCard, onMoved, claimHere } = useDevice(summary);
   const [today] = useState(() => new Date());
   const [pinOpen, setPinOpen] = useState(false);
   const [open, setOpen] = useState(false);
@@ -172,6 +230,12 @@ export function HouseholdCard({
     onPointerCancel: () => setHeld(null),
   };
 
+  // A new browser waits for this phone's card. Only the browser that holds it is asked, and only once this page has had its pass
+  // from the township: a pass kept from before could be of a key that has moved.
+  const movable = summary.moveWaiting && !reader && holdsCard ? usable : null;
+  // Told in place of an error: neither is a mistake, and each says what to do next.
+  const moveNote = problem === 'card.move.waiting' || problem === 'card.move.moved' ? problem : null;
+
   return (
     <section
       aria-label={t('card.title')}
@@ -179,6 +243,8 @@ export function HouseholdCard({
       onPointerDownCapture={() => setTouches((n) => n + 1)}
       onKeyDownCapture={() => setTouches((n) => n + 1)}
     >
+      {movable && <MoveQuestion cardId={summary.id} device={movable} onMoved={onMoved} />}
+
       {open ? (
         <>
           <div ref={openCard} tabIndex={-1} className="animate-card-pop outline-none motion-reduce:animate-none">
@@ -251,24 +317,39 @@ export function HouseholdCard({
         </button>
       )}
 
-      {error && (
-        <p role="alert" className="text-sm font-bold text-red-text">
-          {t(error)}
-        </p>
+      {moveNote ? (
+        <div className="grid gap-2 rounded-xl bg-soft px-4 py-3">
+          <p role="status" className="text-sm text-muted-2">
+            {t(moveNote)}
+          </p>
+          {moveNote === 'card.move.moved' && (
+            <Button type="button" onClick={() => void claimHere()}>
+              {t('card.move.useHere')}
+            </Button>
+          )}
+        </div>
+      ) : (
+        error && (
+          <p role="alert" className="text-sm font-bold text-red-text">
+            {t(error)}
+          </p>
+        )
       )}
 
       {device !== 'unsupported' && (
         <>
-          <Sheet open={pinOpen} onClose={() => setPinOpen(false)} title={t('card.pin.title')}>
-            <PinPad
-              cardId={summary.id}
-              demoPin={demoPin}
-              onUnlock={() => {
-                setPinOpen(false);
-                setOpen(true);
-              }}
-            />
-          </Sheet>
+          <PinSheet
+            open={pinOpen}
+            onClose={() => setPinOpen(false)}
+            title={t('card.pin.title')}
+            cardId={summary.id}
+            demoPin={demoPin}
+            check={checkCardPin}
+            onDone={() => {
+              setPinOpen(false);
+              setOpen(true);
+            }}
+          />
           <Sheet open={wallet} onClose={() => setWallet(false)} title={t('card.wallet')}>
             <p className="pb-2 text-base">{t('card.wallet.body')}</p>
           </Sheet>

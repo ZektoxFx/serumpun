@@ -1,13 +1,14 @@
 // Beyond the brief's device tests: what the closed card says, in the states the live demo cannot be put into on demand.
 import { renderToStaticMarkup } from 'react-dom/server';
 // The card calls these server actions from effects and handlers only, which a static render never reaches.
-vi.mock('@/app/(app)/me/card/actions', () => ({ renewPass: vi.fn(), checkCardPin: vi.fn() }));
+vi.mock('@/app/(app)/me/card/actions', () => ({ renewPass: vi.fn(), checkCardPin: vi.fn(), moveCard: vi.fn(), declineMove: vi.fn() }));
 import { HouseholdCard } from '@/components/card/HouseholdCard';
+import { MoveQuestion } from '@/components/card/MoveQuestion';
 import type { CardSummary } from '@/lib/card/summary';
 
 const summary: CardSummary = {
   id: 'c18', unit: 'No. 18, Jalan Elmina Valley 3/2', places: ['facilities', 'gym', 'pool'], suspended: false, reason: null,
-  leaseEnd: null, phones: 3, phoneLimit: 4, role: 'owner',
+  leaseEnd: null, phones: 3, phoneLimit: 4, role: 'owner', moveWaiting: false,
 };
 const card = (over: Partial<CardSummary> = {}) => renderToStaticMarkup(<HouseholdCard summary={{ ...summary, ...over }} demoPin={null} />);
 
@@ -36,4 +37,8 @@ it('gives a suspended card its own word over a lease that has ended too, as the 
   const html = card({ suspended: true, reason: 'Rent overdue', leaseEnd: '2020-01-01' });
   expect(html).toContain('Suspended · Rent overdue');
   expect(html).not.toContain('Lease ended');
+});
+it('asks the old phone whether to move the card, with Yes and No', () => {
+  const html = renderToStaticMarkup(<MoveQuestion cardId="c18" device={{ keys: {} as CryptoKeyPair, pass: 'p' }} onMoved={() => {}} />);
+  for (const text of ['Move the card to your new phone?', 'Yes, move it', 'No, that wasn&#x27;t me']) expect(html).toContain(text);
 });

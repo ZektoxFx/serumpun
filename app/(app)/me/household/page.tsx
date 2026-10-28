@@ -1,15 +1,17 @@
 import type { Metadata } from 'next';
 import { AppHeader } from '@/components/app/AppHeader';
+import { ApproveMove } from '@/components/card/ApproveMove';
 import { CancelInvite } from '@/components/card/CancelInvite';
 import { InviteSheet } from '@/components/card/InviteSheet';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Tag } from '@/components/ui/Tag';
-import { INVITE_ROLES, isCardFull, isManager, loadHousehold } from '@/lib/card/household';
+import { canApproveMove, INVITE_ROLES, isCardFull, isManager, loadHousehold } from '@/lib/card/household';
 import { DEMO_PIN } from '@/lib/card/pin';
 import { loadMyCard } from '@/lib/card/summary';
 import { clockTime } from '@/lib/domain/time';
 import { t } from '@/lib/i18n';
 import { getLang } from '@/lib/i18n/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { requireMember } from '@/lib/supabase/auth';
 import { createClient } from '@/lib/supabase/server';
 
@@ -25,6 +27,9 @@ const boxHeading = 'text-xs font-extrabold uppercase tracking-wide text-muted';
  * office has checked, can invite; what each may is worked out in lib/card/household.ts, and create_invite decides again.
  * `?invite=co_owner` (from "Add a Co-owner?" on Me) opens the invite sheet on that role. A full card (its phones and open
  * invites reach the limit) says so in place of the button, and `?invite=` opens nothing.
+ *
+ * A person whose new phone waits for their card shows "New phone waiting". A manager who may (canApproveMove) can approve it
+ * for a lost phone, with their own PIN; the old phone, when it is not lost, moves the card itself in Me.
  */
 export default async function HouseholdPage({ searchParams }: PageProps<'/me/household'>) {
   const profile = await requireMember();
@@ -43,10 +48,20 @@ export default async function HouseholdPage({ searchParams }: PageProps<'/me/hou
       </>
     );
   }
-  const [{ people, invites, me, choices }, claims] = await Promise.all([
+  const [{ people, invites, me, choices }, claims, waiting] = await Promise.all([
     loadHousehold(supabase, card.id, profile.id, now),
     supabase.auth.getClaims(),
+    // Members can't read each other's keys (row-level security shows a person only their own phone's), so who has a new phone
+    // waiting is read with the service role, for this card's phones only. Only the people come back, never a key.
+    createAdminClient()
+      .from('card_phones')
+      .select('user_id, phone_keys!inner(state)')
+      .eq('card_id', card.id)
+      .eq('phone_keys.state', 'waiting')
+      .overrideTypes<{ user_id: string | null }[], { merge: false }>(),
   ]);
+  if (waiting.error) throw new Error(`card keys lookup failed: ${waiting.error.message}`);
+  const moving = new Set(waiting.data.map((phone) => phone.user_id));
   // A demo account is shared by every visitor, so its PIN is shown on the pad. `app_metadata` is set by the seed only.
   const demo = claims.data?.claims.app_metadata?.demo;
   const asked = (await searchParams).invite;
@@ -61,17 +76,27 @@ export default async function HouseholdPage({ searchParams }: PageProps<'/me/hou
           </h2>
           <ul className="mt-2 divide-y divide-line">
             {people.map((person) => (
-              <li key={person.userId} className="flex items-center justify-between gap-3 py-2">
-                <span className="grid min-w-0">
-                  <span className="break-words text-base">
-                    <span className="font-bold">{person.name}</span>
-                    {person.userId === me.userId && <span className="text-muted-2"> · {t(lang, 'household.you')}</span>}
+              <li key={person.userId} className="py-2">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="grid min-w-0">
+                    <span className="break-words text-base">
+                      <span className="font-bold">{person.name}</span>
+                      {person.userId === me.userId && <span className="text-muted-2"> · {t(lang, 'household.you')}</span>}
+                    </span>
+                    {person.role === 'co_owner' && !person.icChecked && (
+                      <span className="text-sm text-muted-2">{t(lang, 'household.icPending')}</span>
+                    )}
+                    {moving.has(person.userId) && (
+                      <span className="text-sm font-bold text-amber-text">{t(lang, 'household.move.waiting')}</span>
+                    )}
                   </span>
-                  {person.role === 'co_owner' && !person.icChecked && (
-                    <span className="text-sm text-muted-2">{t(lang, 'household.icPending')}</span>
-                  )}
-                </span>
-                <Tag className="shrink-0 whitespace-nowrap">{t(lang, `household.role.${person.role}`)}</Tag>
+                  <Tag className="shrink-0 whitespace-nowrap">{t(lang, `household.role.${person.role}`)}</Tag>
+                </div>
+                {moving.has(person.userId) && canApproveMove(me, person) && (
+                  <div className="mt-2">
+                    <ApproveMove member={person.userId} name={person.name} cardId={card.id} demoPin={demo ? DEMO_PIN : null} />
+                  </div>
+                )}
               </li>
             ))}
           </ul>

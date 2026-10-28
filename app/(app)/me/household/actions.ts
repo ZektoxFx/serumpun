@@ -56,5 +56,9 @@ export async function approveMove(member: string, pin: string): Promise<PinAnswe
   if (!isPinFormat(pin)) return { ok: false, error: 'card.pin.error.format' };
   const { data, error } = await (await createClient()).rpc('approve_phone_move', { p_member: member, p_pin: pin });
   refresh();
-  return error ? { ok: false, error: refused('approve_phone_move', error.message) } : pinAnswer(data, new Date(), lang);
+  if (error) {
+    // `not_found` is a member who is not on this card, so a stale page: it reads as no phone waiting, not as a lost invite.
+    return { ok: false, error: refused('approve_phone_move', error.message === 'not_found' ? 'nothing_waiting' : error.message) };
+  }
+  return pinAnswer(data, new Date(), lang);
 }

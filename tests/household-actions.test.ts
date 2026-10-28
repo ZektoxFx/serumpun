@@ -145,11 +145,17 @@ describe('approveMove', () => {
     expect(h.refresh).toHaveBeenCalledOnce();
   });
   it('refreshes after a refusal too: the page was out of date, so the waiting phone should not stay on it', async () => {
-    for (const [code, key] of [['nothing_waiting', 'household.error.nothing_waiting'], ['not_allowed', 'household.error.not_allowed'], ['not_found', 'household.error.not_found']]) {
+    for (const [code, key] of [['nothing_waiting', 'household.error.nothing_waiting'], ['not_allowed', 'household.error.not_allowed']]) {
       h.rpc.mockResolvedValueOnce({ data: null, error: { message: code } });
       expect(await approveMove('u-sara', '123456'), code).toEqual({ ok: false, error: key });
     }
-    expect(h.refresh).toHaveBeenCalledTimes(3);
+    expect(h.refresh).toHaveBeenCalledTimes(2);
+    expect(console.error).not.toHaveBeenCalled();
+  });
+  it("answers a member who is not on the approver's card (a stale page) as no new phone waiting, not as an invite that is gone", async () => {
+    h.rpc.mockResolvedValueOnce({ data: null, error: { message: 'not_found' } });
+    expect(await approveMove('u-sara', '123456')).toEqual({ ok: false, error: 'household.error.nothing_waiting' });
+    expect(h.refresh).toHaveBeenCalledOnce();
     expect(console.error).not.toHaveBeenCalled();
   });
   it('says something went wrong for anything else, and logs the message but never the PIN', async () => {

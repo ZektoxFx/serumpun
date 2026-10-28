@@ -1223,6 +1223,10 @@ const ms: Record<keyof typeof en, string> = {
     'Telefon ini sedang menunggu kad anda. Ada telefon lama? Buka Saya di sana dan pindahkan kad ke sini. Telefon lama hilang? Pemilik atau Pemilik bersama meluluskannya di Isi rumah. Tiada orang lain yang boleh meluluskannya? Bawa IC anda ke pejabat.',
   'card.move.moved': 'Kad anda kini berada pada telefon lain.',
   'card.move.error.proof': 'Telefon ini tidak dapat membuktikan ia memegang kad. Pastikan jamnya betul, kemudian cuba lagi.',
+  'card.move.question': 'Pindahkan kad ke telefon baharu anda?',
+  'card.move.yes': 'Ya, pindahkan',
+  'card.move.no': 'Tidak, itu bukan saya',
+  'card.move.useHere': 'Gunakan kad pada telefon ini',
 
   // Kad akses: kad dalam Saya dan pad PIN-nya (components/card/*). Tempat dinamakan oleh reader.place.*
   'card.title': 'Kad isi rumah',
@@ -1326,6 +1330,10 @@ const ms: Record<keyof typeof en, string> = {
   'household.error.not_found': 'Jemputan itu tidak terbuka lagi.',
   'household.error.not_this_phone': 'Kad anda tiada lagi pada telefon ini, jadi ia tidak boleh dipindahkan dari sini.',
   'household.error.nothing_waiting': 'Tiada lagi telefon baharu yang menunggu.',
+  'household.move.waiting': 'Telefon baharu menunggu',
+  'household.move.approve': 'Luluskan',
+  'household.move.approveHint': 'Hanya jika telefon lama mereka hilang: kelulusan menghentikannya serta-merta.',
+  'household.move.approveTitle': 'Luluskan telefon baharu {name}',
   'invite.name': 'Nama mereka',
   'invite.role': 'Peranan',
   'invite.why.needs_both': 'Menambah orang dewasa memerlukan persetujuan Pemilik dan Pemilik bersama. Itu belum tersedia.',

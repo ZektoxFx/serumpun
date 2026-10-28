@@ -12,6 +12,8 @@ export type CardSummary = {
   phones: number;
   phoneLimit: number;
   role: 'owner' | 'co_owner' | 'adult' | 'child';
+  /** A new browser has asked for the caller's own phone's card and waits: the old phone is asked, and a manager can approve. */
+  moveWaiting: boolean;
 };
 
 type MemberRow = {
@@ -44,11 +46,13 @@ export async function loadMyCard(supabase: SupabaseClient, userId: string): Prom
   if (!member) return null;
 
   const { card } = member;
-  const { count, error: phonesError } = await supabase
-    .from('card_phones')
-    .select('id', { count: 'exact', head: true })
-    .eq('card_id', card.id);
-  if (phonesError) throw new Error(`card phones lookup failed: ${phonesError.message}`);
+  const [phones, waiting] = await Promise.all([
+    supabase.from('card_phones').select('id', { count: 'exact', head: true }).eq('card_id', card.id),
+    // Row-level security shows a person only their own phone's keys, so this asks about their own phone and no one else's.
+    supabase.from('phone_keys').select('id', { count: 'exact', head: true }).eq('state', 'waiting'),
+  ]);
+  if (phones.error) throw new Error(`card phones lookup failed: ${phones.error.message}`);
+  if (waiting.error) throw new Error(`card keys lookup failed: ${waiting.error.message}`);
 
   return {
     id: card.id,
@@ -57,8 +61,9 @@ export async function loadMyCard(supabase: SupabaseClient, userId: string): Prom
     suspended: card.status === 'suspended',
     reason: card.suspended_reason,
     leaseEnd: card.unit.lease_end,
-    phones: count ?? 0,
+    phones: phones.count ?? 0,
     phoneLimit: card.phone_limit,
     role: member.role,
+    moveWaiting: (waiting.count ?? 0) > 0,
   };
 }
