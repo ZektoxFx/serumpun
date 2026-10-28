@@ -180,10 +180,11 @@ describe('declineMove', () => {
     expect(h.adminRpc).not.toHaveBeenCalled();
     expect(h.refresh).toHaveBeenCalledOnce();
   });
-  it('says something went wrong when the database errors, and logs it', async () => {
+  it('says something went wrong when the database errors, logs it, and still refreshes the page', async () => {
     answer(null, { message: 'boom' });
     expect(await declineMove()).toEqual({ error: 'common.error' });
     expect(console.error).toHaveBeenCalledWith('decline_phone_move failed: boom');
+    expect(h.refresh).toHaveBeenCalledOnce();
   });
 });
 

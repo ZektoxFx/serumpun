@@ -2,18 +2,11 @@
 
 import { refresh } from 'next/cache';
 import { formatCode, hashCode, newCode } from '@/lib/card/codes';
-import { householdErrorKey, type InviteRole } from '@/lib/card/household';
+import { refused, type InviteRole } from '@/lib/card/household';
 import { isPinFormat, pinAnswer, type PinAnswer } from '@/lib/card/pin';
 import type { MessageKey } from '@/lib/i18n';
 import { requireMember } from '@/lib/supabase/auth';
 import { createClient } from '@/lib/supabase/server';
-
-// A refusal is told in words; anything unexpected is logged, and only its message.
-function refused(rpc: string, message: string): MessageKey {
-  const key = householdErrorKey(message);
-  if (key === 'common.error') console.error(`${rpc} failed: ${message}`);
-  return key;
-}
 
 /**
  * A manager invites someone to the card, confirmed with their PIN. The code is made here and only its hash goes to the

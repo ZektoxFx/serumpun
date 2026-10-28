@@ -74,6 +74,16 @@ export function householdErrorKey(code: string | undefined): MessageKey {
   return code !== undefined && Object.hasOwn(HOUSEHOLD_ERRORS, code) ? HOUSEHOLD_ERRORS[code] : 'common.error';
 }
 
+/**
+ * For an action to answer a refused `rpc`: a refusal is told in words, and anything unexpected is logged as well, under
+ * the rpc that failed and only its message. It sits here because a 'use server' file may export only async functions.
+ */
+export function refused(rpc: string, message: string): MessageKey {
+  const key = householdErrorKey(message);
+  if (key === 'common.error') console.error(`${rpc} failed: ${message}`);
+  return key;
+}
+
 /** A person on the card, with the name the household sees. */
 export type Person = Member & { name: string };
 /** An invite nobody has used or cancelled, and that has not run out. */

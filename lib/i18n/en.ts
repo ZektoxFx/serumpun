@@ -1219,7 +1219,7 @@ const en = {
 
   // Access card: moving to a new phone (lib/card/server.ts, app/(app)/me/card/actions.ts)
   'card.move.waiting':
-    'This phone is waiting for your card. Have your old phone? Open Me there and move the card here. Old phone lost? The Owner or Co-owner approves it in Household. Alone on the card? Take your IC to the office.',
+    'This phone is waiting for your card. Have your old phone? Open Me there and move the card here. Old phone lost? The Owner or Co-owner approves it in Household. No one else can approve? Take your IC to the office.',
   'card.move.moved': 'Your card is on another phone now.',
   'card.move.error.proof': "This phone couldn't prove it holds the card. Make sure its clock is right, then try again.",
 

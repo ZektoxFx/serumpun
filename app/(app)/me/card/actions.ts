@@ -3,7 +3,7 @@
 import { refresh } from 'next/cache';
 import { publicJwkFromSigningKey, readPresentation, type PublicJwk } from '@/lib/card/crypto';
 import { NOTE_FRESH_MS } from '@/lib/card/decide';
-import { householdErrorKey } from '@/lib/card/household';
+import { refused } from '@/lib/card/household';
 import { cardErrorKey, isPinFormat, pinAnswer, type PinAnswer } from '@/lib/card/pin';
 import { issuePass } from '@/lib/card/server';
 import { env } from '@/lib/env';
@@ -52,11 +52,7 @@ export async function moveCard(presentation: string, pin: string): Promise<PinAn
   const { data, error } = await createAdminClient().rpc('move_phone_key', {
     p_user: id, p_x: read.pass.key.x, p_y: read.pass.key.y, p_pin: pin,
   });
-  if (error) {
-    const key = householdErrorKey(error.message);
-    if (key === 'common.error') console.error(`move_phone_key failed: ${error.message}`);
-    return { ok: false, error: key };
-  }
+  if (error) return { ok: false, error: refused('move_phone_key', error.message) };
   return pinAnswer(data, new Date(), lang);
 }
 

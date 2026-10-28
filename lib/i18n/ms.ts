@@ -1220,7 +1220,7 @@ const ms: Record<keyof typeof en, string> = {
 
   // Kad akses: berpindah ke telefon baharu (lib/card/server.ts, app/(app)/me/card/actions.ts)
   'card.move.waiting':
-    'Telefon ini sedang menunggu kad anda. Ada telefon lama? Buka Saya di sana dan pindahkan kad ke sini. Telefon lama hilang? Pemilik atau Pemilik bersama meluluskannya di Isi rumah. Seorang sahaja pada kad? Bawa IC anda ke pejabat.',
+    'Telefon ini sedang menunggu kad anda. Ada telefon lama? Buka Saya di sana dan pindahkan kad ke sini. Telefon lama hilang? Pemilik atau Pemilik bersama meluluskannya di Isi rumah. Tiada orang lain yang boleh meluluskannya? Bawa IC anda ke pejabat.',
   'card.move.moved': 'Kad anda kini berada pada telefon lain.',
   'card.move.error.proof': 'Telefon ini tidak dapat membuktikan ia memegang kad. Pastikan jamnya betul, kemudian cuba lagi.',
 

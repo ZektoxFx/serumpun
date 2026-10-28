@@ -1,4 +1,4 @@
-import { canApproveMove, householdErrorKey, inviteChoices, isCardFull, isManager, loadHousehold, type InviteRole, type Member } from '@/lib/card/household';
+import { canApproveMove, householdErrorKey, inviteChoices, isCardFull, isManager, loadHousehold, refused, type InviteRole, type Member } from '@/lib/card/household';
 import { t } from '@/lib/i18n';
 
 const aisyah: Member = { userId: 'a', role: 'owner', icChecked: true };
@@ -41,6 +41,14 @@ it('says anything unexpected, or nothing at all, is the generic error', () => {
   expect(householdErrorKey(undefined)).toBe('common.error');
   expect(householdErrorKey('toString')).toBe('common.error');
   expect(householdErrorKey('canceling statement due to statement timeout')).toBe('common.error');
+});
+it('tells a refusal without logging it, and logs only the message of anything unexpected, under the rpc that failed', () => {
+  const log = vi.spyOn(console, 'error').mockImplementation(() => {});
+  expect(refused('create_invite', 'name_taken')).toBe('household.error.name_taken');
+  expect(log).not.toHaveBeenCalled();
+  expect(refused('move_phone_key', 'boom')).toBe('common.error');
+  expect(log.mock.calls).toEqual([['move_phone_key failed: boom']]);
+  log.mockRestore();
 });
 it('makes the Owner, and a Co-owner whose IC the office has checked, the managers', () => {
   expect([aisyah, imran, nur].map(isManager)).toEqual([true, true, true]);
