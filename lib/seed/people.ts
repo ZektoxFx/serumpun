@@ -1,11 +1,13 @@
 import { createClient, type SupabaseClient, type User } from '@supabase/supabase-js';
 import { env } from '@/lib/env';
 
-/** The accounts behind the landing page's "Try as" buttons. All four use DEMO_PASSWORD. */
+/**
+ * The accounts behind the landing page's "Try as" buttons. All three use DEMO_PASSWORD. Nur is not one: "Try registering"
+ * makes her afresh each time (lib/seed/cards.ts), so the reset deletes stage 1's `nur.demo@example.com` like any visitor's.
+ */
 export const DEMO_EMAIL = {
   aisyah: 'aisyah.demo@example.com',
   daniel: 'daniel.demo@example.com',
-  nur: 'nur.demo@example.com',
   office: 'office.demo@example.com',
 } as const;
 export type DemoAccount = keyof typeof DEMO_EMAIL;
@@ -38,7 +40,6 @@ type Person = {
 const PEOPLE = {
   aisyah: { email: DEMO_EMAIL.aisyah, name: 'Aisyah Rahman', neighbourhood: 'Elmina Valley 3', unit: 'No. 18, Jalan Elmina Valley 3/2', status: 'verified', joinedDaysAgo: 420 },
   daniel: { email: DEMO_EMAIL.daniel, name: 'Daniel Tan', neighbourhood: 'Elmina Valley 3', unit: 'No. 7, Jalan Elmina Valley 3/4', status: 'verified', joinedDaysAgo: 380 },
-  nur: { email: DEMO_EMAIL.nur, name: 'Nur Iman', neighbourhood: 'Elmina Green', unit: 'No. 25, Jalan Elmina Green 1/3', status: 'pending', joinedDaysAgo: 1 / 12 }, // 2 hours ago
   office: { email: DEMO_EMAIL.office, name: 'Puan Rozita', neighbourhood: 'City of Elmina', unit: null, status: 'verified', role: 'management', joinedDaysAgo: 900 },
   meiLing: { email: 'meiling.tan@example.com', name: 'Mei Ling Tan', neighbourhood: 'Elmina Valley 3', unit: 'No. 4, Jalan Elmina Valley 3/1', status: 'verified', joinedDaysAgo: 610 },
   priya: { email: 'priya.raman@example.com', name: 'Priya Raman', neighbourhood: 'Elmina Gardens', unit: 'No. 12, Jalan Elmina Gardens 2/5', status: 'verified', joinedDaysAgo: 540 },
@@ -150,7 +151,7 @@ async function createAccount(admin: SupabaseClient, key: PersonKey, person: Pers
 
 /**
  * Everyone's profile, and the unit of those who have a home. 'rewrite' puts each back to the seeded state, so a reset also
- * undoes what a demo changed (Nur approved, a name or language edited); 'keep' adds only the missing ones.
+ * undoes what a demo changed (a name or language edited); 'keep' adds only the missing ones.
  */
 async function saveProfiles(admin: SupabaseClient, townshipId: string, ids: Record<PersonKey, string>, now: Date, onExisting: 'keep' | 'rewrite') {
   const options = { ignoreDuplicates: onExisting === 'keep' };
@@ -186,9 +187,10 @@ export async function seedPeople(admin: SupabaseClient, now: Date): Promise<Peop
 
   const { all, found } = await findAccounts(admin);
 
-  // Every other account is a visitor's sign-up. On the public demo anyone can open the Management Office, so a reset
-  // must not leave their names and house numbers readable there (Task 3 ruling). Deleting the auth user removes the
-  // profile with it. Going first also frees a demo email a visitor took, before restoreDemoLogin puts it back.
+  // Every other account is a visitor's: a registration (even a `resident-…` one whose clean-up failed and left no profile)
+  // or stage 1's Nur. On the public demo anyone can open the Management Office, so a reset must not leave their names and
+  // house numbers readable there (Task 3 ruling). Deleting the auth user removes the profile with it. Going first also
+  // frees a demo email a visitor took, before restoreDemoLogin puts it back.
   const keep = new Set([...found.values()].map((user) => user?.id));
   let removed = 0;
   for (const user of all.filter((u) => !keep.has(u.id))) {

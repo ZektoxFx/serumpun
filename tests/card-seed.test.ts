@@ -1,4 +1,4 @@
-import { DEMO_CARD_RESET, DEMO_CARD_UNIT, cardRows } from '@/lib/seed/cards';
+import { DEMO_CARD_RESET, DEMO_CARD_UNIT, DEMO_REGISTER, cardRows } from '@/lib/seed/cards';
 import type { People } from '@/lib/seed/people';
 
 const now = new Date('2026-10-19T04:00:00Z'); // noon in Malaysia
@@ -34,7 +34,12 @@ it("leaves Nur's unit and ten more without a card", () => {
   const withCard = new Set(cards.map((c) => c.unit_label));
   const without = units.filter((u) => !withCard.has(u.label)).map((u) => u.label);
   expect(without).toHaveLength(11);
-  expect(without).toContain('No. 25, Jalan Elmina Green 1/3');
+  expect(without).toContain(DEMO_REGISTER.label);
+});
+it("keeps Nur's home on record with her made-up number, and labels phones by the name people go by", () => {
+  expect(units.find((u) => u.label === DEMO_REGISTER.label)).toMatchObject({ record_name: 'Nur Iman', record_tenure: 'owner', record_phone: '+60100000025', lease_end: null });
+  const label = (who: string) => phones.find((p) => p.user_id === who)!.label;
+  expect([label('weiMing'), label('farah'), label('meiLing')]).toEqual(["Wei Ming's phone", "Farah's phone", "Mei Ling's phone"]);
 });
 it('restores No. 18 to exactly how it was seeded', () => {
   const seeded = cards.find((c) => c.unit_label === DEMO_CARD_UNIT)!;

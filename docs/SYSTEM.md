@@ -28,6 +28,8 @@ and the courts with a tap. Home's favourites are the resident's to pick and orde
 
 | Screen | Where | What it does |
 |---|---|---|
+| Register | `/register` (landing page: **Register with a code**) | The way onto a household card. Enter the code the Management Office gave you at its counter, or one a family member made for you (8 characters, shown as K7Q4-M29X; it works once and lasts 3 days) → **Is this your home?** (the unit, the owner or tenant on record and when the office checked the IC and the title) or the card you are joining and who invited you → an SMS code (an office code goes to the number the office has on record, an invite to the number you type; there is no SMS provider, so the code shows on screen) → choose a 6-digit PIN, twice → you are signed in on this browser and Me opens with your card ("Your card is ready · bound to this phone"). The Terms open in a new tab. |
+| Sign in | `/sign-in` | Residents sign in with their mobile number → an SMS code (on screen, as above) → their PIN. A wrong PIN, a locked PIN and a number with no account all answer "The phone number or PIN is wrong." Office staff keep email and password, under **Management Office staff: sign in with email**. |
 | Home | `/home` | Greeting, township and points; "Report an issue" (straight to the office); **My favourites**: up to 7 services of the resident's choosing (at first Pay parking, Notify office, Facilities, Events, Groups, Services, Rewards) and **More**; **Happening now**: the nearest neighbour alert, the office's latest announcement and your next event; **Open games** that need players. |
 | More · Edit favourites | `/more` · `/more/edit` | Every service in three groups (Township, Community, Mall & parking), the new ones marked NEW. **Edit** (from Home): add or remove favourites, drag them into order (or Move earlier / Move later), Reset to the default, Save. Leaving without Save keeps the old ones. |
 | Pay parking | `/parking/pay` | Pick Elmina Lakeside Mall or KL East Mall, type the plate (or tap one of your last 5), **Check amount**: the time parked and the fee pop up, with DuitNow QR, online banking (FPX), Apple Pay or Google Pay. A short "processing", then "Thank you! You have 20 minutes to exit the car park." A demo: nothing is charged. |
@@ -37,17 +39,18 @@ and the courts with a tap. Home's favourites are the resident's to pick and orde
 | Live Map | `/map` | Alerts as pins (accident, snake, suspicious person, stray dogs, flood, fallen tree, walkway blocked, streetlight, police, and the office's road works and water cuts). Neighbours vote **Still there** or **Gone**; an alert fades 2 hours after its last confirmation. Search, filters, drop an alert, and "Send to Management Office" for lasting problems. **Safe Walk**: pick the mall, the park, the courts or a spot on the map, and the walking route goes around confirmed high and medium hazards (blue, with the usual way dashed red and a banner saying what it avoided and how many minutes it adds), or warns when there is no way round. |
 | Report an issue · Issue Board | `/reports/new` · `/reports` | Category, photo and place; "Already reported nearby?" offers **Me too** instead of a duplicate. Timeline: submitted → acknowledged → in progress → resolved, then the reporter confirms the fix (or it reopens). Private reports (security) are seen only by the reporter and the office. |
 | Notify the office | `/notices/new` · `/notices` | Tell the Management Office ahead of renovation noise, moving day with the lift, an event at home or a contractor visit: dates and details. The office marks it noted, with a reply if needed, and the resident is told. Only the office sees it, with the unit. |
-| Management Office | `/dashboard` | Reports board with updates and after-photos, residents to approve, official map pins, events to approve (points), resident notices, announcements, **General chat** topics (add, rename, office only, remove, or open one to answer), rewards and vouchers, and Reset demo data. A live emergency puts a red banner over every page (what, who, unit, phone, when) with Show on map and **Resolve**. |
-| Units | `/dashboard/units` | Every home in the township with its household card: **Active**, **Suspended** (with the office's reason), **Lease ended** or **Not registered**, and how many of its 4 phones are in use. **Suspend…** asks for a reason (1 to 200 characters) that everyone on the card is told and sees; **Lift** puts the card back. **Open reader screen** opens `/reader`. Residents to approve stays beside it for now. |
+| Management Office | `/dashboard` | Reports board with updates and after-photos, official map pins, events to approve (points), resident notices, announcements, **General chat** topics (add, rename, office only, remove, or open one to answer), rewards and vouchers, and Reset demo data. A live emergency puts a red banner over every page (what, who, unit, phone, when) with Show on map and **Resolve**. |
+| Units | `/dashboard/units` | Every home in the township with its household card: **Active**, **Suspended** (with the office's reason), **Lease ended**, **Code given** (until when) or **Not registered**, and how many of its 4 phones are in use. **Suspend…** asks for a reason (1 to 200 characters) that everyone on the card is told and sees; **Lift** puts the card back. **Give code** (a home with no card) is for the counter: the office checks the IC and the house title (a tenant's: the tenancy agreement) in person, ticks both, confirms the name, Owner or Tenant (a tenant's lease end) and the mobile number the person will register with, and the code appears once, with **Print slip** ("Open Serumpun and tap Register with a code"). It works once and lasts 3 days, and a new code cancels the old one. **Open reader screen** opens `/reader`. |
 | General chat | `/community/general` | Pinned at the top of Groups, with every unread message as "N new". Topics as in a Telegram community: 📢 **Announcements** (office only; every announcement the office publishes appears here too), 🆘 Help & support, 💬 Borak-borak, 👋 Say hi, 🔎 Lost & found, 🚗 Traffic & roads, and any the office adds. Each topic is a live group chat (the office's messages marked "Management Office ✓"); opening it marks it read. Everyone in the township reads; verified residents and the office post. |
 | Community | `/community` | **Groups** (General chat at the top; posts, questions with a top answer, Helpful), **Events** (each marked 🏢 Official · Sime Darby Property or 👥 Resident event, with its points; Going, QR check-in), **Services** (offers and requests in Tutoring, Repairs, Cleaning, Food, Childcare, Eldercare, Pets, Others; offers show their ⭐ average and jobs), **Share & Lend** (lend, give away or swap; borrowing in 4 steps; "Also post to a group" puts the item in one of your groups, where its post links to it). |
 | Messages | `/messages` | One-to-one chats about a post, a service, a listing or an open game; live, with unread badges. In a chat about someone's offer, **Rate** gives it 1 to 5 stars (once per neighbour, changeable). |
 | Facilities | `/book` | Badminton (2 courts), futsal, tennis, the hall, the gym, the BBQ pit and the function room. Free 1-hour slots from 7 am to 11 pm, up to 7 days ahead, 2 hours a day per household; a booking pass with QR and a calendar file; cancel up to 2 hours before. **Find players** (badminton, futsal and tennis): ask for 1 to 10 neighbours when booking; the game shows under **Open games** (here and on Home) until it is full, neighbours tap Join or message the host, and the pass shows who joined. |
 | Rewards | `/rewards` | Vouchers for points at Elmina Lakeside Mall; "Slide to use" at the counter. |
 | Me | `/me` | The **household card** at the top (next row); points and the next reward; my vouchers, reports, bookings, listings and notices; points history; **Help & policies**; emergency alerts on this phone; dark mode; **text size** (Small, Normal, Large, Extra large); language; township; sign out. |
-| Household card | `/me` | A Wallet-style card: the Serumpun gradient, "HOUSEHOLD CARD", the unit (Aisyah's is No. 18, Jalan Elmina Valley 3/2), the places it opens (Facilities, Gym, Pool) and the phones on it ("3 of 4"), never a name. One card per household, so everyone on it gets the same places. Tap it and enter the 6-digit PIN (the demo accounts show it: 123456) and the card pops up; it locks again when you leave it or after 60 seconds without a tap. 5 wrong PINs lock it for 15 minutes and tell the card's Owner and Co-owner (on the shared demo accounts the lock stays in that browser and nobody is told). On a real phone the open card says "Hold near a reader". **Add to Apple Wallet (demo)** opens a sheet saying it is a look-alike; **Show QR instead** draws a QR that changes every 30 seconds. A suspended card shows "Suspended" with the office's reason, and a tenant's card shows "Lease ended" after the lease's last day. |
+| Household card | `/me` | A Wallet-style card: the Serumpun gradient, "HOUSEHOLD CARD", the unit (Aisyah's is No. 18, Jalan Elmina Valley 3/2), the places it opens (Facilities, Gym, Pool) and the phones on it ("3 of 4"), never a name. One card per household, so everyone on it gets the same places. Tap it and enter the 6-digit PIN (the demo accounts show it: 123456) and the card pops up; it locks again when you leave it or after 60 seconds without a tap. 5 wrong PINs lock it for 15 minutes and tell the card's Owner and Co-owner (on the shared demo accounts the lock stays in that browser and nobody is told). On a real phone the open card says "Hold near a reader". **Add to Apple Wallet (demo)** opens a sheet saying it is a look-alike; **Show QR instead** draws a QR that changes every 30 seconds. A suspended card shows "Suspended" with the office's reason, and a tenant's card shows "Lease ended" after the lease's last day. **A new phone** (a browser with no key on the card yet, signed in as the same person) waits: "This phone is waiting for your card. Have your old phone? Open Me there and move the card here. Old phone lost? The Owner or Co-owner approves it in Household. No one else can approve? Take your IC to the office." The old phone is asked **Move the card to your new phone?**: **Yes, move it** and its PIN move the card at once ("Your card is on another phone now." there), and **No, that wasn't me** turns the new phone away. |
+| Household | `/me/household` (Me › the card) | Who is on the card, as Owner, Co-owner, Adult or Child, and the phones in use ("3 of 4"). The Owner, and a Co-owner whose IC the office has checked, **Invite someone** with their own PIN: a child (either of them), an adult (only while the Owner decides alone: with a checked Co-owner it needs both, which waits for stage 3's two-person approvals) or a Co-owner (the Owner, when the card has none). The code appears once, with **Send by WhatsApp**, and open invites are listed with **Cancel**. A card is full when its phones plus its open invites reach 4, so an open invite holds a phone place, and the page says so in place of the button. A person whose new phone waits for the card shows **New phone waiting**, and a manager can **Approve** it with their own PIN (for a lost phone, never for themselves). Me asks an Owner with no Co-owner to **Add a Co-owner?**; Later puts it off for 3 days on that browser. |
 | Reader | `/reader` | A tap reader for the demo laptop, open to anyone (no sign-in). Pick where it is: Facilities (then a court, the hall, the BBQ pit or the function room), Gym or Pool. The phone mockup beside it holds the card of whoever is signed in on that browser (the demo buttons when nobody is). Open the card with the PIN, then drag it onto the reader or press **Tap**: the phone buzzes, and the reader shows a big green tick and "Access granted · Pool", or a red ✕ and one reason (card suspended, lease ended, phone switched off, place switched off, no booking at this time, pass expired). It never shows a name. Facilities and the Gym open only with the household's booking for that hour; the Pool is walk-in. The **Wi-Fi** switch (or the laptop really going offline once the page has loaded) makes the reader decide by itself, and visits made offline are sent when it is back. |
-| Help & policies | `/help/guidelines` · `/help/rules` · `/help/faq` · `/help/terms` | How to use each feature, the community rules, an FAQ with search, and the Terms & Conditions (a draft for the competition). Readable signed out too: sign-up links its Terms. |
+| Help & policies | `/help/guidelines` · `/help/rules` · `/help/faq` · `/help/terms` | How to use each feature, the community rules, an FAQ with search, and the Terms & Conditions (a draft for the competition). Readable signed out too: Register links its Terms. |
 | Notifications | `/notifications` | Emergencies nearby, report updates, borrow steps and a reminder at 8 am on the return day (to the borrower and the owner), comments, events approved or not for points, players joining or leaving your game (or a game you joined being cancelled), a notice noted by the office (and, for the office, a new notice), announcements and account news, with a live bell. |
 
 **The 5-minute demo story**
@@ -87,14 +90,15 @@ laptop, the office in a second one)
 
 | Who | Can |
 |---|---|
-| Visitor | See the landing page, sign up, or try a demo account. |
-| Pending resident | Browse everything. Posting, voting, booking, borrowing, messaging, notices and emergency alerts wait for approval (a banner says so; the emergency sheet still offers Call 999). |
-| Verified resident | Everything residents do. |
-| Rejected | Sees why, and nothing else. |
+| Visitor | See the landing page, register with a code, sign in, or try a demo account. |
+| Resident | Everything residents do. Their account is verified from the moment they register, and they are on a household card as its Owner, Co-owner, Adult or Child. |
+| Rejected | Sees why, and nothing else. No screen turns anyone down any more; stage 5 replaces this with the access-ended screen. |
 | Management Office | Its township's dashboard. |
 
-Sign-up asks for a name, email, password, township, neighbourhood and **unit number**. Only the Management Office ever
-sees the unit. The office approves or rejects new residents in Dashboard › Residents, and the resident is notified.
+Nobody signs up and waits for approval any more. A resident gets a **code**: the Management Office gives one at its
+counter after checking the IC and the house title or tenancy agreement in person, or a manager of a household card makes
+one for family. Registering with it (§2) writes the account as verified, with the card's unit as its unit. Only the
+Management Office ever sees the unit and the phone.
 
 ## 4. Architecture
 
@@ -120,7 +124,9 @@ flowchart LR
 
 - **Reads**: server components query Supabase as the signed-in user, so row-level security always applies.
 - **Writes**: server actions call database functions (RPCs) that check the caller and the rules again; the page is never
-  trusted. The service-role key is used only by trusted server code (sending notifications, the seed, the smoke test).
+  trusted. The service-role key is used only by trusted server code (sending notifications, the seed, the smoke test,
+  registering and phone sign-in, moving a card's key, and two reads a signed-in user can't make: a unit's record phone
+  and whose new phone is waiting).
 - **Live updates**: alerts, reports and emergencies broadcast an id-only "something changed" on the township's channel
   (emergencies also on their own, for the popup on every page) and pages fetch again through the privacy views; messages,
   General chat's topic messages and notifications arrive as row changes under row-level security.
@@ -140,13 +146,13 @@ flowchart LR
 
 | Folder | What is in it |
 |---|---|
-| `app/(auth)` | Landing, sign-up, the rejected screen |
+| `app/(auth)` | Landing, Register, Sign in, the rejected screen |
 | `app/(app)` | Every resident screen |
 | `app/dashboard` | The Management Office |
 | `app/reader` · `app/api/reader` | The public reader screen and its API (sync, tap, visits) |
 | `components/<feature>` | Screens' parts, by feature |
 | `lib/domain` | The rules as plain, tested functions (time, points, booking, reports, alerts…) |
-| `lib/card` | The household card: signing and checking passes, the tap decision, the PIN rules, the reader's offline queue |
+| `lib/card` | The household card: signing and checking passes, the tap decision, the PIN rules, codes and registering, who may invite and approve, the reader's offline queue |
 | `lib/route` | Safe Walk's walking graph and route finder |
 | `lib/supabase` | Clients, the session and role checks, realtime hooks |
 | `lib/i18n` | English and Bahasa Malaysia (`en.ts`, `ms.ts`) |
@@ -161,7 +167,7 @@ Every township-level table has `township_id`. Residents read through the views a
 
 | Area | Tables | Residents read through |
 |---|---|---|
-| People | `townships`, `profiles` (with Home's `favourites`), `profile_private` (unit, phone) | their own profile and unit |
+| People | `townships`, `profiles` (with Home's `favourites`), `profile_private` (the card's unit, and the phone they registered with: one account per number) | their own profile and unit |
 | Office | `announcements`, `notifications`, `resident_notices` | their township's announcements, their own notifications and notices |
 | Live Map | `alerts`, `alert_votes` | `public_alerts` |
 | Emergencies | `emergencies`, `push_subscriptions` | `public_emergencies` (where and what, never who); phone subscriptions not at all |
@@ -176,7 +182,8 @@ Every township-level table has `township_id`. Residents read through the views a
 | Share & Lend | `listings`, `borrow_requests` | `public_listings`, `my_borrows` |
 | Facilities | `facilities`, `bookings`, `booking_players` | the courts, their own bookings, `booked_slots()`, `open_games()`, `game_players()` (the host's own game) |
 | Household cards | `units` (the office's record of a home, with a tenant's lease end), `cards` (one per unit: active or suspended, the places it opens, its phone limit), `card_members` (who is on a card, as Owner, Co-owner, Adult or Child), `card_phones` (a card's phones, one per person) | their own card, its unit, who is on it and its phones (never a unit's record phone); the office reads its township's |
-| Taps and PINs | `phone_keys` (the public key of each browser that holds a phone's card), `card_visits` (every tap, by card), `member_pins` (a person's PIN, hashed, with wrong tries and any lockout) | their own phone's keys and their card's visits (by unit, never a person); the PINs not at all |
+| Getting onto a card | `card_codes` (the office's code for a home with no card, and the family's invites to a card: kept only as a hash, open until used, cancelled or out of date), `sms_checks` (an SMS code sent to a number: kept only as a hash, good for 10 minutes and 5 tries) | the office its township's office codes, and members their card's invites, both without the hash; SMS checks not at all |
+| Taps and PINs | `phone_keys` (the public key of each browser that holds a phone's card, in one of three states: **active**; **waiting**, a new browser's key until the old phone or a manager moves the card to it; **retired**, after it moved away or was declined), `card_visits` (every tap, by card), `member_pins` (a person's PIN, hashed, with wrong tries and any lockout) | their own phone's keys and their card's visits (by unit, never a person); the PINs not at all |
 
 ## 6. Security model
 
@@ -186,8 +193,8 @@ Every township-level table has `township_id`. Residents read through the views a
   a report, who raised an emergency, or who rated a service. Tables that would leak (votes, Me toos, who wrote a step, who joined a game, who
   rated) give residents nothing at all.
 - **Emergencies**: only the office learns who raised one, with the unit and phone, to send help. Only the sender can
-  cancel it and only the office resolves it. A pending account cannot raise one, and tapping again while one is live
-  gives the same one back, so nobody is alerted twice.
+  cancel it and only the office resolves it. Only a verified resident can raise one (every registered resident is), and
+  tapping again while one is live gives the same one back, so nobody is alerted twice.
 - **Notices** to the office are seen by the resident who sent them and the office, nobody else.
 - **Ratings need a real contact**: a service can be rated only by a neighbour who has a conversation with its provider
   about it, never by the provider.
@@ -204,12 +211,38 @@ Every township-level table has `township_id`. Residents read through the views a
   removed nor opened to residents.
 - **Parking**: residents have no access to the plates and sessions tables at all; the server reads and writes them for
   the signed-in resident only, and a session is paid once, however often Pay is tapped.
-- **Household cards**: residents read only their own card's rows (its unit, who is on it, its phones and visits, their own
-  phone's keys) and the office its township's units, cards, people and phones, but no visits (incident lookups come in
-  a later stage). Every write goes through a function that checks the caller again, or through the server.
-  `member_pins` has no policy and no grant, so nobody signed in can read a PIN, and a unit's record phone is read by the
-  server only. Only the office suspends a card (in its own township, with a reason of 1 to 200 characters that everyone
-  on the card sees) or lifts the suspension.
+- **Household cards**: residents read only their own card's rows (its unit, who is on it, its phones, its open invites and
+  visits, their own phone's keys) and the office its township's units, cards, people, phones and office codes, but no
+  visits (incident lookups come in a later stage). Every write goes through a function that checks the caller again, or
+  through the server. `member_pins` has no policy and no grant, so nobody signed in can read a PIN, and a unit's record
+  phone is read by the server only, for the office, after it has checked who is asking. Only the office suspends a card (in
+  its own township, with a reason of 1 to 200 characters that everyone on the card sees) or lifts the suspension, and only
+  the office gives a home with no card its code (the demo's seed and Try registering do too, from the server).
+- **Codes and SMS codes**: a code is 8 characters from 32 that can't be misread (no I, O, 0 or 1): 40 random bits, and
+  the database keeps only its SHA-256 and finds a code by it. Nobody signed in is granted that column, so the office
+  reads when a code ends, never the code. A code works once and lasts 3 days, and a new office code for a home cancels
+  the old one. An SMS code is 6 digits kept as a bcrypt hash, good for 10 minutes and 5 tries. None of them is logged,
+  and a code never goes in one of our URLs: Try registering brings its code in an httpOnly cookie. The one link that
+  carries a code is the invite's **Send by WhatsApp**, because sending it is that button's purpose; the code works once,
+  lasts 3 days and still needs the invitee's own number, SMS check and PIN.
+- **Registering and phone sign-in** run on the server with the service role, because nobody is signed in yet, and the
+  database checks every rule again. Registering makes the account (a made-up `resident-<id>@example.com` that can't
+  receive mail, with a random password nobody keeps), then `complete_registration` checks the code, the SMS check and the
+  number (one account per number) and puts the person on the card with their profile (verified), phone and PIN. If the
+  database refuses, the account is deleted again, so nothing is left half-made. Signing in needs a checked SMS code and
+  then the PIN; with the right PIN the server makes a magic link for the account's made-up email, never sent, and uses it
+  at once to start the session, so there is no password to leak and no new secret. Signing in never shows whether a
+  number has an account: an unknown number, a wrong PIN and a locked PIN all answer "The phone number or PIN is wrong.",
+  and each takes one bcrypt (`0025a`, `0025b`), so the timing doesn't tell them apart either. Keep the bcrypt costs in
+  step: the seed's `set_member_pins`, `complete_registration` and the dummy check all use the default `gen_salt('bf')`.
+- **Moving a card to a new phone**: a resident's phone holds one active key, and a second browser's key waits. The old
+  browser moves the card by signing a fresh note on its pass, which proves it holds the key that is leaving: the server
+  checks the township's signature on the pass and the key's on the note (within a minute either way), and only then,
+  with the person's PIN, calls `move_phone_key` with the service role, for the signed-in person alone, because the
+  database can't check an ECDSA signature. The old key is retired and the waiting one takes its place, and an online
+  reader refuses a retired key at once. For a lost phone the Owner, or a Co-owner whose IC the office has checked,
+  approves with their own PIN (`approve_phone_move`), never for themselves: the Owner's needs the checked Co-owner, and
+  the Co-owner's the Owner. A newer waiting key retires an older one, and **No, that wasn't me** retires the waiting key.
 - **Passes and phone keys**: the server signs a pass for each phone with the township's private key (`CARD_SIGNING_KEY`,
   ECDSA P-256, in the server's environment only), good for 24 hours and renewed whenever the app is open and online.
   Each browser makes its own key pair (WebCrypto, not exportable, kept in IndexedDB) and registers only the public
@@ -217,14 +250,17 @@ Every township-level table has `township_id`. Residents read through the views a
   a copied pass or a screenshot of the QR is useless, a note counts for about a minute and works once (its number is
   unique in the visit log), and readers store no phone keys. An online reader asks the server, which checks the live
   card, phone, places and booking, so a suspension acts at once; an offline reader decides from the pass and its last
-  sync.
+  sync. A browser renews its pass whenever the card is open and online. **A waiting answer** drops any pass the browser
+  holds (a waiting key never has a pass of its own, and the browser may still hold another account's), a pass for another
+  card is dropped when the card opens, and a network error during a wait keeps the "waiting" note and asks again every
+  5 seconds.
 - **PINs**: 6 digits, hashed with bcrypt in the database. 5 wrong tries lock a PIN for 15 minutes and tell the card's
   Owner and Co-owner. Every visitor shares a demo account, so for those the wrong tries are counted in each browser,
   nobody is told, and one visitor can't lock the rest out.
 - **No names at a reader**: it never shows one, and the visit log records the card (so the unit), the place, the time
   and the result, never the person or the phone.
 - **Every page and action checks the session itself.** `proxy.ts` only sends signed-out visitors to the landing page.
-- `npm run smoke` tries these rules against the live database as the demo accounts (24 checks).
+- `npm run smoke` tries these rules against the live database as the demo accounts (25 checks).
 
 ## 7. Points
 
@@ -246,16 +282,17 @@ screen; the dashboard is for laptops.
 ## 9. Built for every SDP township
 
 The `townships` table lists Sime Darby Property's townships: City of Elmina (live), Bandar Bukit Raja, Serenia City,
-Ara Damansara, Bukit Jelutong, Nilai Impian, Bandar Ainsdale and Putra Heights. Sign-up asks for the township and says
-"coming soon" for the others. Everything is scoped by township, so opening another one means switching it on, adding its
-Management Office account, its places, facilities and rewards, and its General chat with its topics (as
-`supabase/migrations/0017_general_chat.sql` and `0022_chat_topics.sql` did for City of Elmina; residents then join it as
-they are approved).
+Ara Damansara, Bukit Jelutong, Nilai Impian, Bandar Ainsdale and Putra Heights. Only City of Elmina has homes, an office
+and codes; the others are listed, not switched on. Everything is scoped by township, so opening another one means
+switching it on, adding its Management Office account, its homes (units), places, facilities and rewards, and its General
+chat with its topics (as `supabase/migrations/0017_general_chat.sql` and `0022_chat_topics.sql` did for City of Elmina;
+residents then join it as they register).
 
 ## 10. Demo accounts and reset
 
-- The landing page has **Try as Aisyah** (verified resident, Elmina Valley 3), **Try as Nur** (waiting for approval)
-  and **Try as Management Office**.
+- The landing page has **Try as Aisyah** (resident, Elmina Valley 3), **Try registering (Nur)** (a home with no card,
+  where you register as a new resident) and **Try as Management Office**. Nur is not an account any more: the button
+  makes her afresh each time.
 - **Daniel Tan** (`daniel.demo@example.com`, another household) is a second resident for two-phone demos. The demo
   password is not in this document: ask the team.
 - **The household card.** The demo PIN is **123456** for every seeded resident, and the PIN pad shows it on the demo
@@ -266,12 +303,29 @@ they are approved).
   signs her in, so each judge starts with a working card. It happens only on that tap, so a suspension the office makes
   during a video take stays put until the next Try as Aisyah or a reset. A failed restore is logged and the sign-in
   goes on.
+- **Try as Aisyah also removes the invites and the people they brought in.** It cancels No. 18's open invites and deletes
+  the accounts on its card that have a phone on record, because only an invite brings anyone but the seeded Aisyah,
+  Imran and Sara onto this card (and the seeded three have no phone). So after a judge invites and registers someone, the
+  next Try as Aisyah puts No. 18 back at "3 of 4" with no invites, and that person can no longer sign in. Nobody on any
+  other card is touched.
+- **Try registering (Nur)** starts her registration over. It deletes the accounts on No. 25's card (a visitor may have
+  invited family there) and whoever holds her made-up number, +60 10-000 0025; deletes the card; puts the office's record
+  back (Nur Iman, Owner, that number); and gives No. 25 a fresh code, which it hands to Register in a 10-minute httpOnly
+  cookie, never the URL. The code is already filled in: confirm the home, read the SMS code off the screen (the number
+  can't receive one), choose a PIN, and Me shows No. 25 at "1 of 4".
+- **Each new private window is a new phone.** A browser makes its own key, so signing a resident in on a second browser
+  (or a private window) asks to move the card, and the card waits there (§2, §6). Only the shared demo accounts, Aisyah
+  and Daniel, let every browser join their one seeded phone.
+- **Two visitors registering Nur at once cancel each other's code**: a new code cancels the old one, and starting over
+  deletes the Nur the other visitor just made, so the first one's sign-in answers "The phone number or PIN is wrong." and
+  their unfinished registration says the code no longer works. Tap again to start over.
 - **Never run `npm run db:seed:cards` during a video take**: it resets every card and PIN lockout, which undoes a
   suspension. (`npm run db:seed` and Reset demo data do too.)
-- **Dashboard › Reset demo data** (or `npm run db:seed`) wipes everything created since, deletes visitors' sign-ups,
-  restores the demo accounts and seeds a lively Elmina dated around now, with the card tables again: 25 units, 14 cards
-  (Jason Lee's tenant card suspended, Kavitha Nair's lease ended), their people and phones, and the demo PIN. Seeded
-  alerts fade after about two hours, so reset shortly before a demo.
+- **Dashboard › Reset demo data** (or `npm run db:seed`) wipes everything created since, deletes every account the seed
+  doesn't name (visitors' registrations, one a failed registration left behind, and stage 1's Nur), restores the demo
+  accounts and seeds a lively Elmina dated around now, with the card tables again: 25 units, 14 cards (Jason Lee's tenant
+  card suspended, Kavitha Nair's lease ended), their people and phones, and the demo PIN. Nur's home is ready to
+  register, and No. 61 shows a code given. Seeded alerts fade after about two hours, so reset shortly before a demo.
 
 ## 11. Run it locally
 
@@ -302,9 +356,9 @@ lock-screen alerts).
 | `npm run lint` · `npm run typecheck` · `npm test` | ESLint, TypeScript, Vitest |
 | `npm run db:migrate` | Applies new files in `supabase/migrations`, each in one transaction |
 | `npm run db:seed` | Resets the demo data |
-| `npm run db:seed:cards` | Adds and updates the card rows (units, cards, who is on them, phones, PINs) and deletes nothing, but resets every card and PIN lockout: never during a video take |
+| `npm run db:seed:cards` | Adds and updates the card rows (units, cards, who is on them, phones, PINs, No. 61's code) and deletes nothing, but resets every card and PIN lockout: never during a video take. On a database seeded before stage 2 it stops at three renamed phones (Wei Ming's, Farah's, Mei Ling's): run `npm run db:seed` once first |
 | `npm run card:key` | Adds `CARD_SIGNING_KEY` to `.env.local` when it has none. It never prints the key |
-| `npm run smoke` | Privacy, pending-user, double-tap, limit and household-card checks on the live database, then a reset |
+| `npm run smoke` | Privacy, double-tap, limit, household-card and getting-onto-a-card checks on the live database, then a reset |
 
 Two sessions on one computer (resident and office): `npm run build && npm run start -- -p 3001`, then use
 `http://localhost:3001` and `http://127.0.0.1:3001` (the development server blocks 127.0.0.1).
@@ -328,7 +382,7 @@ npm run smoke
 Apply new migrations before deploying code that needs them. The smoke test ends with a reset of the demo data. The card
 tables are filled by the seed, so after the first deploy with the household card run `npm run db:seed:cards` to give the
 live demo its cards without touching anything else (never during a video take). `npm run db:seed` or Dashboard › Reset
-demo data fills them too, but resets all the demo data, visitors' sign-ups included.
+demo data fills them too, but resets all the demo data, visitors' registrations included.
 
 ## 13. Known limits and Later
 
@@ -349,20 +403,35 @@ demo data fills them too, but resets all the demo data, visitors' sign-ups inclu
   page loads more as you scroll, so a few may be missing); categories are ours, and the pins were placed by hand on
   SDP's layout plan.
 - **General chat** shows a topic's latest 100 messages; messages cannot be edited or deleted yet.
-- **The household card is stage 1 of 6 (the tap).** Getting onto a card with an office code, the household page (people,
-  places on and off, freezing a phone, guest passes, the access history), disputes and appeals, and the plastic card come
-  in later stages (see the design spec). For now the seed puts the demo township's residents on cards and sign-up works
-  as before, so someone who signs up has no card. Visits are kept until a later stage adds the 90-day deletion and the
-  office's incident lookups.
+- **The household card is stage 2 of 6 (getting onto the card).** Stage 1 was the tap. Stage 2 adds codes at the counter,
+  registering with one, signing in with a phone and PIN, family invites with a first household page, and moving to a new
+  phone; self sign-up is gone. The rest of running the household (places on and off, freezing a phone, two-person
+  approvals, the changes log and the access history), guest passes and bookings, disputes and appeals, recovery codes,
+  changing the Owner or Co-owner, the access-ended screen and the plastic card come in later stages (see the design
+  spec). Until stage 3 an Owner with a checked Co-owner cannot invite an adult, which needs both of them. Visits are kept
+  until a later stage adds the 90-day deletion and the office's incident lookups.
 - **No real NFC, Bluetooth, Apple Wallet or SMS.** The tap is simulated (drag the card onto the reader, or press Tap),
   the reader is a web page, and the browser on it plays the phone. **Add to Apple Wallet (demo)** is a look-alike: a real
   pass needs a paid Apple Developer account, and passes that open doors need Apple's approval. There is no SMS provider.
+- **The SMS code shows on screen**, so it proves nothing about who holds a number: in the demo the **PIN** is sign-in's
+  secret. With a real provider the code would go to the phone, and a PIN would be the second thing a thief needs.
+- **Registering with an open invite code shows whether a number already has an account** (`phone_taken` or success),
+  because with the SMS code on screen nothing else proves the number, and success or failure itself gives it away, so no
+  shared wording could hide it. This is a limit of the demo, beside the one above: with a real provider only the number's
+  holder gets that far. An office code can't be used this way, because it texts only the number the office checked.
+- **A move doesn't sign the old phone out.** The old browser stays signed in to the app; only its card stops (its key is
+  retired, so online readers refuse it at once).
+- **Someone who loses their phone and has no one to approve it waits for stage 5.** A new phone's card asks the old phone
+  to move it, or the Owner or Co-owner to approve it in Household. When no one else on the card can approve (someone alone
+  on it, or an Owner with no checked Co-owner) the screen says "No one else can approve? Take your IC to the office."
+  The office has no tool for it yet: stage 5's recovery codes and changing the Owner or Co-owner are it.
 - **Screenshots and rooted or jailbroken phones can't be blocked** by a web app. Instead each tap is signed by the
   phone's own key and the fallback QR changes every 30 seconds, so a screenshot or a copied card is useless.
 - **iPhones don't vibrate** at a tap (iOS browsers ignore `navigator.vibrate`); the tick or cross, and the shake on a
   refusal, still show.
 - **An offline reader learns of a change at its next sync, or when the phone's pass expires (within 24 hours).** That
-  covers a suspension, a lift and a frozen phone. An online reader asks the server, so it knows at once.
+  covers a suspension, a lift, a frozen phone and a moved phone: "Yes stops the old phone at once" holds at online readers
+  only, which ask the server and need an active key.
 - **A browser that can't keep the card's key** (a Safari private window, some in-app browsers) says so and can't hold
   the card.
 - **Not in this version**: real payments (Pay parking is a demo, services are paid between neighbours, facilities are free), push notifications
@@ -384,6 +453,7 @@ Property. Maps by Leaflet. Built with Next.js, React, Tailwind CSS, Supabase and
 
 - Design spec: [`docs/superpowers/specs/2026-10-13-serumpun-design.md`](superpowers/specs/2026-10-13-serumpun-design.md)
 - Build plan: [`docs/superpowers/plans/2026-10-13-serumpun.md`](superpowers/plans/2026-10-13-serumpun.md)
-- Household access card: [design spec](superpowers/specs/2026-10-19-household-access-card-design.md) and
-  [stage 1 plan](superpowers/plans/2026-10-19-access-card-stage-1.md)
+- Household access card: [design spec](superpowers/specs/2026-10-19-household-access-card-design.md),
+  [stage 1 plan](superpowers/plans/2026-10-19-access-card-stage-1.md) and
+  [stage 2 plan](superpowers/plans/2026-10-25-access-card-stage-2.md)
 - Approved mockups (canvas): https://claude.ai/artifact/Bqa6n1zS9ZeR5BGtrUur73

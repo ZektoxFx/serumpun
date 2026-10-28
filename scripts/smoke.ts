@@ -5,11 +5,11 @@ import { seedAll } from '@/lib/seed';
 import { DEMO_EMAIL, type DemoAccount } from '@/lib/seed/people';
 import { createAdminClient } from '@/lib/supabase/admin';
 
-// Run with `npm run smoke` on the seeded demo: the privacy, pending-user, double-tap, limit and household-card rules,
-// each tried through the API as the demo accounts would. Prints PASS or FAIL per check and exits 1 on any FAIL. The
+// Run with `npm run smoke` on the seeded demo: the privacy, double-tap, limit, household-card and getting-onto-a-card
+// rules, each tried through the API as the demo accounts would. Prints PASS or FAIL per check and exits 1 on any FAIL. The
 // checks book, redeem and check in, so the demo is seeded again at the end.
 
-type Answer = { error: { message: string } | null };
+type Answer = { error: { message: string; code?: string } | null };
 
 let failures = 0;
 function check(name: string, ok: boolean, detail = '') {
@@ -18,6 +18,8 @@ function check(name: string, ok: boolean, detail = '') {
 }
 /** The call was refused, with `code` when given: an RPC's `raise exception` code arrives as the message. */
 const refused = (answer: Answer, code?: string) => answer.error !== null && (code === undefined || answer.error.message === code);
+/** The call was refused for want of a privilege (42501), not for another reason such as a column that isn't there. */
+const denied = (answer: Answer) => refused(answer) && answer.error?.code === '42501';
 const said = (answer: Answer) => answer.error?.message ?? 'ok';
 
 async function signIn(who: DemoAccount) {
@@ -32,7 +34,7 @@ const CENTRE = { p_lat: 3.1797, p_lng: 101.5156 }; // City of Elmina's centre
 
 async function checks() {
   const admin = createAdminClient();
-  const [aisyah, daniel, nur] = await Promise.all((['aisyah', 'daniel', 'nur'] as const).map(signIn));
+  const [aisyah, daniel] = await Promise.all((['aisyah', 'daniel'] as const).map(signIn));
   const { data: profile, error: profileError } = await admin.from('profiles').select('township_id').eq('id', daniel.id).single();
   if (profileError) throw new Error(`township: ${profileError.message}`);
   const township: string = profile.township_id;
@@ -82,13 +84,6 @@ async function checks() {
   check(
     'Daniel cannot post in an office-only topic',
     refused(await daniel.client.rpc('send_topic_message', { p_topic: announcements?.id, p_body: 'Smoke test' }), 'office_only'),
-  );
-
-  console.log('— pending users');
-  check('Nur (pending) cannot drop an alert', refused(await nur.client.rpc('create_alert', { p_type: 'snake', p_severity: 'high', ...CENTRE }), 'not_verified'));
-  check(
-    'Nur (pending) cannot send a report',
-    refused(await nur.client.rpc('create_report', { p_category: 'streetlight', p_title: 'Smoke test', p_description: 'Smoke test', ...CENTRE }), 'not_verified'),
   );
 
   console.log('— double taps');
@@ -214,6 +209,22 @@ async function checks() {
   check('A resident cannot suspend a card', refused(await daniel.client.rpc('suspend_card', { p_card: card.id, p_reason: 'x' }), 'not_management'));
   const pins = await daniel.client.from('member_pins').select('user_id');
   check('Nobody reads the PINs', refused(pins), said(pins));
+
+  console.log('— getting onto a card');
+  // A code is kept only as its hash, and no signed-in user is granted that column. (What reaches the Units page is checked
+  // in tests/units-page.test.tsx: smoke has no page to look at.)
+  const hashes = await daniel.client.from('card_codes').select('code_hash').limit(1);
+  check('Nobody reads the codes', denied(hashes), said(hashes));
+  // The arguments are made up: a resident is refused before the database looks at any of them.
+  const given = await daniel.client.rpc('give_unit_code', {
+    p_unit: crypto.randomUUID(), p_name: 'Smoke test', p_tenure: 'owner', p_phone: '+60100000000', p_lease_end: null, p_code_hash: '0'.repeat(64),
+  });
+  check('A resident cannot give an office code', refused(given, 'not_management'), said(given));
+  // Only the server's service role may run it, after it has checked the code, the SMS code and the PIN's format.
+  const registered = await daniel.client.rpc('complete_registration', {
+    p_code_hash: '0'.repeat(64), p_check: crypto.randomUUID(), p_user: daniel.id, p_pin: '123456', p_lang: 'en',
+  });
+  check('Only the server registers people', denied(registered), said(registered));
 }
 
 async function main() {

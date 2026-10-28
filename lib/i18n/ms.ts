@@ -97,7 +97,7 @@ const ms: Record<keyof typeof en, string> = {
   'landing.codeHint': 'Kod anda diberi oleh Pejabat Pengurusan, atau oleh keluarga anda jika mereka menjemput anda.',
   'landing.demo.title': 'Cuba demo',
   'landing.demo.aisyah': 'Cuba sebagai Aisyah (penduduk)',
-  'landing.demo.nur': 'Cuba sebagai Nur (menunggu kelulusan)',
+  'landing.demo.nur': 'Cuba mendaftar (Nur)',
   'landing.demo.office': 'Cuba sebagai Pejabat Pengurusan',
   'landing.demo.error': 'Log masuk demo tidak berjaya. Sila cuba lagi.',
 

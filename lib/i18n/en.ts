@@ -96,7 +96,7 @@ const en = {
   'landing.codeHint': 'Your code comes from the Management Office, or from your family if they invited you.',
   'landing.demo.title': 'Try the demo',
   'landing.demo.aisyah': 'Try as Aisyah (resident)',
-  'landing.demo.nur': 'Try as Nur (waiting for approval)',
+  'landing.demo.nur': 'Try registering (Nur)',
   'landing.demo.office': 'Try as Management Office',
   'landing.demo.error': 'The demo sign-in did not work. Please try again.',
 

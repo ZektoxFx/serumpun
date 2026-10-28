@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { Field } from '@/components/ui/Field';
 import { useT } from '@/lib/i18n';
 import type { DemoAccount } from '@/lib/seed/people';
-import { signIn, signInDemo, type AuthResult } from './actions';
+import { signIn, signInDemo, tryRegistering, type AuthResult } from './actions';
 
 // The forms use noValidate: the server's checks come back in the reader's language, the browser's bubbles would not.
 
@@ -18,11 +18,15 @@ function FormError({ result }: { result: AuthResult }) {
   ) : null;
 }
 
-/** `next`: where to go after signing in (the landing page's `?next=`), checked again on the server. */
+/**
+ * `next`: where to go after signing in (the landing page's `?next=`), checked again on the server. Nur does not sign in:
+ * her button starts a registration, which ignores it.
+ */
 export function DemoButtons({ next }: { next?: string }) {
   const t = useT();
   const [result, action, pending] = useActionState(
-    (_: AuthResult, formData: FormData) => signInDemo(formData.get('who') as DemoAccount, next),
+    (_: AuthResult, formData: FormData) =>
+      formData.get('who') === 'nur' ? tryRegistering() : signInDemo(formData.get('who') as DemoAccount, next),
     null,
   );
   return (

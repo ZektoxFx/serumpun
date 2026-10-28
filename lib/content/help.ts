@@ -138,8 +138,8 @@ const en: HelpContent = {
       a: 'Only the Management Office. Neighbours see your name and neighbourhood, never your unit, phone number or car plate.',
     },
     {
-      q: "Why can't I post yet?",
-      a: 'The Management Office checks every new account against its unit first. Until then you can look around, but posting, voting, booking, borrowing, messaging and alerts wait for approval.',
+      q: 'How do I join Serumpun?',
+      a: 'Take your IC and your house title (or tenancy agreement) to the Management Office. Once it has checked them, it gives you a code that works once and lasts 3 days. In Serumpun tap Register with a code, enter it, confirm your phone with the SMS code and choose a 6-digit PIN. Family already on a household card can also invite you with a code of their own.',
     },
     {
       q: 'Is the parking payment real money?',
@@ -183,7 +183,7 @@ const en: HelpContent = {
     },
   ],
   terms: {
-    updated: '18 October 2026',
+    updated: '29 October 2026',
     draftNote:
       'This is a draft written for the Serumpun prototype, made for the Sime Darby Property University Hackathon 2026. It is not legal advice and is not yet a binding agreement.',
     sections: [
@@ -197,13 +197,14 @@ const en: HelpContent = {
         title: 'Who can use Serumpun',
         steps: [
           'Residents of a township where Serumpun is live, and the staff of its Management Office.',
-          'Each account is for one person; keep your password to yourself.',
+          'Each account is for one person; keep your PIN to yourself.',
         ],
       },
       {
         title: 'Your account and verification',
         steps: [
-          'When you sign up you give your name, township, neighbourhood and unit number. The Management Office checks them before approving the account, and may reject or pause an account that is not genuine.',
+          'You register with a code. The Management Office gives you one at its counter after checking your IC and your house title or tenancy agreement in person, or a member of your household card invites you with a code of their own. A code works once and lasts 3 days.',
+          'You then confirm your mobile number with an SMS code and choose a 6-digit PIN. The Management Office may pause or remove an account that is not genuine.',
         ],
       },
       {
@@ -382,8 +383,8 @@ const ms: HelpContent = {
       a: 'Hanya Pejabat Pengurusan. Jiran melihat nama dan kawasan kejiranan anda, tidak sekali-kali unit, nombor telefon atau nombor plat kereta anda.',
     },
     {
-      q: 'Kenapa saya belum boleh membuat hantaran?',
-      a: 'Pejabat Pengurusan menyemak setiap akaun baharu dengan unitnya dahulu. Sebelum itu anda boleh melihat-lihat, tetapi hantaran, undian, tempahan, pinjaman, mesej dan amaran menunggu kelulusan.',
+      q: 'Bagaimana saya menyertai Serumpun?',
+      a: 'Bawa IC dan geran rumah (atau perjanjian sewa) anda ke Pejabat Pengurusan. Selepas menyemaknya, pejabat memberi anda kod yang boleh digunakan sekali sahaja dan sah selama 3 hari. Dalam Serumpun, ketik Daftar dengan kod, masukkan kod itu, sahkan telefon anda dengan kod SMS dan pilih PIN 6 digit. Keluarga yang sudah berada pada kad isi rumah juga boleh menjemput anda dengan kod mereka sendiri.',
     },
     {
       q: 'Adakah bayaran parkir menggunakan wang sebenar?',
@@ -427,7 +428,7 @@ const ms: HelpContent = {
     },
   ],
   terms: {
-    updated: '18 Oktober 2026',
+    updated: '29 Oktober 2026',
     draftNote:
       'Ini ialah draf yang ditulis untuk prototaip Serumpun, dibuat untuk Sime Darby Property University Hackathon 2026. Ia bukan nasihat undang-undang dan belum menjadi perjanjian yang mengikat.',
     sections: [
@@ -441,13 +442,14 @@ const ms: HelpContent = {
         title: 'Siapa boleh menggunakan Serumpun',
         steps: [
           'Penduduk kejiranan yang telah menggunakan Serumpun, dan kakitangan Pejabat Pengurusannya.',
-          'Setiap akaun untuk seorang sahaja; rahsiakan kata laluan anda.',
+          'Setiap akaun untuk seorang sahaja; rahsiakan PIN anda.',
         ],
       },
       {
         title: 'Akaun dan pengesahan anda',
         steps: [
-          'Semasa mendaftar, anda memberikan nama, kejiranan, kawasan dan nombor unit. Pejabat Pengurusan menyemaknya sebelum meluluskan akaun, dan boleh menolak atau menggantung akaun yang tidak tulen.',
+          'Anda mendaftar dengan kod. Pejabat Pengurusan memberi satu di kaunternya selepas menyemak IC dan geran atau perjanjian sewa rumah anda secara bersemuka, atau ahli kad isi rumah anda menjemput anda dengan kod mereka sendiri. Kod boleh digunakan sekali sahaja dan sah selama 3 hari.',
+          'Anda kemudian mengesahkan nombor telefon bimbit anda dengan kod SMS dan memilih PIN 6 digit. Pejabat Pengurusan boleh menggantung atau membuang akaun yang tidak tulen.',
         ],
       },
       {

@@ -1,13 +1,14 @@
 'use server';
 
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { isPinFormat, type PinAnswer } from '@/lib/card/pin';
-import { checkSmsCode, startSmsCheck } from '@/lib/card/register';
+import { checkSmsCode, REGISTER_CODE_COOKIE, startSmsCheck } from '@/lib/card/register';
 import { returnPath } from '@/lib/domain/notifications';
 import { normalizePhone } from '@/lib/domain/phone';
 import { env } from '@/lib/env';
 import type { MessageKey } from '@/lib/i18n';
-import { restoreDemoCard } from '@/lib/seed/cards';
+import { restartDemoRegistration, restoreDemoCard } from '@/lib/seed/cards';
 import { DEMO_EMAIL, type DemoAccount } from '@/lib/seed/people';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { homePath } from '@/lib/supabase/auth';
@@ -39,7 +40,7 @@ export async function signIn(formData: FormData): Promise<AuthResult> {
 
 /** One tap into a seeded demo account. The password stays on the server. */
 export async function signInDemo(who: DemoAccount, next?: string): Promise<AuthResult> {
-  // `who` comes from the browser: only these four accounts can be entered this way.
+  // `who` comes from the browser: only these three accounts can be entered this way.
   if (!Object.hasOwn(DEMO_EMAIL, who)) return { error: 'landing.demo.error' };
   // Each judge starts with a working card. Only on this tap, so an office suspension made during a take stays put.
   // A failed restore is logged and never blocks the sign-in.
@@ -51,6 +52,29 @@ export async function signInDemo(who: DemoAccount, next?: string): Promise<AuthR
     }
   }
   return signInWith(DEMO_EMAIL[who], env.demoPassword, 'landing.demo.error', next);
+}
+
+/**
+ * "Try registering (Nur)": starts her registration over (lib/seed/cards.ts) and opens Register with the fresh office code
+ * filled in. The code travels in an httpOnly cookie, never the URL, scoped to /register where the page reads it and the
+ * register action deletes it (app/(auth)/register), and it lasts 10 minutes.
+ */
+export async function tryRegistering(): Promise<AuthResult> {
+  let code: string;
+  try {
+    code = await restartDemoRegistration(createAdminClient());
+  } catch (error) {
+    logged('starting the demo registration', error);
+    return { error: 'landing.demo.error' };
+  }
+  (await cookies()).set(REGISTER_CODE_COOKIE, code, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    path: '/register',
+    maxAge: 600,
+  });
+  redirect('/register');
 }
 
 // Register and Sign in with a phone (components/auth). Nobody is signed in yet, so the service role asks the database,
