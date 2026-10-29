@@ -11,7 +11,8 @@ and Bahasa Malaysia, with adjustable text size. Homes stay private: neighbours s
 never a unit number.
 
 **Live:** https://serumpun-six.vercel.app — tap **Try as Aisyah** on a phone, and **Try as Management Office** on a
-laptop for the dashboard.
+laptop for the dashboard. The live demo runs stage 1 of the household access card; stage 2 (register with a code from
+the office, family invites, moving the card to a new phone) is in this repo but not deployed.
 
 ## Screens to see
 

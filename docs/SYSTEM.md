@@ -312,7 +312,8 @@ residents then join it as they register).
   invited family there) and whoever holds her made-up number, +60 10-000 0025; deletes the card; puts the office's record
   back (Nur Iman, Owner, that number); and gives No. 25 a fresh code, which it hands to Register in a 10-minute httpOnly
   cookie, never the URL. The code is already filled in: confirm the home, read the SMS code off the screen (the number
-  can't receive one), choose a PIN, and Me shows No. 25 at "1 of 4".
+  can't receive one), choose a PIN, and Me shows No. 25 at "1 of 4". If a visitor registered her number on another home,
+  that Owner is deleted too, and their card stays behind empty ("0 of 4", and no new code) until the next reset.
 - **Each new private window is a new phone.** A browser makes its own key, so signing a resident in on a second browser
   (or a private window) asks to move the card, and the card waits there (§2, §6). Only the shared demo accounts, Aisyah
   and Daniel, let every browser join their one seeded phone.
@@ -423,7 +424,8 @@ demo data fills them too, but resets all the demo data, visitors' registrations 
   retired, so online readers refuse it at once).
 - **Someone who loses their phone and has no one to approve it waits for stage 5.** A new phone's card asks the old phone
   to move it, or the Owner or Co-owner to approve it in Household. When no one else on the card can approve (someone alone
-  on it, or an Owner with no checked Co-owner) the screen says "No one else can approve? Take your IC to the office."
+  on it, or an Owner with no checked Co-owner) that person follows the waiting note's last line, "No one else can approve?
+  Take your IC to the office.", which every waiting phone shows.
   The office has no tool for it yet: stage 5's recovery codes and changing the Owner or Co-owner are it.
 - **Screenshots and rooted or jailbroken phones can't be blocked** by a web app. Instead each tap is signed by the
   phone's own key and the fallback QR changes every 30 seconds, so a screenshot or a copied card is useless.
